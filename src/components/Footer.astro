@@ -1,0 +1,54 @@
+---
+
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <div class="logo-placeholder">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="2" y="2" width="12" height="28" stroke="currentColor" stroke-width="1.5" fill="none" />
+          <rect x="18" y="2" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" />
+          <rect x="18" y="18" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" />
+        </svg>
+        <span class="logo-text">Your Logo</span>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; 2026 Your Name</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 2px solid var(--border-color);
+    padding: 32px 24px;
+  }
+
+  .footer-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+  }
+
+  .logo-text {
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .footer-copy {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+</style>

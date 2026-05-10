@@ -1,0 +1,161 @@
+---
+export interface Props {
+  title: string
+  description: string
+  roles: string[]
+  slug: string
+  index: number
+  total: number
+}
+
+const { title, description, roles, slug, index, total } = Astro.props
+---
+
+<div class="work-card">
+  <div class="card-left">
+    <span class="card-counter">{String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}</span>
+    <h3 class="card-title">{title}</h3>
+    <p class="card-description">{description}</p>
+    <div class="card-roles">
+      {roles.map((role) => (
+        <span class="role-tag">{role}</span>
+      ))}
+    </div>
+  </div>
+  <div class="card-right">
+    <div class="card-image">
+      <div class="image-placeholder">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect x="4" y="8" width="40" height="32" rx="4" stroke="currentColor" stroke-width="1.5" fill="none" />
+          <circle cx="28" cy="22" r="6" stroke="currentColor" stroke-width="1.5" />
+          <path d="M8 36l10-10 8 8 6-6 8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span class="placeholder-label">Project image</span>
+      </div>
+    </div>
+    <a href={`/work/${slug}`} class="card-cta">
+      View project
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+  </div>
+</div>
+
+<style>
+  .work-card {
+    width: 75vw;
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 40px;
+    background: rgba(21, 23, 61, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: none;
+    border-radius: var(--radius);
+    padding: 40px;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+  }
+
+  .card-left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card-counter {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  .card-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .card-roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  .role-tag {
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+  }
+
+  .card-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card-image {
+    flex: 1;
+  }
+
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-muted);
+  }
+
+  .placeholder-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: var(--font-mono);
+  }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border: 1px solid var(--border-color);
+    align-self: flex-start;
+    transition: border-color 0.2s;
+  }
+
+  .card-cta:hover {
+    border-color: var(--text-muted);
+  }
+
+  @media (max-width: 768px) {
+    .work-card {
+      aspect-ratio: auto;
+      grid-template-columns: 1fr;
+      padding: 24px;
+      gap: 24px;
+    }
+  }
+</style>

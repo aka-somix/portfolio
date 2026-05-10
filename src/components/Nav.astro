@@ -1,0 +1,122 @@
+---
+const sections = [
+  { id: "services", label: "Services" },
+  { id: "work", label: "Work" },
+  { id: "contact", label: "Contact" },
+]
+---
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo" aria-label="Home">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect x="2" y="2" width="12" height="28" stroke="currentColor" stroke-width="1.5" fill="none" />
+        <rect x="18" y="2" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" />
+        <rect x="18" y="18" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" />
+      </svg>
+    </a>
+
+    <div class="nav-links">
+      {sections.map((section) => (
+        <a href={`#${section.id}`} class="nav-link" data-animate="nav-link">
+          <span data-nav-text>{section.label}</span>
+        </a>
+      ))}
+    </div>
+
+    <a href="#" class="nav-cta" data-animate="cta">
+      <span class="cta-inner">
+        <span data-cta-label>Let's meet</span>
+        <span data-cta-alt aria-hidden="true">Book now</span>
+      </span>
+    </a>
+  </div>
+</nav>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    height: var(--nav-height);
+  }
+
+  .nav-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    color: var(--text-primary);
+    transition: opacity 0.2s;
+  }
+
+  .nav-logo:hover {
+    opacity: 0.7;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .nav-link {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: color 0.2s;
+    overflow: hidden;
+    height: 1.2em;
+  }
+
+  .nav-link span {
+    display: block;
+  }
+
+  .nav-link:hover {
+    color: var(--text-primary);
+  }
+
+  .nav-cta {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 8px 20px;
+    overflow: hidden;
+    height: 36px;
+    transition: border-color 0.2s;
+  }
+
+  .nav-cta:hover {
+    border-color: var(--text-muted);
+  }
+
+  .cta-inner {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cta-inner span {
+    display: block;
+    line-height: 20px;
+  }
+
+  [data-cta-alt] {
+    color: var(--text-muted);
+  }
+</style>

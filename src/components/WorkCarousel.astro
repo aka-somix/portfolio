@@ -1,0 +1,157 @@
+---
+import WorkCard from "./WorkCard.astro"
+import { works } from "../data/work"
+---
+
+<section class="work" id="work" data-animate="section">
+  <div class="work-header">
+    <h2 class="section-label">Work</h2>
+    <span class="section-count">0{works.length}</span>
+  </div>
+
+  <div class="carousel-wrapper">
+    <div class="carousel-viewport" id="carousel-viewport">
+      <div class="carousel-track" id="carousel-track">
+        {works.map((work, i) => (
+          <WorkCard
+            title={work.title}
+            description={work.description}
+            roles={work.roles}
+            slug={work.slug}
+            index={i}
+            total={works.length}
+          />
+        ))}
+      </div>
+    </div>
+
+    <div class="carousel-controls">
+      <button class="carousel-arrow" id="carousel-prev" aria-label="Previous project">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+      <span class="carousel-indicator" id="carousel-indicator">01/{String(works.length).padStart(2, "0")}</span>
+      <button class="carousel-arrow" id="carousel-next" aria-label="Next project">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+  const track = document.getElementById("carousel-track")
+  const viewport = document.getElementById("carousel-viewport")
+  const prev = document.getElementById("carousel-prev")
+  const next = document.getElementById("carousel-next")
+  const indicator = document.getElementById("carousel-indicator")
+  const cards = track?.children
+
+  if (track && viewport && prev && next && indicator && cards) {
+    let current = 0
+    const total = cards.length
+
+    const update = () => {
+      const vw = viewport.offsetWidth
+      const cardW = vw * 0.75
+      const gap = vw * 0.15
+      const offset = (vw - cardW) / 2
+      track.style.transform = `translateX(${-current * (cardW + gap) + offset}px)`
+      indicator.textContent = `${String(current + 1).padStart(2, "0")}/${String(total).padStart(2, "0")}`
+    }
+
+    prev.addEventListener("click", () => {
+      if (current > 0) current--
+      else current = total - 1
+      update()
+    })
+
+    next.addEventListener("click", () => {
+      if (current < total - 1) current++
+      else current = 0
+      update()
+    })
+  }
+</script>
+
+<style>
+  .work {
+    padding: 100px 24px;
+  }
+
+  .work-header {
+    max-width: var(--max-width);
+    margin: 0 auto 40px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .section-count {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .carousel-wrapper {
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+
+  .carousel-viewport {
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--radius);
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 15vw;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  .carousel-arrow {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .carousel-arrow:hover {
+    border-color: var(--text-muted);
+    color: var(--text-primary);
+  }
+
+  .carousel-indicator {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-width: 50px;
+    text-align: center;
+  }
+</style>

@@ -1,0 +1,103 @@
+---
+export interface Props {
+  code: string
+  title: string
+  description: string
+}
+
+const { code, title, description } = Astro.props
+---
+
+<div class="service-card">
+  <div class="card-image">
+    <div class="image-placeholder">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="13" r="6" stroke="currentColor" stroke-width="1.2" />
+        <path d="M8 35c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="currentColor" stroke-width="1.2" />
+      </svg>
+    </div>
+  </div>
+  <span class="card-code">{code}</span>
+  <h3 class="card-title">{title}</h3>
+  <p class="card-description">{description}</p>
+</div>
+
+<style>
+  .service-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px 24px 24px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto 1fr;
+    gap: 8px 16px;
+    user-select: none;
+    transition: border-color var(--duration-fast);
+  }
+
+  .service-card:active {
+    cursor: grabbing;
+  }
+
+  .service-card:hover {
+    border-color: var(--border-light);
+  }
+
+  .card-image {
+    grid-row: 1 / -1;
+    grid-column: 1;
+    align-self: start;
+  }
+
+  .image-placeholder {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 2px dashed var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: var(--bg-surface);
+  }
+
+  .card-code {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    line-height: 1;
+  }
+
+  .card-title {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    align-self: center;
+    margin: 0;
+  }
+
+  .card-description {
+    grid-column: 2;
+    grid-row: 3;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+</style>

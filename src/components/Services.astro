@@ -1,0 +1,70 @@
+---
+import ServiceCard from "./ServiceCard.astro"
+import { services } from "../data/services"
+---
+
+<section class="services" id="services" data-animate="section">
+  <div class="services-header">
+    <h2 class="section-label">Services</h2>
+    <span class="section-count">0{services.length}</span>
+  </div>
+  <p class="services-hint">Drag to explore</p>
+  <div class="services-track-wrapper">
+    <div class="services-track" data-draggable>
+      {services.map((service) => (
+        <ServiceCard code={service.code} title={service.title} description={service.description} />
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .services {
+    padding: 100px 24px;
+  }
+
+  .services-header {
+    max-width: var(--max-width);
+    margin: 0 auto 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .section-count {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .services-hint {
+    max-width: var(--max-width);
+    margin: 0 auto 24px;
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .services-track-wrapper {
+    position: relative;
+    overflow: hidden;
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+
+  .services-track {
+    position: relative;
+    height: 180px;
+    width: 100%;
+  }
+</style>

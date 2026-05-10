@@ -1,0 +1,86 @@
+---
+
+---
+
+<section class="contact" id="contact" data-animate="section">
+  <div class="contact-inner">
+    <h2 class="contact-heading">Let's work together</h2>
+    <div class="contact-content">
+      <div class="contact-bio">
+        <p>
+          I'm a frontend engineer passionate about building performant,
+          accessible interfaces. With experience across modern frameworks
+          and design systems, I help teams ship quality software.
+        </p>
+      </div>
+      <div class="contact-email">
+        <span class="contact-label">Email</span>
+        <a href="mailto:hello@yourname.com" class="contact-link">
+          hello@yourname.com
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact {
+    padding: 100px 24px;
+  }
+
+  .contact-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+
+  .contact-heading {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 40px;
+  }
+
+  .contact-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+  }
+
+  .contact-bio p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 480px;
+  }
+
+  .contact-label {
+    display: block;
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .contact-link {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: var(--border-color);
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.2s;
+  }
+
+  .contact-link:hover {
+    text-decoration-color: var(--text-primary);
+  }
+
+  @media (max-width: 768px) {
+    .contact-content {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+</style>
