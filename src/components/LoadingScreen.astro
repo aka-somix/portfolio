@@ -1,0 +1,34 @@
+---
+---
+
+<div class="loading-screen" data-loading-screen id="loading-screen">
+  <svg viewBox="0 0 236 245" fill="none" xmlns="http://www.w3.org/2000/svg" class="loading-logo">
+    <rect data-loader-idx="0" x="1.5" y="1.5" width="229" height="47" fill="#EEA727" />
+    <rect data-loader-idx="1" x="1.5" y="66.5" width="61" height="47" fill="#EEA727" />
+    <rect data-loader-idx="2" x="87.5" y="91.5" width="147" height="22" fill="#F3F3F3" />
+    <rect data-loader-idx="3" x="1.5" y="131.5" width="147" height="22" fill="#EEA727" />
+    <rect data-loader-idx="4" x="173.5" y="131.5" width="61" height="47" fill="#F3F3F3" />
+    <rect data-loader-idx="5" x="1.5" y="196.5" width="233" height="47" fill="#F3F3F3" />
+  </svg>
+</div>
+
+<style>
+  .loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+  }
+
+  .loading-logo {
+    width: 180px;
+    height: auto;
+  }
+
+  [data-loader-idx] {
+    opacity: 0;
+  }
+</style>

@@ -1,5 +1,6 @@
 ---
 import { design } from "../design.config"
+import LoadingScreen from "../components/LoadingScreen.astro"
 
 export interface Props {
   title: string
@@ -47,8 +48,10 @@ const cssVars = `
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href={font.googleFontsUrl} rel="stylesheet" />
+    <style set:html={`:root {${cssVars}}`} is:global />
   </head>
   <body>
+    <LoadingScreen />
     <slot />
 
     <script>
@@ -237,11 +240,44 @@ const cssVars = `
           })
         }
       }
+
+      const loaderRects = gsap.utils.toArray("[data-loader-idx]").sort(
+        (a, b) => Number(a.dataset.loaderIdx) - Number(b.dataset.loaderIdx)
+      )
+      if (loaderRects.length) {
+        gsap.set(loaderRects, { opacity: 0 })
+        const tl = gsap.timeline({ repeat: -1 })
+        tl.to(loaderRects, {
+          opacity: 1,
+          duration: 0.4,
+          stagger: 0.12,
+          ease: "power2.inOut",
+        })
+          .to(loaderRects, {
+            opacity: 0,
+            duration: 0.4,
+            stagger: 0.12,
+            ease: "power2.inOut",
+          })
+      }
+
+      const loadingScreen = document.getElementById("loading-screen")
+      if (loadingScreen) {
+        window.addEventListener("load", () => {
+          gsap.to(loadingScreen, {
+            opacity: 0,
+            duration: 0.6,
+            ease: "power2.inOut",
+            onComplete: () => {
+              loadingScreen.style.display = "none"
+            },
+          })
+        })
+      }
     </script>
   </body>
 </html>
 
-<style set:html={`:root {${cssVars}}`} is:global />
 <style is:global>
   *,
   *::before,
