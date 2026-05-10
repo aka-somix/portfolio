@@ -2,8 +2,8 @@ export const design = {
   palette: {
     bg: {
       primary: "#15102f",
+      accent: "#85409D",
       surface: "#3e2c60",
-      card: "#85409D",
     },
     text: {
       primary: "#ffffff",

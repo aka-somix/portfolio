@@ -50,29 +50,18 @@ import { works } from "../data/work"
   const cards = track?.children
 
   if (track && viewport && prev && next && indicator && cards) {
-    let current = 0
-    const total = cards.length
+    let i = 0
+    const n = cards.length
 
-    const update = () => {
-      const vw = viewport.offsetWidth
-      const cardW = vw * 0.75
-      const gap = vw * 0.15
-      const offset = (vw - cardW) / 2
-      track.style.transform = `translateX(${-current * (cardW + gap) + offset}px)`
-      indicator.textContent = `${String(current + 1).padStart(2, "0")}/${String(total).padStart(2, "0")}`
+    const slide = () => {
+      const cardW = cards[0].offsetWidth
+      track.style.transform = `translateX(${(viewport.offsetWidth - cardW) / 2 - i * cardW * 1.2}px)`
+      indicator.textContent = `${String(i + 1).padStart(2, "0")}/${String(n).padStart(2, "0")}`
     }
 
-    prev.addEventListener("click", () => {
-      if (current > 0) current--
-      else current = total - 1
-      update()
-    })
-
-    next.addEventListener("click", () => {
-      if (current < total - 1) current++
-      else current = 0
-      update()
-    })
+    prev.onclick = () => { i = (i - 1 + n) % n; slide() }
+    next.onclick = () => { i = (i + 1) % n; slide() }
+    slide()
   }
 </script>
 
