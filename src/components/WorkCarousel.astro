@@ -42,6 +42,10 @@ import { works } from "../data/work"
 </section>
 
 <script>
+  import { gsap } from "gsap"
+  import { ScrollTrigger } from "gsap/ScrollTrigger"
+  gsap.registerPlugin(ScrollTrigger)
+
   const track = document.getElementById("carousel-track")
   const viewport = document.getElementById("carousel-viewport")
   const prev = document.getElementById("carousel-prev")
@@ -53,15 +57,39 @@ import { works } from "../data/work"
     let i = 0
     const n = cards.length
 
-    const slide = () => {
-      const cardW = cards[0].offsetWidth
+    function animateCardText(card: Element) {
+      const targets = [
+        card.querySelector(".card-counter"),
+        card.querySelector(".card-title"),
+        card.querySelector(".card-description"),
+        card.querySelector(".card-roles"),
+      ].filter(Boolean)
+
+      gsap.fromTo(
+        targets,
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: "power2.out", delay: 0.15 }
+      )
+    }
+
+    const slide = (animateText = true) => {
+      const cardW = (cards[0] as HTMLElement).offsetWidth
       track.style.transform = `translateX(${(viewport.offsetWidth - cardW) / 2 - i * cardW * 1.2}px)`
       indicator.textContent = `${String(i + 1).padStart(2, "0")}/${String(n).padStart(2, "0")}`
+      if (animateText) animateCardText(cards[i])
     }
 
     prev.onclick = () => { i = (i - 1 + n) % n; slide() }
     next.onclick = () => { i = (i + 1) % n; slide() }
-    slide()
+
+    slide(false)
+
+    ScrollTrigger.create({
+      trigger: document.querySelector(".work"),
+      start: "top 75%",
+      once: true,
+      onEnter: () => animateCardText(cards[0]),
+    })
   }
 </script>
 

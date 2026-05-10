@@ -3,14 +3,14 @@ import ServiceCard from "./ServiceCard.astro"
 import { services } from "../data/services"
 ---
 
-<section class="services" id="services" data-animate="section">
-  <div class="services-header">
+<section class="services" id="services" data-services-section>
+  <div class="services-header" data-services-header>
     <h2 class="section-label">Services</h2>
     <span class="section-count">0{services.length}</span>
   </div>
-  <p class="services-hint">Drag to explore</p>
+  <p class="services-hint" data-services-header>Drag to explore</p>
   <div class="services-track-wrapper">
-    <div class="services-track" data-draggable>
+    <div class="services-track" data-services-track>
       {services.map((service) => (
         <ServiceCard code={service.code} title={service.title} description={service.description} />
       ))}
@@ -21,6 +21,7 @@ import { services } from "../data/services"
 <style>
   .services {
     padding: 100px 24px;
+    overflow-x: clip;
   }
 
   .services-header {
@@ -57,14 +58,14 @@ import { services } from "../data/services"
 
   .services-track-wrapper {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     max-width: var(--max-width);
     margin: 0 auto;
   }
 
   .services-track {
     position: relative;
-    height: 180px;
+    min-height: 215px;
     width: 100%;
   }
 </style>

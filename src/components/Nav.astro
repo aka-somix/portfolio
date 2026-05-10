@@ -28,10 +28,8 @@ const sections = [
     </div>
 
     <a href="#" class="nav-cta" data-animate="cta">
-      <span class="cta-inner">
-        <span data-cta-label>Let's meet</span>
-        <span data-cta-alt aria-hidden="true">Book now</span>
-      </span>
+      <span data-cta-label>Let's meet</span>
+      <span data-cta-alt aria-hidden="true">Book now</span>
     </a>
   </div>
 </nav>
@@ -98,28 +96,43 @@ const sections = [
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--text-primary);
+    background: transparent;
     border: 1px solid var(--border-color);
-    padding: 8px 20px;
-    overflow: hidden;
-    height: 36px;
-    transition: border-color 0.2s;
+    padding: 8px 12px;
+    position: relative;
+    transition: background 0.2s, border-color 0.2s;
   }
 
   .nav-cta:hover {
-    border-color: var(--text-muted);
+    background: var(--accent);
+    border-color: var(--accent);
   }
 
-  .cta-inner {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .cta-inner span {
+  [data-cta-label] {
     display: block;
-    line-height: 20px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .nav-cta:hover [data-cta-label] {
+    opacity: 0;
+    transform: translateY(-6px);
   }
 
   [data-cta-alt] {
-    color: var(--text-muted);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .nav-cta:hover [data-cta-alt] {
+    opacity: 1;
+    transform: translateY(0);
   }
 </style>
