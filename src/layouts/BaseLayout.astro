@@ -138,40 +138,42 @@ const cssVars = `
       const DN = deckCards.length
 
       if (servicesTrack && servicesWrapper && DN) {
-        const SLOT = 324
+        const SLOT = 384
         // Push stack so card is half off the left edge of the viewport
-        const STACK_LEFT = -(servicesWrapper.getBoundingClientRect().left + 150)
+        const STACK_LEFT = -(servicesWrapper.getBoundingClientRect().left + 180)
         const STACK_OFF_X = 6
         const STACK_OFF_Y = 3
         const STACK_ROT = -0.5
         const clamp = gsap.utils.clamp
         const lerp = gsap.utils.interpolate
         let currentProgress = 0
+        const baseRots = deckCards.map((_, i) => (i - (DN - 1) / 2) * 1.5)
 
         function layout(p: number) {
           const prog = clamp(0, DN - 1, p)
           currentProgress = prog
           deckCards.forEach((card, i) => {
             const depth = Math.max(0, prog - i)
+            const baseRot = baseRots[i]
             if (depth >= 1) {
               gsap.set(card, {
                 x: STACK_LEFT + i * STACK_OFF_X,
                 y: i * STACK_OFF_Y,
-                rotation: i * STACK_ROT,
+                rotation: baseRot + i * STACK_ROT,
                 zIndex: i,
               })
             } else if (depth <= 0) {
               gsap.set(card, {
                 x: (i - prog) * SLOT,
                 y: 0,
-                rotation: 0,
+                rotation: baseRot,
                 zIndex: DN + 1,
               })
             } else {
               gsap.set(card, {
                 x: lerp((i - prog) * SLOT, STACK_LEFT + i * STACK_OFF_X, depth),
                 y: lerp(0, i * STACK_OFF_Y, depth),
-                rotation: lerp(0, i * STACK_ROT, depth),
+                rotation: lerp(baseRot, baseRot + i * STACK_ROT, depth),
                 zIndex: DN + 1,
               })
             }

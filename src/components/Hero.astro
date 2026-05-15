@@ -3,6 +3,7 @@
 ---
 
 <section class="hero" id="hero">
+  <div class="hero-soundwaves" aria-hidden="true"></div>
   <div class="hero-empty"></div>
   <div class="hero-image-col" data-animate="hero-bg">
     <img src="/images/Hero.png" alt="" />
@@ -14,7 +15,7 @@
       I'm <strong>Salvatore</strong> — a Software Engineer crafting
       performant, accessible digital experiences.
     </p>
-    <p class="hero-tagline" data-animate="hero-text">Based in Italy; Traveling the World</p>
+    <p class="hero-tagline" data-animate="hero-text">Based in Italy; Living around the World</p>
   </div>
 </section>
 
@@ -54,7 +55,7 @@
     width: 38%;
     padding: 44px 40px;
     background: rgba(21, 23, 61, 0.55);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(12px);
     border: none;
     border-radius: var(--radius);
@@ -131,4 +132,179 @@
       max-width: 100%;
     }
   }
+
+  .hero-soundwaves {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .hero-soundwaves svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .hero-image-col {
+    z-index: 1;
+  }
+
+  .hero-card {
+    z-index: 2;
+  }
 </style>
+
+<script>
+import { gsap } from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+const container = document.querySelector(".hero-soundwaves")
+if (container) {
+  const NS = "http://www.w3.org/2000/svg"
+  const accent =
+    getComputedStyle(document.documentElement)
+      .getPropertyValue("--bg-accent")
+      .trim() || "#85409D"
+
+  const svg = document.createElementNS(NS, "svg")
+  svg.style.display = "block"
+  svg.style.width = "100%"
+  svg.style.height = "100%"
+  svg.setAttribute("preserveAspectRatio", "none")
+  container.appendChild(svg)
+
+  const defs = document.createElementNS(NS, "defs")
+  const grad = document.createElementNS(NS, "linearGradient")
+  grad.id = "wave-fade"
+  grad.setAttribute("gradientUnits", "objectBoundingBox")
+  grad.setAttribute("x1", "0")
+  grad.setAttribute("x2", "1")
+  grad.setAttribute("y1", "0")
+  grad.setAttribute("y2", "0")
+  ;[
+    [0, 0],
+    [8, 1],
+    [92, 1],
+    [100, 0],
+  ].forEach(function (stop) {
+    var s = document.createElementNS(NS, "stop")
+    s.setAttribute("offset", stop[0] + "%")
+    s.setAttribute("stop-color", accent)
+    s.setAttribute("stop-opacity", String(stop[1]))
+    grad.appendChild(s)
+  })
+  defs.appendChild(grad)
+  svg.appendChild(defs)
+
+  var WAVE_COUNT = 7
+  var waves = []
+
+  function setup(w, h) {
+    svg.setAttribute("viewBox", "0 0 " + w + " " + h)
+    waves.forEach(function (wv) { wv.el.remove() })
+    waves.length = 0
+    for (var i = 0; i < WAVE_COUNT; i++) {
+      var t = i / (WAVE_COUNT - 1)
+      var baseY = (h / (WAVE_COUNT + 1)) * (i + 1)
+      var amp = 15 + Math.random() * 50
+      var freq = 0.002 + t * 0.005
+      var phase = i / WAVE_COUNT * Math.PI * 2
+      var speed = 0.5 + Math.random() * 1.0
+      var baseWidth = 1 + Math.random() * 3
+      var opacity = 0.3 + Math.random() * 0.6
+
+      var el = document.createElementNS(NS, "path")
+      el.setAttribute("stroke", "url(#wave-fade)")
+      el.setAttribute("stroke-width", String(baseWidth))
+      el.setAttribute("fill", "none")
+      el.setAttribute("stroke-linecap", "round")
+      el.setAttribute("stroke-opacity", String(opacity))
+      svg.appendChild(el)
+      waves.push({ el: el, baseY: baseY, amp: amp, freq: freq, phase: phase, speed: speed, baseWidth: baseWidth, opacity: opacity })
+    }
+  }
+
+  function draw(t, ampMult, freqMult) {
+    var ww = window.innerWidth
+    var step = Math.max(2, ww / 400)
+    var am = ampMult || 1
+    var fm = freqMult || 1
+    for (var i = 0; i < waves.length; i++) {
+      var wave = waves[i]
+      var a = wave.amp * am
+      var f = wave.freq * fm
+      var s = wave.speed || 1
+      var d = "M 0," + (wave.baseY + Math.sin(wave.phase - t * s) * a).toFixed(1)
+      for (var x = step; x <= ww; x += step) {
+        var y = wave.baseY + Math.sin(x * f + wave.phase - t * s) * a
+        d += " L " + x.toFixed(1) + "," + y.toFixed(1)
+      }
+      wave.el.setAttribute("d", d)
+    }
+  }
+
+  ;(function () {
+    var r = container.getBoundingClientRect()
+    setup(r.width || window.innerWidth, r.height || window.innerHeight)
+  })()
+
+  let resizeTimer
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer)
+    resizeTimer = setTimeout(function () {
+      var r = container.getBoundingClientRect()
+      setup(r.width, r.height)
+    }, 150)
+  })
+
+  let proxy = { t: 0 }
+  let ampMult = 1
+  let smoothAmp = 1
+  let freqMult = 1
+  let smoothFreq = 1
+
+  let waveTween = gsap.to(proxy, {
+    t: Math.PI * 2,
+    duration: 6,
+    ease: "none",
+    repeat: -1,
+    onUpdate: function () {
+      draw(proxy.t, ampMult, freqMult)
+    },
+  })
+
+  let scrollVel = 0
+
+  gsap.ticker.add(function () {
+    let energy = 0.5 + scrollVel * 0.0002
+    waveTween.timeScale(gsap.utils.clamp(0.8, 4.5, energy))
+
+    let targetAmp = gsap.utils.clamp(1, 1.35, energy)
+    smoothAmp += (targetAmp - smoothAmp) * 0.12
+    ampMult = smoothAmp
+
+    let targetFreq = gsap.utils.clamp(1, 5, 1 + scrollVel * 0.00025)
+    smoothFreq += (targetFreq - smoothFreq) * 0.1
+    freqMult = smoothFreq
+
+    scrollVel *= 0.88
+  })
+
+  ScrollTrigger.create({
+    trigger: document.body,
+    start: "top top",
+    end: "bottom bottom",
+    onUpdate: function (self) {
+      let p = self.progress
+      scrollVel = Math.abs(self.getVelocity())
+      for (let i = 0; i < waves.length; i++) {
+        let w = waves[i]
+        w.el.setAttribute("stroke-width", String(w.baseWidth * (1 + p * 2.5)))
+        w.el.setAttribute("stroke-opacity", String(Math.min(1, w.opacity * (1 + p * 0.5))))
+      }
+    },
+  })
+}
+</script>
