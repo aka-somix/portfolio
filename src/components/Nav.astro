@@ -27,6 +27,15 @@ const sections = [
       ))}
     </div>
 
+    <div class="nav-socials">
+      <a href="https://www.linkedin.com/in/salvatore-cirone-it/" target="_blank" class="nav-social" aria-label="LinkedIn" rel="noopener noreferrer">
+        <img src="/images/social/linkedin.svg" alt="" width="20" height="20" />
+      </a>
+      <a href="https://github.com/aka-somix" target="_blank" class="nav-social" aria-label="GitHub" rel="noopener noreferrer">
+        <img src="/images/social/github.svg" alt="" width="20" height="20" />
+      </a>
+    </div>
+
     <a href="#" class="nav-cta" data-animate="cta">
       <span data-cta-label>Let's meet</span>
       <span data-cta-alt aria-hidden="true">Book now</span>
@@ -68,9 +77,7 @@ const sections = [
   .nav-links {
     display: flex;
     gap: 32px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    margin-left: 48px;
   }
 
   .nav-link {
@@ -89,6 +96,27 @@ const sections = [
 
   .nav-link:hover {
     color: var(--text-primary);
+  }
+
+  .nav-socials {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    margin-left: auto;
+    margin-right: 1.5rem;
+  }
+
+  .nav-social {
+    display: flex;
+    align-items: center;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    line-height: 0;
+  }
+
+
+  .nav-social:hover {
+    opacity: 1;
   }
 
   .nav-cta {

@@ -28,7 +28,7 @@ export const design = {
   },
   layout: {
     navHeight: "64px",
-    maxWidth: "1200px",
+    maxWidth: "2000px",
     borderRadius: "8px",
     borderRadiusSm: "4px",
   },
