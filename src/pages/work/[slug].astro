@@ -1,4 +1,6 @@
 ---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+
 export async function getStaticPaths() {
   const { works } = await import("../../data/work")
   return works.map((work) => ({
@@ -18,47 +20,23 @@ export interface Props {
 const { work } = Astro.props
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>{work.title} — Portfolio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="page">
-      <a href="/" class="back-link">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M10 4l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        Back
-      </a>
-      <h1 class="page-title">{work.title}</h1>
-      <p class="page-description">{work.description}</p>
-      <div class="page-placeholder">
-        <span>Project detail coming soon</span>
-      </div>
+<BaseLayout title={`${work.title} | Salvatore Cirone`} description={work.description}>
+  <div class="page">
+    <a href="/" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M10 4l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      Back
+    </a>
+    <h1>{work.title}</h1>
+    <p>{work.description}</p>
+    <div class="page-placeholder">
+      <span>Project detail coming soon</span>
     </div>
-  </body>
-</html>
+  </div>
+</BaseLayout>
 
 <style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    font-family: "Inter", system-ui, sans-serif;
-    background: #0a0a0a;
-    color: #e8e8e8;
-    -webkit-font-smoothing: antialiased;
-  }
-
   .page {
     max-width: 800px;
     margin: 0 auto;
@@ -70,44 +48,44 @@ const { work } = Astro.props
     align-items: center;
     gap: 6px;
     font-size: 0.8rem;
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 40px;
     transition: color 0.2s;
   }
 
   .back-link:hover {
-    color: #e8e8e8;
+    color: var(--text-primary);
   }
 
-  .page-title {
+  .page :global(h1) {
     font-size: 2.5rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     margin-bottom: 16px;
   }
 
-  .page-description {
+  .page p {
     font-size: 1rem;
-    color: #a0a0a0;
+    color: var(--text-secondary);
     line-height: 1.7;
     margin-bottom: 60px;
     max-width: 600px;
   }
 
   .page-placeholder {
-    border: 2px dashed #222;
+    border: 2px dashed var(--border-color);
     border-radius: 8px;
     padding: 80px 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--font-mono);
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #666;
+    color: var(--text-muted);
   }
 </style>

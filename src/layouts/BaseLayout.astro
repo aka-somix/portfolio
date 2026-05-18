@@ -4,7 +4,7 @@ import LoadingScreen from "../components/LoadingScreen.astro"
 
 export interface Props {
   title: string
-  description?: string
+  description: string
 }
 
 const { title, description } = Astro.props
@@ -31,6 +31,34 @@ const cssVars = `
   --duration-normal: ${animation.durationNormal};
   --duration-slow: ${animation.durationSlow};
 `
+
+const siteUrl = "https://about.salvatorecirone.dev"
+const ogImage = "/images/og/v1.png"
+const siteName = "Salvatore Cirone"
+
+const jsonLdPerson = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Salvatore Cirone",
+  "givenName": "Salvatore",
+  "familyName": "Cirone",
+  "jobTitle": "Senior Backend Engineer",
+  "description": "Tech nomad turning complex cloud and AI challenges into elegant realities.",
+  "url": siteUrl,
+  "sameAs": [
+    "https://www.linkedin.com/in/salvatore-cirone-it/",
+    "https://github.com/aka-somix"
+  ],
+  "knowsAbout": ["AWS", "Cloud Architecture", "AI/ML", "Node.js", "Python", "Backend Engineering"],
+  "image": `${siteUrl}${ogImage}`
+}
+
+const jsonLdWebsite = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": siteName,
+  "url": siteUrl
+}
 ---
 
 <!doctype html>
@@ -39,11 +67,29 @@ const cssVars = `
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={description ?? "Portfolio"} />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="generator" content={Astro.generator} />
+
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, siteUrl).href} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={new URL(Astro.url.pathname, siteUrl).href} />
+    <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content={siteName} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLdPerson)} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLdWebsite)} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -51,8 +97,11 @@ const cssVars = `
     <style set:html={`:root {${cssVars}}`} is:global />
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <LoadingScreen />
-    <slot />
+    <div id="main-content">
+      <slot />
+    </div>
 
     <script>
       import { gsap } from "gsap"
@@ -60,38 +109,60 @@ const cssVars = `
 
       gsap.registerPlugin(ScrollTrigger)
 
-      const heroBg = document.querySelector("[data-animate='hero-bg']")
-      if (heroBg) {
-        gsap.from(heroBg, { opacity: 0, duration: 1, ease: "power2.out" })
-      }
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-      const heroTexts = document.querySelectorAll("[data-animate='hero-text']")
-      if (heroTexts.length) {
-        gsap.from(heroTexts, {
-          y: 30,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.12,
-          ease: "power3.out",
-        })
-      }
+      if (!reduceMotion) {
+        const heroBg = document.querySelector("[data-animate='hero-bg']")
+        if (heroBg) {
+          gsap.from(heroBg, { opacity: 0, duration: 1, ease: "power2.out" })
+        }
 
-      const sections = document.querySelectorAll("[data-animate='section']")
-      sections.forEach((section) => {
-        ScrollTrigger.create({
-          trigger: section,
-          start: "top 85%",
-          onEnter: () => {
-            gsap.from(section.children, {
-              y: 30,
-              opacity: 0,
-              duration: 0.6,
-              stagger: 0.1,
-              ease: "power2.out",
-            })
-          },
+        const heroTexts = document.querySelectorAll("[data-animate='hero-text']")
+        if (heroTexts.length) {
+          gsap.from(heroTexts, {
+            y: 30,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.12,
+            ease: "power3.out",
+          })
+        }
+
+        const sections = document.querySelectorAll("[data-animate='section']")
+        sections.forEach((section) => {
+          ScrollTrigger.create({
+            trigger: section,
+            start: "top 85%",
+            onEnter: () => {
+              gsap.from(section.children, {
+                y: 30,
+                opacity: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: "power2.out",
+              })
+            },
+          })
         })
-      })
+
+        // Services header stagger
+        const servicesHeaderEls = document.querySelectorAll("[data-services-header]")
+        if (servicesHeaderEls.length) {
+          ScrollTrigger.create({
+            trigger: document.querySelector("[data-services-section]"),
+            start: "top 85%",
+            onEnter: () => {
+              gsap.from(servicesHeaderEls, {
+                y: 30,
+                opacity: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: "power2.out",
+              })
+            },
+          })
+        }
+      }
 
       const navLinks = document.querySelectorAll("[data-animate='nav-link']")
       navLinks.forEach((link) => {
@@ -110,24 +181,6 @@ const cssVars = `
           }
         })
       })
-
-      // Services header stagger
-      const servicesHeaderEls = document.querySelectorAll("[data-services-header]")
-      if (servicesHeaderEls.length) {
-        ScrollTrigger.create({
-          trigger: document.querySelector("[data-services-section]"),
-          start: "top 85%",
-          onEnter: () => {
-            gsap.from(servicesHeaderEls, {
-              y: 30,
-              opacity: 0,
-              duration: 0.6,
-              stagger: 0.1,
-              ease: "power2.out",
-            })
-          },
-        })
-      }
 
       // Services drag deck animation
       const servicesTrack = document.querySelector("[data-services-track]")
@@ -311,6 +364,24 @@ const cssVars = `
   img {
     max-width: 100%;
     display: block;
+  }
+
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 8px;
+    z-index: 1000;
+    padding: 8px 16px;
+    background: var(--accent);
+    color: var(--bg-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    transition: top 0.2s;
+  }
+
+  .skip-link:focus {
+    top: 0;
   }
 
   section[id] {

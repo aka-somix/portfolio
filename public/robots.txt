@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://about.salvatorecirone.dev/sitemap-index.xml

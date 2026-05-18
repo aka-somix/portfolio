@@ -12,7 +12,7 @@ import { services } from "../data/services"
   <div class="services-track-wrapper">
     <div class="services-track" data-services-track>
       {services.map((service) => (
-        <ServiceCard image={service.image} title={service.title} description={service.description} />
+        <ServiceCard image={service.image} title={service.title} description={service.description} imageAlt={service.imageAlt} />
       ))}
     </div>
   </div>

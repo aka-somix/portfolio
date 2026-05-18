@@ -3,16 +3,17 @@ export interface Props {
   image: string
   title: string
   description: string
+  imageAlt: string
 }
 
-const { image, title, description } = Astro.props
+const { image, title, description, imageAlt } = Astro.props
 
 const bits = Array.from({ length: 32 }, () => Math.random() > 0.5)
 ---
 
 <div class="service-card">
   <div class="card-top-row">
-    <img class="card-image" src={image} alt="" />
+    <img class="card-image" src={image} alt={imageAlt} loading="lazy" />
     <div class="card-barcode">
       {bits.map((bit) => (
         <span class:list={{ bar: true, "bar-1": bit }} />

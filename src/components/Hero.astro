@@ -198,9 +198,9 @@ if (container) {
   svg.appendChild(defs)
 
   var WAVE_COUNT = 7
-  var waves = []
+  var waves: any[] = []
 
-  function setup(w, h) {
+  function setup(w: any, h: any) {
     svg.setAttribute("viewBox", "0 0 " + w + " " + h)
     waves.forEach(function (wv) { wv.el.remove() })
     waves.length = 0
@@ -225,7 +225,7 @@ if (container) {
     }
   }
 
-  function draw(t, ampMult, freqMult) {
+  function draw(t: any, ampMult: any, freqMult: any) {
     var ww = window.innerWidth
     var step = Math.max(2, ww / 400)
     var am = ampMult || 1
@@ -249,7 +249,7 @@ if (container) {
     setup(r.width || window.innerWidth, r.height || window.innerHeight)
   })()
 
-  let resizeTimer
+  let resizeTimer: any
   window.addEventListener("resize", function () {
     clearTimeout(resizeTimer)
     resizeTimer = setTimeout(function () {
