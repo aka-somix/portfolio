@@ -1,52 +1,52 @@
-# DESIGN.md — daveholloway.uk
-> Design document extracted from [daveholloway.uk](https://daveholloway.uk/)  
-> Author: Dave Holloway — Full-Stack Freelance Designer, Creative Developer & Strategist, Leeds (UK)  
-> Built with: Astro v5 (with View Transitions)
+# DESIGN.md — Salvatore Cirone Portfolio
+> Author: Salvatore Cirone — Senior Backend Engineer & AWS Architect  
+> Built with: Astro v6 (static, no SSR)
 
 ---
 
 ## 1. Overview & Aesthetic Direction
 
-The site is a **dark, editorial-brutalist portfolio** with a strong industrial/utilitarian edge softened by fluid animations and expressive motion. The overall tone sits between:
+A **dark, tech-forward portfolio** with a purple/night palette punctuated by gold accents and fluid motion. The tone balances:
 
-- **Editorial magazine** — dense, structured information grids with coded labels and alphanumeric markers
-- **Industrial brutalism** — raw uppercase labelling, functional tags, arrow iconography
-- **Hi-fi minimalism** — dark background, restrained palette, generous white space
+- **Editorial clarity** — structured sections with clear hierarchy, monospaced labels, alphanumeric counters
+- **Industrial tech** — uppercase functional labels, barcode decorative elements, monospaced detail text
+- **Warm minimalism** — dark purple background, generous whitespace, accent-driven contrast
 
-The single-page design scrolls through anchored sections: `#work`, `#services`, `#about`, `#contact`, plus a separate `/lab` route.
+Single-page scroll: hero → services → work → contact → footer, plus `/work/[slug]` project detail pages.
 
 ---
 
 ## 2. Colour Palette
 
-| Role | Description |
+| Role | Value |
 |---|---|
-| Background | Very dark (near-black) — likely `#0a0a0a` or `#0d0d0d` |
-| Surface / Cards | Slightly lifted dark surface — ~`#111` or `#141414` |
-| Primary Text | Off-white / light grey — ~`#e8e8e8` or `#f0f0f0` |
-| Accent / Highlight | Likely a sharp warm neutral or a single pop colour (to be verified from source CSS) |
-| Tag/Label Text | Muted uppercase grey — ~`#666` or `#888` |
-| Borders/Dividers | Thin, low-contrast lines — ~`#222` or `#2a2a2a` |
+| Background (`--bg-primary`) | `#15102f` — deep purple-night |
+| Surface (`--bg-surface`) | `#3e2c60` — lifted purple |
+| Accent BG (`--bg-accent`) | `#85409D` — vibrant purple |
+| Primary Text | `#ffffff` — white |
+| Secondary Text | `#d4d4d4` — light grey |
+| Muted / Gold Accent | `#EEA727` — warm gold |
+| Border | `#ffffff` (default), `#cccccc` (light) |
 
-The palette is **dominant dark with sharp, minimal accents**. No gradients or colour washes. The contrast is achieved through spatial organisation rather than colour variety.
+The palette is **deep purple dominant with gold accents**. Contrast is driven by luminance jumps (white on purple) rather than pure dark/light extremes.
 
 ---
 
 ## 3. Typography
 
-| Role | Characteristics |
-|---|---|
-| Display / Hero | Large, bold, possibly a geometric sans or condensed display font. The word "Hey!" uses a standout weight/style. |
-| Navigation | Uppercase, tight-tracked, small — functional and label-like |
-| Section Headings (`## Work`, `## Services`, etc.) | All-caps or sentence case with significant weight contrast |
-| Body Copy | Smaller, readable weight — clean and editorial |
-| Labels / Tags | Monospaced or near-mono impression; all caps; used for service codes like `WEB`, `DEV`, `STR`, `BRD`, `GFK`, `MOT`, `ILL`, `CRD` |
-| Alphanumeric Codes | Technical-looking date/number strings (e.g. `06-20-12`, `02-20-03`) — monospaced feel |
+| Role | Font | Weight |
+|---|---|---|
+| Display (hero heading, section labels) | Inter | 800 (extra bold) |
+| Card titles, subheadings | Inter | 600–700 (semi-bold / bold) |
+| Body copy | Inter | 400 (regular) |
+| Labels, counters, metadata | JetBrains Mono | 400–500 |
+| Nav links, CTA | Inter | 400 (uppercase, letter-spaced) |
 
 **Key typographic moves:**
-- Service cards display dual-label codes (e.g. `WIR → PRO`, `FRO → BCK`) with a long arrow `→`, indicating a process or range
-- Client abbreviations appear as 3-letter codes (`SVF`, `CBS`, `KSG`, `NHS`, etc.) — like ticker symbols
-- Counter/pagination style: `1/12`, `2/12`, ... `12/12`
+- Section labels use large bold Inter with tight letter-spacing (`-0.03em`)
+- Monospaced counters follow `01/01` pattern for work carousel, `04` for services count
+- Role tags are uppercase monospaced with border (e.g. `ARCHITECTURE`, `BACKEND`, `AWS`)
+- Nav links are uppercase `0.75rem` with `0.12em` letter-spacing
 
 ---
 
@@ -54,126 +54,113 @@ The palette is **dominant dark with sharp, minimal accents**. No gradients or co
 
 ### Global Layout
 - Full-width, single-column scroll
-- Anchored sections with `id` hooks (`#work`, `#services`, `#about`, `#contact`)
-- Sticky or fixed navigation bar at the top
-- View Transitions enabled via Astro (`meta-astro-view-transitions-enabled: true`)
+- Anchored sections with `id` hooks (`#services`, `#work`, `#contact`)
+- Fixed navigation bar at top (`--nav-height: 64px`)
+- Max inner width: `2000px`
 
 ### Navigation
 ```
-[Logo SVG]   [Work]  [Services]  [About]  [Contact]  [Lab]   [Let's talk →]
+[Logo SVG]   [Services]  [Work]  [Contact]   [LinkedIn] [GitHub]   [Let's meet ▸]
 ```
-- Logo: SVG (`/dh-logo.svg`) — left-aligned
-- Nav items duplicated in DOM (likely for animation/split-text effect)
-- CTA button: `Let's talk` with secondary label `Fun Stuff` (toggle/hover state)
-- Link to external Calendly booking
+- Logo: Inline SVG (abstract geometric rect composition) — left-aligned
+- 3 nav links (Services, Work, Contact) — right-aligned before socials
+- Social icons (LinkedIn, GitHub SVG) — muted opacity, hover to full
+- CTA button: "Let's meet" with secondary label "Book now" (CSS flip on hover)
 
 ### Hero Section
-- Minimal: single `<h1>` — "Hey!"
-- Short paragraph introduction (name, role, location)
-- Animate in on load — likely GSAP-driven stagger
-
-### Work Section (`#work`)
-12-item project grid/carousel. Each card contains:
-```
-[3-letter client code]   CLIENT (label)
-[Project Name]           (heading)
-[Tag ▼] [Tag ▼] [Tag ▼]  (service tags with down-arrow icons)
-[/work/slug]             (path link)
-[N/12]                   (counter)
-```
-- Background: `langbar-bg.svg` — a decorative SVG landscape/topographic element between sections
+- Full-viewport height split layout: 48% left empty, 52% right image column
+- Image column: hero portrait (`/images/Hero.png`), bottom-right aligned, `object-fit: contain`
+- **Soundwave animation**: 7 dynamically-generated SVG sine waves behind hero content, amplitude/frequency responsive to scroll velocity
+- Overlaid card (bottom-left, 38% width):
+  - `background: rgba(21, 23, 61, 0.55)` with `backdrop-filter: blur(4px)`
+  - "Ciao!" heading (Inter 800, `clamp(3.5rem, 8vw, 6.5rem)`)
+  - 3px gold accent divider
+  - Introduction paragraph + tagline in monospaced uppercase
 
 ### Services Section (`#services`)
-8 service cards in a grid. Each card:
-```
-[SERVICE CODE]  (e.g. WEB, DEV, STR...)
-[Date code]     (e.g. 06-20-12)
-SERVICE (label)
-[Service Name]  (heading)
-[▲ Tag] [▲ Tag] [▲ Tag] [▲ Tag]   (top row — "up" tags)
-[▼ Tag] [▼ Tag] [▼ Tag] [▼ Tag]   (bottom row — "down" tags)
-[CODE] —————————→ [CODE]           (spectrum/range label with long arrow)
-```
-The triangle icons (`triangle-up.svg`, `triangle-down.svg`) indicate hierarchy or direction within each capability.
+- Header: "Services" (large section label) + counter `04`
+- Hint text: "Drag to explore" in monospaced uppercase
+- **Draggable card deck**: 4 cards positioned absolutely in a track, controlled by pointer drag with GSAP
+  - Cards snap to nearest slot on release
+  - Stack left when pushed past the last card (layered with offset x/y/rotation)
+- Each card (360×200px, glassmorphism surface):
+  - Circular avatar image (56×56px, `border-radius: 50%`)
+  - Randomized barcode decoration (32-bit visual pattern)
+  - Title + description text
 
-### About Section (`#about`)
-Two-column layout:
-- **Left/BIO**: Two paragraphs of biography
-- **Right/Roster**: Bullet list of notable clients (Kantar, NHS England, Mother London, etc.)
-
-Below: scrolling ticker of **awards** (marquee/infinite scroll):
-```
-FWA FOTD x2 · Awwwards HM x4 · CSS Design Awards SOTD x1 & SK x4 · ...
-```
-(Content duplicated for seamless loop)
-
-Also contains a scoreboard-style element:
-```
-HOME 0  -  AWAY 0
-```
-(Likely a fun interactive easter egg or decorative counter)
+### Work Section (`#work`)
+- Header: "Work Chapters" + counter `01`
+- **Horizontal carousel** with arrow navigation and `01/01` monospaced indicator
+- Cards are 75vw wide, 3/2 aspect ratio, two-column grid:
+  - **Left**: counter (`01/01`), title, description, role tags (bordered monospaced pills)
+  - **Right**: placeholder image SVG + "Look inside 👀" CTA arrow link
+- Carousel uses CSS transform + GSAP text stagger on slide
+- Indicator reads `01/01`, `02/01`, etc.
 
 ### Contact Section (`#contact`)
-- Headline: "Ready to play?"
-- Email: `hello@daveholloway.uk` (displayed as a large link)
-- Phone: `+44 (0)113 460 7989`
-- CTA: "Book a video call" → Calendly link
+- Headline: "Let's Build Together" (Inter 800)
+- Two-column grid:
+  - Bio paragraph with playful emoji accent
+  - Email: `s.cirone.work@gmail.com` with underline hover effect
 
 ### Footer
-- Minimal: `© 2026 Dave Holloway`
+- Inline logo SVG (same as nav) + "© 2026 Salvatore Cirone" in monospaced
 
 ---
 
-## 5. Iconography & SVG Assets
+## 5. Iconography & Image Assets
 
 | File | Usage |
 |---|---|
-| `/dh-logo.svg` | Main site logo (nav) |
-| `/triangle-up.svg` | Tag directional indicator (upward capability/skill) |
-| `/triangle-down.svg` | Tag directional indicator (downward/tool/output) |
-| `/arrow-long.svg` | Long horizontal arrow between service spectrum codes |
-| `/langbar-bg.svg` | Decorative landscape SVG background between Work and Services sections |
-| `/og-image-default.webp` | Open Graph social share image |
+| `public/images/Hero.png` | Hero section portrait |
+| `public/images/services/backend.png` | Backend service card avatar |
+| `public/images/services/solution-architect.png` | Solution Architect avatar |
+| `public/images/services/ai-prompt-engineer.png` | AI Prompt Engineer avatar |
+| `public/images/services/digital-nomad.png` | Digital Nomad avatar |
+| `public/images/social/linkedin.svg` | LinkedIn nav icon |
+| `public/images/social/github.svg` | GitHub nav icon |
+| `public/images/og/v1.png` | Open Graph share image |
+| `public/favicon.svg` | Favicon (SVG) |
+| `public/favicon.ico` | Favicon (fallback) |
 
-All icons are inline SVG files — minimal, likely line-drawn or geometric, matching the industrial aesthetic.
+No external icon libraries — all icons are inline SVGs or static image files matching the industrial-tech aesthetic.
 
 ---
 
 ## 6. Motion & Animation
 
-The site uses **GSAP** extensively (listed as a core development skill). Key animation patterns:
+Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 
 | Pattern | Implementation |
 |---|---|
-| **Page load stagger** | Hero text + nav items animate in with staggered delays |
-| **View Transitions** | Astro's built-in view transitions with `animate` fallback — smooth between pages |
-| **Awards ticker** | Infinite marquee/scroll loop for the awards strip |
-| **Hover states** | Navigation items appear duplicated in DOM — likely a split-text clip/slide hover effect |
-| **CTA button** | "Let's talk / Fun Stuff" dual-label suggests a flip or slide-in hover animation |
-| **Work cards** | Likely scroll-triggered reveal on entry |
-| **Service cards** | Possible stagger or reveal animation on scroll |
+| **Loading screen** | Logo rectangles animate in/out on loop, then whole screen fades out on `window.load` |
+| **Hero fade-in** | Image column fades in (`power2.out`, 1s). Hero text stagers in from below (`y: 30`, 0.12s stagger) |
+| **Soundwave animation** | 7 SVG sine waves, continuous GSAP loop, scroll-responsive speed/amplitude/frequency/opacity/width |
+| **Section reveal** | ScrollTrigger on `data-animate="section"` — children stagger in from `y: 30` when section enters 85% viewport |
+| **Services scroll-trigger** | Header + hint text stagger in on scroll |
+| **Services drag** | Custom pointer-drag deck with snap-to-nearest, momentum, stacked card layout via GSAP set |
+| **Nav link hover** | Text translates up `-4px`, font-weight bolds to 700 |
+| **CTA hover** | "Let's meet" fades up out, "Book now" fades in from below |
+| **Work carousel** | CSS transform slide + GSAP text stagger on each card entry |
+| **Work card text entry** | Counter, title, description, roles stagger in from `y: 24` on first view |
 
 ---
 
 ## 7. Navigation Interaction Pattern
 
-The nav items are doubled in the HTML (e.g. `WorkWork`, `ServicesServices`). This is a classic **GSAP/CSS split-text hover animation** technique:
-
-```html
-<a>[Work][Work]</a>
-```
-
-Two copies are stacked; on hover, one slides out (up or down) while the second slides in — creating a fluid text-replacement animation on hover.
+- Nav links use a simple **Y-translate + fontWeight** GSAP hover (no split-text duplication)
+- CTA button uses a **dual-label flip**: `[data-cta-label]` (visible) transitions out, `[data-cta-alt]` (hidden) transitions in on hover
+- Social icons are standalone `img` tags with CSS opacity transitions
 
 ---
 
 ## 8. Content Strategy & Voice
 
-- **Tone**: Confident, direct, self-aware without being arrogant. Casual intro ("Hey!"), professional credibility signal (16 years, multi-award-winning).
-- **Credibility stacking**: Long award list, recognisable client names, specific tools and skills
-- **"Ready to play?"** — playful closing CTA that matches the "Fun Stuff" nav label; humanises without losing authority
-- **`/lab`** section — separate space for experimental/personal work, signals curiosity and craft
-- **3-letter client codes** (`SVF`, `CBS`, `NHS`) — editorial shorthand that gives the work section an architectural, data-driven aesthetic
+- **Tone**: Professional but approachable. "Ciao!" greeting, "tech nomad" self-description, playful emoji in CTA (`🤜🤛`)
+- **Bio hook**: "turns complex cloud and AI challenges into elegant realities"
+- **CTA**: "Let's Build Together" — collaborative, forward-looking
+- **Work carousel**: "Work Chapters" frames each project as a distinct narrative chapter
+- **Social proof posture**: Senior levels mentioned in service titles (Senior Backend Engineer, AWS Solutions Architect)
 
 ---
 
@@ -181,29 +168,34 @@ Two copies are stacked; on hover, one slides out (up or down) while the second s
 
 | Technology | Role |
 |---|---|
-| **Astro v5** | Static site framework with View Transitions |
-| **GSAP** | Primary animation library |
-| **WordPress / Bricks** | Client project delivery (not used on this site itself) |
+| **Astro v6** | Static site framework |
+| **GSAP** | Animation library (ScrollTrigger, Draggable) |
+| **pnpm** | Package manager |
+| **Node >=22.12.0** | Runtime |
 | **Figma** | Design tool |
-| **CSS/HTML/JS** | Core frontend |
-| **Git** | Version control |
+| **CSS (custom properties)** | Styling via design tokens |
 
 ---
 
 ## 10. Responsive & Accessibility Notes
 
-- `viewport-fit=cover` with `interactive-widget=resizes-content` — optimised for mobile notch/safe areas
-- `<a href="#main-content">Skip to main content</a>` — accessibility skip link present
-- `meta-description` and full OpenGraph + Twitter Card meta — social/SEO complete
+- `viewport-fit=cover` — mobile notch safe areas
+- `<a href="#main-content">Skip to main content</a>` — keyboard accessibility
+- Full OpenGraph + Twitter Card meta + JSON-LD structured data (Person + WebSite)
+- Scroll-triggered animations respect `prefers-reduced-motion: reduce` — skipped entirely
+- `scroll-margin-top: var(--nav-height)` on each section for anchored nav
+- `::selection` styling for branded highlight
+- Hero collapses to single-column stacked layout below 768px
+- Work card switches to single-column grid below 768px
 
 ---
 
-## 11. Key Design Principles (Inferred)
+## 11. Key Design Principles
 
-1. **Data over decoration** — labels, codes and alphanumeric strings replace ornamental illustration
-2. **Motion as language** — every transition and animation carries meaning (hover = replace, scroll = reveal)
-3. **Dark = focus** — dark background removes visual noise, forces attention onto content
-4. **Typography does the heavy lifting** — weight, size, and case contrasts create hierarchy without colour
-5. **Systems thinking** — service cards follow a strict repeatable structure; work cards follow another; both feel part of one coherent system
-6. **Editorial restraint** — generous whitespace, minimal UI chrome, no decorative gradients
-7. **Playful details** — the HOME/AWAY scoreboard, the "Fun Stuff" CTA label, the `/lab` — humanity hidden inside the rigour
+1. **Depth through colour** — a purple/night palette creates a moody, premium feel; gold accents provide focal anchors
+2. **Motion as interaction** — the draggable service deck, scroll-reactive soundwaves, and carousel all invite tactile exploration
+3. **Typography as hierarchy** — weight and size contrasts (800 → 600 → 400) structure information without relying on colour
+4. **Decorative data** — the barcode pattern on service cards, the soundwave animation, and counters give technical texture without real data overload
+5. **Restrained palette, expressive motion** — only 2 accent colours (gold, purple) but rich animation vocabulary
+6. **Human details** — "Ciao!" greeting, playful emoji, "tech nomad" framing — personality within a professional container
+7. **Single-page rhythm** — sections flow hero → services → work → contact, each with distinct layout but unified visual language

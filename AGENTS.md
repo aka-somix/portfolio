@@ -43,3 +43,7 @@ public/          — favicon.svg, favicon.ico
 - CTA button in nav uses a dual-label flip animation (`data-cta-label` / `data-cta-alt`)
 - `data-animate` attributes are the hook for all GSAP animations
 - `.astro/` is generated types directory — gitignored
+
+## Design doc rule
+
+- **`DESIGN.md`** must be kept in sync with the actual codebase — update it whenever changing layout, palette, typography, sections, animations, or assets.
