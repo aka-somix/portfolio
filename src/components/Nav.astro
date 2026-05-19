@@ -43,8 +43,40 @@ const sections = [
       <span data-cta-label>Let's meet</span>
       <span data-cta-alt aria-hidden="true">Book now</span>
     </a>
+
+    <button class="nav-burger" data-burger aria-label="Toggle menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </div>
 </nav>
+
+<div class="sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
+
+<aside class="sidebar" data-sidebar role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <div class="sidebar-inner">
+    <div class="sidebar-links">
+      {sections.map((section) => (
+        <a href={`#${section.id}`} class="sidebar-link" data-sidebar-link>
+          {section.label}
+        </a>
+      ))}
+    </div>
+    <div class="sidebar-socials">
+      <a href="https://www.linkedin.com/in/salvatore-cirone-it/" target="_blank" class="nav-social" aria-label="LinkedIn" rel="noopener noreferrer">
+        <img src="/images/social/linkedin.svg" alt="" width="20" height="20" />
+      </a>
+      <a href="https://github.com/aka-somix" target="_blank" class="nav-social" aria-label="GitHub" rel="noopener noreferrer">
+        <img src="/images/social/github.svg" alt="" width="20" height="20" />
+      </a>
+      <a href="https://medium.com/@salvatorecirone" target="_blank" class="nav-social" aria-label="Medium" rel="noopener noreferrer">
+        <img src="/images/social/medium.svg" alt="" width="20" height="20" />
+      </a>
+    </div>
+    <a href="#" class="sidebar-cta" data-sidebar-cta>Let's meet</a>
+  </div>
+</aside>
 
 <style>
   .nav {
@@ -117,7 +149,6 @@ const sections = [
     line-height: 0;
   }
 
-
   .nav-social:hover {
     opacity: 1;
   }
@@ -166,4 +197,281 @@ const sections = [
     opacity: 1;
     transform: translateY(0);
   }
+
+  .nav-burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 220;
+  }
+
+  .nav-burger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--text-primary);
+    border-radius: 1px;
+    transform-origin: center;
+    transition: background 0.2s;
+  }
+
+  .nav-burger:hover span {
+    background: var(--accent);
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 210;
+    width: 280px;
+    max-width: 80vw;
+    background: var(--bg-accent);
+    transform: translateX(-100%);
+  }
+
+  .sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: calc(var(--nav-height) + 32px) 24px 24px;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .sidebar-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sidebar-link {
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: color 0.2s;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .sidebar-link:hover {
+    color: var(--text-primary);
+  }
+
+  .sidebar-socials {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+  }
+
+  .sidebar-cta {
+    display: inline-flex;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 10px 20px;
+    transition: background 0.2s, border-color 0.2s;
+    align-self: flex-start;
+  }
+
+  .sidebar-cta:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .nav-links,
+    .nav-socials,
+    .nav-cta {
+      display: none;
+    }
+
+    .nav-burger {
+      display: flex;
+    }
+
+    .sidebar-overlay {
+      display: block;
+    }
+
+    .sidebar {
+      display: block;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .sidebar-overlay,
+    .sidebar {
+      display: none !important;
+    }
+  }
 </style>
+
+<script>
+  import { gsap } from "gsap"
+
+  const navLinks = document.querySelectorAll("[data-animate='nav-link']")
+  navLinks.forEach((link) => {
+    link.addEventListener("mouseenter", () => {
+      const text = link.querySelector("[data-nav-text]")
+      if (text) {
+        gsap.to(text, { y: -4, duration: 0.2, ease: "power2.out" })
+        gsap.to(text, { fontWeight: 700, duration: 0.2, ease: "power2.out" })
+      }
+    })
+    link.addEventListener("mouseleave", () => {
+      const text = link.querySelector("[data-nav-text]")
+      if (text) {
+        gsap.to(text, { y: 0, duration: 0.2, ease: "power2.out" })
+        gsap.to(text, { fontWeight: 400, duration: 0.2, ease: "power2.out" })
+      }
+    })
+  })
+
+  const burger = document.querySelector("[data-burger]")
+  const sidebar = document.querySelector("[data-sidebar]")
+  const overlay = document.querySelector("[data-sidebar-overlay]")
+  const sidebarLinks = document.querySelectorAll("[data-sidebar-link]")
+  const sidebarCta = document.querySelector("[data-sidebar-cta]")
+  const body = document.body
+  let isOpen = false
+
+  if (!burger || !sidebar || !overlay) {
+    // Elements may not exist on non-index pages — bail silently
+  } else {
+    function openSidebar() {
+      isOpen = true
+      burger.setAttribute("aria-expanded", "true")
+      overlay.setAttribute("aria-hidden", "false")
+      body.style.overflow = "hidden"
+
+      const sidebarItems = sidebar.querySelectorAll(
+        "[data-sidebar-link], .sidebar-socials .nav-social, [data-sidebar-cta]"
+      )
+
+      gsap.set(sidebarItems, { opacity: 0, x: -16 })
+      gsap.to(overlay, { opacity: 1, pointerEvents: "auto", duration: 0.3, ease: "power2.out" })
+      gsap.to(sidebar, { x: "0%", duration: 0.4, ease: "power3.out" })
+      gsap.to(sidebarItems, {
+        opacity: 1,
+        x: 0,
+        duration: 0.3,
+        stagger: 0.06,
+        ease: "power2.out",
+        delay: 0.15,
+      })
+    }
+
+    function closeSidebar() {
+      isOpen = false
+      burger.setAttribute("aria-expanded", "false")
+      overlay.setAttribute("aria-hidden", "true")
+      body.style.overflow = ""
+
+      gsap.to(sidebar, { x: "-100%", duration: 0.3, ease: "power2.in" })
+      gsap.to(overlay, {
+        opacity: 0,
+        pointerEvents: "none",
+        duration: 0.2,
+        ease: "power2.out",
+      })
+    }
+
+    burger.addEventListener("click", () => {
+      isOpen ? closeSidebar() : openSidebar()
+    })
+
+    overlay.addEventListener("click", closeSidebar)
+
+    sidebarLinks.forEach((link) => {
+      link.addEventListener("click", closeSidebar)
+    })
+
+    if (sidebarCta) {
+      sidebarCta.addEventListener("click", closeSidebar)
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isOpen) closeSidebar()
+    })
+  }
+
+  const burgerBtn = document.querySelector(".nav-burger")
+  if (burgerBtn) {
+    const desktopItems = document.querySelectorAll(".nav-links, .nav-socials, .nav-cta")
+    const mobileQuery = window.matchMedia("(max-width: 768px)")
+    let transitionId = 0
+
+    function animateToMobile() {
+      const id = ++transitionId
+
+      if (isOpen) {
+        isOpen = false
+        burger.setAttribute("aria-expanded", "false")
+        overlay.setAttribute("aria-hidden", "true")
+        body.style.overflow = ""
+        gsap.set(sidebar, { clearProps: "transform" })
+        gsap.set(overlay, { clearProps: "all" })
+      }
+
+      gsap.to(desktopItems, {
+        opacity: 0,
+        y: -4,
+        duration: 0.2,
+        ease: "power2.in",
+        onComplete: () => {
+          if (id === transitionId) gsap.set(desktopItems, { display: "none" })
+        },
+      })
+      gsap.set(burgerBtn, { display: "flex" })
+      gsap.fromTo(burgerBtn, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power2.out" })
+    }
+
+    function animateToDesktop() {
+      transitionId++
+
+      if (isOpen) {
+        isOpen = false
+        burger.setAttribute("aria-expanded", "false")
+        overlay.setAttribute("aria-hidden", "true")
+        body.style.overflow = ""
+        gsap.set(sidebar, { clearProps: "transform" })
+        gsap.set(overlay, { clearProps: "all" })
+      }
+
+      gsap.set(burgerBtn, { opacity: 0, display: "none" })
+      gsap.set(desktopItems, { display: "flex", opacity: 0, y: 6 })
+      gsap.to(desktopItems, {
+        opacity: 1,
+        y: 0,
+        duration: 0.3,
+        stagger: 0.05,
+        ease: "power2.out",
+      })
+    }
+
+    mobileQuery.addEventListener("change", (e) => {
+      e.matches ? animateToMobile() : animateToDesktop()
+    })
+  }
+</script>

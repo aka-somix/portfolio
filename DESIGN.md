@@ -60,12 +60,14 @@ The palette is **deep purple dominant with gold accents**. Contrast is driven by
 
 ### Navigation
 ```
-[Logo SVG]   [Services]  [Work]  [Contact]   [LinkedIn] [GitHub]   [Let's meet ▸]
+[Logo SVG]   [Services]  [Work]  [Contact]   [LinkedIn] [GitHub]   [Let's meet ▸]   [☰]
 ```
 - Logo: Inline SVG (abstract geometric rect composition) — left-aligned
 - 3 nav links (Services, Work, Contact) — right-aligned before socials
 - Social icons (LinkedIn, GitHub SVG) — muted opacity, hover to full
 - CTA button: "Let's meet" with secondary label "Book now" (CSS flip on hover)
+- **Mobile (≤768px)**: desktop links/socials/CTA hidden; burger icon appears. Clicking opens a sidebar that slides in from the left with the same items. Overlay backdrop + GSAP stagger on links. Escape/overlay/link-click closes. GSAP nav-link hover code lives in Nav.astro's own `<script>`.
+- **Breakpoint transition**: GSAP animates the swap — desktop items fade up/out, burger fades in (mobile) and vice‑versa (desktop). Stagger on desktop items re‑entry. Sidebar auto‑closes on resize to desktop via `clearProps`.
 
 ### Hero Section
 - Full-viewport height split layout: 48% left empty, 52% right image column
@@ -155,6 +157,7 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 | **Services scroll-trigger** | Header + hint text stagger in on scroll |
 | **Services drag** | Custom pointer-drag deck with snap-to-nearest, momentum, stacked card layout via GSAP set |
 | **Nav link hover** | Text translates up `-4px`, font-weight bolds to 700 |
+| **Nav breakpoint transition** | Desktop ↔ mobile swap at 768px: desktop items fade up/out (or down/in with stagger on re‑entry), burger cross‑fades. Sidebar closes via `clearProps` |
 | **CTA hover** | "Let's meet" fades up out, "Book now" fades in from below |
 | **Work carousel** | CSS transform slide + GSAP text stagger on each card entry |
 | **Work card text entry** | Counter, title, description, roles stagger in from `y: 24` on first view |
@@ -203,6 +206,7 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 - `::selection` styling for branded highlight
 - Hero collapses to single-column stacked layout below 768px
 - Work card switches to single-column grid below 768px
+- Nav collapses to burger + sidebar below 768px (sidebar slides from left, GSAP-animated); crossfade transition between desktop/mobile nav states
 
 ---
 

@@ -164,24 +164,6 @@ const jsonLdWebsite = {
         }
       }
 
-      const navLinks = document.querySelectorAll("[data-animate='nav-link']")
-      navLinks.forEach((link) => {
-        link.addEventListener("mouseenter", () => {
-          const text = link.querySelector("[data-nav-text]")
-          if (text) {
-            gsap.to(text, { y: -4, duration: 0.2, ease: "power2.out" })
-            gsap.to(text, {fontWeight: 700, duration: 0.2, ease: "power2.out" })
-          }
-        })
-        link.addEventListener("mouseleave", () => {
-          const text = link.querySelector("[data-nav-text]")
-          if (text) {
-            gsap.to(text, { y: 0, duration: 0.2, ease: "power2.out" })
-            gsap.to(text, {fontWeight: 400, duration: 0.2, ease: "power2.out" })
-          }
-        })
-      })
-
       // Services drag deck animation
       const servicesTrack = document.querySelector("[data-services-track]")
       const servicesWrapper = servicesTrack?.parentElement
