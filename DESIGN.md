@@ -96,6 +96,18 @@ The palette is **deep purple dominant with gold accents**. Contrast is driven by
   - **Right**: placeholder image SVG + "Look inside 👀" CTA arrow link
 - Carousel uses CSS transform + GSAP text stagger on slide
 - Indicator reads `01/01`, `02/01`, etc.
+- **Certifications sub-section** below carousel:
+  - Subdued header: "Certifications" `03` in monospaced uppercase (`0.9rem`, muted)
+  - **Seamless auto-scroll track**: GSAP loops cards continuously via cloned content + modulus `x` translation
+  - Animation starts paused; `ScrollTrigger.onToggle` resumes when work section is in view, pauses on leave
+  - Cards (280px wide, glassmorphism surface, same gradient/card language):
+    - Circular logo (72×72px) with `<img>` fallback to SVG star badge on error
+    - Certification name (Inter 600, centered)
+    - Issuer (JetBrains Mono, uppercase, muted, centered)
+  - Entire card links externally (`target="_blank" rel="noopener noreferrer"`)
+  - Edge-gradient mask on viewport for smooth fade in/out
+  - Hover: border brightens, card lifts `-4px`, shadow deepens
+  - Respects `prefers-reduced-motion` — static layout without GSAP
 
 ### Contact Section (`#contact`)
 - Headline: "Let's Build Together" (Inter 800)
@@ -122,6 +134,9 @@ The palette is **deep purple dominant with gold accents**. Contrast is driven by
 | `public/images/og/v1.png` | Open Graph share image |
 | `public/favicon.svg` | Favicon (SVG) |
 | `public/favicon.ico` | Favicon (fallback) |
+| `public/images/certifications/aws-saa.png` | AWS Solutions Architect logo |
+| `public/images/certifications/gcp-pca.png` | Google Cloud Architect logo |
+| `public/images/certifications/cka.png` | CKA logo |
 
 No external icon libraries — all icons are inline SVGs or static image files matching the industrial-tech aesthetic.
 
@@ -143,6 +158,7 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 | **CTA hover** | "Let's meet" fades up out, "Book now" fades in from below |
 | **Work carousel** | CSS transform slide + GSAP text stagger on each card entry |
 | **Work card text entry** | Counter, title, description, roles stagger in from `y: 24` on first view |
+| **Certifications auto-scroll** | Seamless GSAP loop (cloned cards, modulus `x`). `ScrollTrigger.onToggle` pauses/resumes with work section visibility. Edge-gradient mask for smooth fade. |
 
 ---
 
@@ -198,4 +214,4 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 4. **Decorative data** — the barcode pattern on service cards, the soundwave animation, and counters give technical texture without real data overload
 5. **Restrained palette, expressive motion** — only 2 accent colours (gold, purple) but rich animation vocabulary
 6. **Human details** — "Ciao!" greeting, playful emoji, "tech nomad" framing — personality within a professional container
-7. **Single-page rhythm** — sections flow hero → services → work → contact, each with distinct layout but unified visual language
+7. **Single-page rhythm** — sections flow hero → services → work → contact → footer, each with distinct layout but unified visual language
