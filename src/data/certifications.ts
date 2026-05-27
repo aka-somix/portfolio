@@ -24,4 +24,10 @@ export const certifications: Certification[] = [
     logo: "/images/certifications/ielts.png",
     link: "https://www.ielts.org/",
   },
+  {
+    name: "Software Engineer Certificate",
+    issuer: "Hackerrank",
+    logo: "/images/certifications/hackerrank.png",
+    link: "https://www.hackerrank.com/certificates/812122bd1887",
+  },
 ]
