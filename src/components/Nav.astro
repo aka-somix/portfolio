@@ -1,4 +1,7 @@
 ---
+// ponytail: swap placeholder once Appointment Schedule exists in Google Calendar
+const BOOKING_URL = "https://calendar.app.google/PRkS5N4zfMgpPgud7"
+
 const sections = [
   { id: "services", label: "Services" },
   { id: "work", label: "Work" },
@@ -39,7 +42,7 @@ const sections = [
       </a>
     </div>
 
-    <a href="#" class="nav-cta" data-animate="cta">
+    <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" class="nav-cta" data-animate="cta">
       <span data-cta-label>Let's meet</span>
       <span data-cta-alt aria-hidden="true">Book now</span>
     </a>
@@ -74,7 +77,7 @@ const sections = [
         <img src="/images/social/medium.svg" alt="" width="20" height="20" />
       </a>
     </div>
-    <a href="#" class="sidebar-cta" data-sidebar-cta>Let's meet</a>
+    <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" class="sidebar-cta" data-sidebar-cta>Let's meet</a>
   </div>
 </aside>
 

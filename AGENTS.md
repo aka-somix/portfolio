@@ -2,7 +2,7 @@
 
 ## Stack & setup
 
-- **Astro v6** (not v5 despite DESIGN.md) — static site, no SSR
+- **Astro v6** — static site, no SSR
 - **pnpm** — package manager (lockfile: `pnpm-lock.yaml`)
 - **Node >=22.12.0**
 - **GSAP** only extra dependency; uses ScrollTrigger + Draggable plugins

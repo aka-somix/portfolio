@@ -65,7 +65,7 @@ The palette is **deep purple dominant with gold accents**. Contrast is driven by
 - Logo: Inline SVG (abstract geometric rect composition) — left-aligned
 - 3 nav links (Services, Work, Contact) — right-aligned before socials
 - Social icons (LinkedIn, GitHub SVG) — muted opacity, hover to full
-- CTA button: "Let's meet" with secondary label "Book now" (CSS flip on hover)
+- CTA button: "Let's meet" with secondary label "Book now" (CSS flip on hover). Links to a Google Calendar booking page (appointment schedule) in a new tab — URL is the `BOOKING_URL` constant in Nav.astro
 - **Mobile (≤768px)**: desktop links/socials/CTA hidden; burger icon appears. Clicking opens a sidebar that slides in from the left with the same items. Overlay backdrop + GSAP stagger on links. Escape/overlay/link-click closes. GSAP nav-link hover code lives in Nav.astro's own `<script>`.
 - **Breakpoint transition**: GSAP animates the swap — desktop items fade up/out, burger fades in (mobile) and vice‑versa (desktop). Stagger on desktop items re‑entry. Sidebar auto‑closes on resize to desktop via `clearProps`.
 
