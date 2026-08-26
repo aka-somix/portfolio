@@ -18,5 +18,12 @@ export const works: Work[] = [
     client: "Reply",
     image: "/images/work/consultant.jpg",
     // imageAttribution: "Photo by <a href="https://unsplash.com/@charlesdeluvio?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">charlesdeluvio</a> on <a href="https://unsplash.com/photos/man-using-macbook-Lks7vei-eAg?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>"
+  },
+  {
+    slug: "startup",
+    title: "Startup Chapter",
+    description: "",
+    roles: ["Architecture", "Backend", "AI Engineering"],
+    client: "xFarm Technologies",
   }
 ]
