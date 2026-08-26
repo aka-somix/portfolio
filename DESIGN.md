@@ -166,7 +166,7 @@ They would otherwise overwrite each other, since the deck writes transforms ever
 
 The spec panel **replaced a stock photograph** of an anonymous person at a laptop. For a visitor evaluating architectural judgement, a stock photo is anti-evidence; a specification is the artifact an architect actually produces. `public/images/work/consultant.jpg` is now unused.
 
-> ⚠️ Spec values are currently **placeholder** (`specPlaceholder: true` in `src/data/work.ts`). `pnpm build` warns per chapter, and the markup carries `data-spec-placeholder`. They must be replaced with real figures before deploy.
+> ⚠️ Spec values are currently **placeholder** (`specPlaceholder: true` in the frontmatter of `src/content/en/work/consultant.md` and `src/content/en/work/startup.md`). `pnpm check:content` warns per chapter, and this check runs as part of `pnpm build`, and the markup carries `data-spec-placeholder`. They must be replaced with real figures before deploy.
 
 - **Certifications sub-section** below carousel:
   - Subdued header: "Certifications" in mono uppercase (count removed)
@@ -197,9 +197,9 @@ The section whose job is to close. Three real channels, ranked, and nothing else
 - **The gold block is set like a ticket.** Its content spans the height rather than floating at the midpoint: `Book a call` in Archivo black at `--size-2xl` on the top line, the practical detail at the foot, and a 64px circular arrow affordance bottom-right on the note's line. `align-content: stretch` is declared alongside `align-items: stretch` because inheriting `align-content: center` from `.action` collapsed the row to its content height and the distribution silently did nothing.
 - Arrow affordance inverts on hover and `:focus-visible` — dark fill, gold glyph, 3px glyph travel. It is an authored SVG, not a glyph.
 - **Action order:** Book a call (gold block) → Message on LinkedIn → Email.
-- **The facts rail was removed.** Availability and Based/timezone are no longer stated here; the availability claim lives in PRODUCT.md as a constraint on copy, not as page content. `availability` and `timezone` are gone from `src/data/site.ts` with it. `base` stays, read by the hero base line.
+- **The facts rail was removed.** Availability and Based/timezone are no longer stated here; the availability claim lives in PRODUCT.md as a constraint on copy, not as page content. `availability` and `timezone` are gone from `src/content/en/site.yaml` with it. `base` stays, read by the hero base line.
 - **Below 768px** the pair stacks, so the door ratio has no pair left to measure against. The block keeps its lead by scale alone at `min-height: 152px` with the title at `--size-xl` and a 48px arrow.
-- All channels live in `src/data/site.ts`, a single source of truth
+- All channels live in `src/content/en/site.yaml`, a single source of truth, read via `site()` from `src/lib/content.ts`
 
 ### Footer
 - Inline logo SVG (same as nav) + "© 2026 Salvatore Cirone" in monospaced
