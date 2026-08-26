@@ -1,0 +1,10 @@
+{
+  "_comment": "Exact technical strings that rule R3 would otherwise flag. Every entry must be genuinely technical, never copy. Prefer an inline `content-ok: <reason>` comment for one-off cases.",
+  "allow": [
+    "(prefers-reduced-motion: reduce)",
+    "(hover: hover) and (pointer: fine)",
+    "(max-width: 768px)",
+    "top bottom",
+    "bottom top"
+  ]
+}

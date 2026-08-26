@@ -125,7 +125,7 @@ const labels = (await ui()).work
       const cardW = first.offsetWidth
       const gap = parseFloat(getComputedStyle(track).columnGap || "0") || 0
       const offset = (viewport.offsetWidth - cardW) / 2 - i * (cardW + gap)
-      track.style.transform = `translateX(${offset}px)`
+      track.style.transform = `translateX(${offset}px)` // content-ok: CSS transform value
       indicator.textContent = `${String(i + 1).padStart(2, "0")}/${String(n).padStart(2, "0")}`
       if (animateText) animateCardText(cards[i])
     }

@@ -371,7 +371,7 @@ const sections = nav.links
       body.style.overflow = "hidden"
 
       const sidebarItems = sidebar.querySelectorAll(
-        "[data-sidebar-link], .sidebar-socials .nav-social, [data-sidebar-cta]"
+        "[data-sidebar-link], .sidebar-socials .nav-social, [data-sidebar-cta]" // content-ok: CSS selector list
       )
 
       gsap.set(sidebarItems, { opacity: 0, x: -16 })
@@ -423,7 +423,7 @@ const sections = nav.links
 
   const burgerBtn = document.querySelector(".nav-burger")
   if (burgerBtn) {
-    const desktopItems = document.querySelectorAll(".nav-links, .nav-socials, .nav-cta")
+    const desktopItems = document.querySelectorAll(".nav-links, .nav-socials, .nav-cta") // content-ok: CSS selector list
     const mobileQuery = window.matchMedia("(max-width: 768px)")
     let transitionId = 0
 

@@ -88,6 +88,8 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
           }
 
           {
+            /* Honest holding state. Carries real value: the facts are all
+               true and already on the page, instead of a dashed box. */
             hasWriteUp ? (
               <section class="block">
                 <h2 class="block-title">{labels.writeUpTitle}</h2>
@@ -96,8 +98,6 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
                 </div>
               </section>
             ) : (
-              /* Honest holding state. Carries real value: the facts are all
-                 true and already on the page, instead of a dashed box. */
               <section class="block holding">
                 <h2 class="block-title">{labels.holding.title}</h2>
                 <p class="block-text">{labels.holding.body1}</p>
