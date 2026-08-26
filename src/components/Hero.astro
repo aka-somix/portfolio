@@ -1,309 +1,334 @@
 ---
+import { site } from "../data/site"
 
+/**
+ * The headline is the claim, at display scale. It states the combination —
+ * architecture, AI, location independence — which is the thing PRODUCT.md says
+ * must never flatten to "senior backend engineer".
+ *
+ * Three explicit lines because the sentence is three sentences, and because the
+ * width-axis motion below animates them in sequence.
+ */
+const headline = [
+  "Architecture that holds.",
+  "AI that ships.",
+  "From wherever I am.",
+]
 ---
 
 <section class="hero" id="hero">
-  <div class="hero-soundwaves" aria-hidden="true"></div>
-  <div class="hero-empty"></div>
-  <div class="hero-image-col" data-animate="hero-bg">
-    <img src="/images/Hero.png" alt="" />
+  <div class="hero-portrait" data-animate="hero-bg">
+    <img
+      src="/images/Hero.png"
+      alt="Illustrated low-poly portrait of Salvatore Cirone"
+      width="1024"
+      height="1024"
+      fetchpriority="high"
+    />
   </div>
-  <div class="hero-card">
-    <h1 class="hero-heading" data-animate="hero-text">Ciao!</h1>
-    <div class="hero-divider"></div>
-    <p class="hero-intro" data-animate="hero-text">
-      I’m <strong>Salvatore</strong> - a tech nomad who turns complex cloud and AI challenges into elegant realities
-    </p>
-    <p class="hero-tagline" data-animate="hero-text">Based in Italy; Living around the World</p>
+
+  <div class="hero-inner rail">
+    <div class="hero-type">
+      <h1 class="hero-headline">
+        {
+          headline.map((line) => (
+            <span class="hl-line" data-hl-line>
+              {line}
+            </span>
+          ))
+        }
+      </h1>
+
+      <p class="hero-lede" data-animate="hero-text">
+        Ciao! I'm <strong>Salvatore</strong> — I turn complex cloud and AI
+        challenges into elegant realities.
+      </p>
+
+      <p class="hero-base" data-animate="hero-text">
+        {site.base}; living around the world
+      </p>
+
+      <a href="#work" class="hero-jump" data-animate="hero-text">
+        See the work
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M8 3v10M4 9l4 4 4-4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </a>
+    </div>
   </div>
 </section>
 
 <style>
   .hero {
     position: relative;
-    min-height: 100vh;
+    min-height: 100svh;
     display: flex;
-  }
-
-  .hero-empty {
-    width: 48%;
-    flex-shrink: 0;
-  }
-
-  .hero-image-col {
-    flex: 1;
-    position: relative;
+    align-items: center;
+    padding: calc(var(--nav-height) + 48px) 24px 72px;
     overflow: hidden;
   }
 
-  .hero-image-col img {
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+  }
+
+  .hero-type {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    /* Leaves the right of the composition to the portrait. */
+    max-width: min(60ch, 62%);
+  }
+
+  /* --- The headline ------------------------------------------------------- */
+
+  .hero-headline {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 4.75rem);
+    font-weight: var(--weight-black);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+    color: var(--text-primary);
+  }
+
+  .hl-line {
+    display: block;
+    /* The width axis must not be able to trigger a rewrap mid-animation. */
+    white-space: nowrap;
+    /* Entrance start state; the script settles these to 100 / 1. */
+    font-variation-settings: "wdth" 68;
+    opacity: 0;
+  }
+
+  /* The third line carries the differentiation, so it carries the accent —
+     rather than spending a decorative divider on the job. */
+  .hl-line:last-child {
+    color: var(--accent);
+  }
+
+  /* --- Supporting type ---------------------------------------------------- */
+
+  .hero-lede {
+    font-size: var(--size-lede);
+    line-height: var(--leading-snug);
+    color: var(--text-secondary);
+    max-width: 46ch;
+  }
+
+  .hero-lede strong {
+    color: var(--text-primary);
+    font-weight: var(--weight-semibold);
+  }
+
+  .hero-base {
+    font-family: var(--font-mono);
+    font-size: var(--size-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--text-muted);
+  }
+
+  .hero-jump {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: var(--size-sm);
+    color: var(--text-secondary);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--border-color) 25%, transparent);
+    padding-bottom: 2px;
+    transition: color var(--duration-fast) var(--ease),
+      border-color var(--duration-fast) var(--ease);
+  }
+
+  .hero-jump svg {
+    transition: translate var(--duration-normal) var(--ease);
+  }
+
+  .hero-jump:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .hero-jump:hover svg {
+    translate: 0 3px;
+  }
+
+  /* --- Portrait ----------------------------------------------------------- */
+
+  .hero-portrait {
     position: absolute;
-    bottom: 0;
     right: 0;
+    bottom: 0;
+    z-index: 1;
+    width: min(50vw, 720px);
+    height: 92%;
+    pointer-events: none;
+  }
+
+  .hero-portrait img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     object-position: bottom right;
-    display: block;
   }
 
-  .hero-card {
-    position: absolute;
-    left: 6%;
-    bottom: 14%;
-    width: 38%;
-    padding: 44px 40px;
-    background: rgba(21, 23, 61, 0.55);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    border: none;
-    border-radius: var(--radius);
+  @media (prefers-reduced-motion: reduce) {
+    .hero-jump svg,
+    .hero-jump:hover svg {
+      transition: none;
+      translate: 0;
+    }
   }
 
-  .hero-heading {
-    font-size: clamp(3.5rem, 8vw, 6.5rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    margin-bottom: 20px;
-    color: var(--text-primary);
+  @media (max-width: 1100px) {
+    .hero-type {
+      max-width: 72%;
+    }
   }
 
-  .hero-divider {
-    width: 100%;
-    height: 3px;
-    background: var(--accent);
-    margin-bottom: 20px;
-    border-radius: 2px;
-  }
-
-  .hero-intro {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    line-height: 1.7;
-    margin-bottom: 10px;
-  }
-
-  .hero-intro strong {
-    color: var(--text-primary);
-    font-weight: 600;
-  }
-
-  .hero-tagline {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-  }
-
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     .hero {
       flex-direction: column;
-      min-height: auto;
+      align-items: stretch;
+      justify-content: flex-start;
+      /* No min-height on the type block: the old 60vh floor produced ~250px of
+         empty space on the highest-value screen. */
+      min-height: 0;
+      padding: calc(var(--nav-height) + 28px) 24px 56px;
     }
 
-    .hero-empty {
-      display: none;
-    }
-
-    .hero-image-col {
+    .hero-portrait {
       position: relative;
-      flex: none;
-      height: 40vh;
+      order: -1;
       width: 100%;
+      max-width: 380px;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto 4px;
+      align-self: center;
     }
 
-    .hero-card {
-      position: relative;
-      left: auto;
-      bottom: auto;
-      width: 100%;
-      flex: 1;
-      min-height: 60vh;
-      padding: 40px 24px;
-      background: var(--bg-primary);
-      border: none;
-      border-radius: 0;
+    .hero-portrait img {
+      object-position: center bottom;
     }
 
-    .hero-intro {
-      max-width: 100%;
+    .hero-type {
+      max-width: none;
+      gap: 22px;
     }
-  }
 
-  .hero-soundwaves {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    overflow: hidden;
-  }
+    .hl-line {
+      /* Below this width the three-line composition cannot hold nowrap without
+         shrinking the type out of its own display register. */
+      white-space: normal;
+    }
 
-  .hero-soundwaves svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
+    .hero-headline {
+      font-size: clamp(2rem, 8.2vw, 3rem);
+    }
 
-  .hero-image-col {
-    z-index: 1;
-  }
-
-  .hero-card {
-    z-index: 2;
+    .hero-lede {
+      font-size: var(--size-md);
+    }
   }
 </style>
 
 <script>
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
+  import { gsap } from "gsap"
 
-const container = document.querySelector(".hero-soundwaves")
-if (container) {
-  const NS = "http://www.w3.org/2000/svg"
-  const accent =
-    getComputedStyle(document.documentElement)
-      .getPropertyValue("--bg-accent")
-      .trim() || "#85409D"
+  const lines = [...document.querySelectorAll<HTMLElement>("[data-hl-line]")]
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-  const svg = document.createElementNS(NS, "svg")
-  svg.style.display = "block"
-  svg.style.width = "100%"
-  svg.style.height = "100%"
-  svg.setAttribute("preserveAspectRatio", "none")
-  container.appendChild(svg)
+  // The width axis is this page's one authored moment. Archivo's wdth runs
+  // 62–125; the headline rests at 100 and is pushed wider by scroll energy, so
+  // the type responds to the reader instead of looping at them. This replaced
+  // seven animated sine waves — audio iconography on a cloud-architecture page.
+  const REST = 100
+  const MAX = 108
+  const START = 68
 
-  const defs = document.createElementNS(NS, "defs")
-  const grad = document.createElementNS(NS, "linearGradient")
-  grad.id = "wave-fade"
-  grad.setAttribute("gradientUnits", "objectBoundingBox")
-  grad.setAttribute("x1", "0")
-  grad.setAttribute("x2", "1")
-  grad.setAttribute("y1", "0")
-  grad.setAttribute("y2", "0")
-  ;[
-    [0, 0],
-    [8, 1],
-    [92, 1],
-    [100, 0],
-  ].forEach(function (stop) {
-    var s = document.createElementNS(NS, "stop")
-    s.setAttribute("offset", stop[0] + "%")
-    s.setAttribute("stop-color", accent)
-    s.setAttribute("stop-opacity", String(stop[1]))
-    grad.appendChild(s)
-  })
-  defs.appendChild(grad)
-  svg.appendChild(defs)
+  if (lines.length) {
+    const write = (el: HTMLElement, w: number) => {
+      el.style.fontVariationSettings = `"wdth" ${w.toFixed(1)}`
+    }
 
-  var WAVE_COUNT = 7
-  var waves: any[] = []
+    if (reduceMotion) {
+      // Settled and legible. Not a degraded version — just the static one.
+      lines.forEach((el) => {
+        write(el, REST)
+        el.style.opacity = "1"
+      })
+    } else {
+      const state = lines.map(() => ({ w: START, target: REST }))
 
-  function setup(w: any, h: any) {
-    svg.setAttribute("viewBox", "0 0 " + w + " " + h)
-    waves.forEach(function (wv) { wv.el.remove() })
-    waves.length = 0
-    for (var i = 0; i < WAVE_COUNT; i++) {
-      var t = i / (WAVE_COUNT - 1)
-      var baseY = (h / (WAVE_COUNT + 1)) * (i + 1)
-      var amp = 15 + Math.random() * 50
-      var freq = 0.002 + t * 0.005
-      var phase = i / WAVE_COUNT * Math.PI * 2
-      var speed = 0.5 + Math.random() * 1.0
-      var baseWidth = 1 + Math.random() * 3
-      var opacity = 0.3 + Math.random() * 0.6
+      // Entrance: each line expands into place. Condensed-to-settled reads as
+      // type arriving, rather than as one more thing sliding up the page.
+      lines.forEach((el, i) => {
+        const s = state[i]
+        gsap.to(s, {
+          w: REST,
+          duration: 1.1,
+          delay: 0.15 + i * 0.13,
+          ease: "power3.out",
+          onUpdate: () => write(el, s.w),
+        })
+        gsap.to(el, {
+          opacity: 1,
+          duration: 0.7,
+          delay: 0.15 + i * 0.13,
+          ease: "power2.out",
+        })
+      })
 
-      var el = document.createElementNS(NS, "path")
-      el.setAttribute("stroke", "url(#wave-fade)")
-      el.setAttribute("stroke-width", String(baseWidth))
-      el.setAttribute("fill", "none")
-      el.setAttribute("stroke-linecap", "round")
-      el.setAttribute("stroke-opacity", String(opacity))
-      svg.appendChild(el)
-      waves.push({ el: el, baseY: baseY, amp: amp, freq: freq, phase: phase, speed: speed, baseWidth: baseWidth, opacity: opacity })
+      // Scroll energy, sampled cheaply and decayed. No ScrollTrigger required.
+      let lastY = window.scrollY
+      let energy = 0
+
+      window.addEventListener(
+        "scroll",
+        () => {
+          const y = window.scrollY
+          energy += Math.abs(y - lastY)
+          lastY = y
+        },
+        { passive: true }
+      )
+
+      const clamp = gsap.utils.clamp(REST, MAX)
+
+      gsap.ticker.add(() => {
+        energy *= 0.88
+        if (energy < 0.05) energy = 0
+
+        const push = clamp(REST + energy * 0.22)
+
+        lines.forEach((el, i) => {
+          const s = state[i]
+          // Later lines lag, so the response ripples down the headline.
+          const follow = 0.16 - i * 0.035
+          s.target = push
+          const next = s.w + (s.target - s.w) * follow
+          // Only touch the DOM when the axis actually moved: this property
+          // reflows the line, so a no-op write is not free.
+          if (Math.abs(next - s.w) > 0.12) {
+            s.w = next
+            write(el, s.w)
+          }
+        })
+      })
     }
   }
-
-  function draw(t: any, ampMult: any, freqMult: any) {
-    var ww = window.innerWidth
-    var step = Math.max(2, ww / 400)
-    var am = ampMult || 1
-    var fm = freqMult || 1
-    for (var i = 0; i < waves.length; i++) {
-      var wave = waves[i]
-      var a = wave.amp * am
-      var f = wave.freq * fm
-      var s = wave.speed || 1
-      var d = "M 0," + (wave.baseY + Math.sin(wave.phase - t * s) * a).toFixed(1)
-      for (var x = step; x <= ww; x += step) {
-        var y = wave.baseY + Math.sin(x * f + wave.phase - t * s) * a
-        d += " L " + x.toFixed(1) + "," + y.toFixed(1)
-      }
-      wave.el.setAttribute("d", d)
-    }
-  }
-
-  ;(function () {
-    var r = container.getBoundingClientRect()
-    setup(r.width || window.innerWidth, r.height || window.innerHeight)
-  })()
-
-  let resizeTimer: any
-  window.addEventListener("resize", function () {
-    clearTimeout(resizeTimer)
-    resizeTimer = setTimeout(function () {
-      var r = container.getBoundingClientRect()
-      setup(r.width, r.height)
-    }, 150)
-  })
-
-  let proxy = { t: 0 }
-  let ampMult = 1
-  let smoothAmp = 1
-  let freqMult = 1
-  let smoothFreq = 1
-
-  let waveTween = gsap.to(proxy, {
-    t: Math.PI * 2,
-    duration: 6,
-    ease: "none",
-    repeat: -1,
-    onUpdate: function () {
-      draw(proxy.t, ampMult, freqMult)
-    },
-  })
-
-  let scrollVel = 0
-
-  gsap.ticker.add(function () {
-    let energy = 0.5 + scrollVel * 0.0002
-    waveTween.timeScale(gsap.utils.clamp(0.8, 4.5, energy))
-
-    let targetAmp = gsap.utils.clamp(1, 1.35, energy)
-    smoothAmp += (targetAmp - smoothAmp) * 0.12
-    ampMult = smoothAmp
-
-    let targetFreq = gsap.utils.clamp(1, 5, 1 + scrollVel * 0.00025)
-    smoothFreq += (targetFreq - smoothFreq) * 0.1
-    freqMult = smoothFreq
-
-    scrollVel *= 0.88
-  })
-
-  ScrollTrigger.create({
-    trigger: document.body,
-    start: "top top",
-    end: "bottom bottom",
-    onUpdate: function (self) {
-      let p = self.progress
-      scrollVel = Math.abs(self.getVelocity())
-      for (let i = 0; i < waves.length; i++) {
-        let w = waves[i]
-        w.el.setAttribute("stroke-width", String(w.baseWidth * (1 + p * 2.5)))
-        w.el.setAttribute("stroke-opacity", String(Math.min(1, w.opacity * (1 + p * 0.5))))
-      }
-    },
-  })
-}
 </script>

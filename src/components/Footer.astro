@@ -22,8 +22,9 @@
 
 <style>
   .footer {
-    padding: 2rem;
-    padding-top: 8rem;
+    /* Was 8rem of blank purple above the content, which read as unfinished
+       layout rather than as breathing room. */
+    padding: 2.5rem 2rem;
     background: var(--bg-accent);
   }
 
@@ -42,16 +43,10 @@
     color: var(--text-muted);
   }
 
-  .logo-text {
-    font-size: 0.8rem;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
   .footer-copy {
-    font-size: 0.75rem;
-    color: var(--text-muted);
+    font-size: var(--size-xs);
+    /* Gold on purple is 3.17:1. White is 6.53:1. */
+    color: var(--text-primary);
     font-family: var(--font-mono);
   }
 </style>

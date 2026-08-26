@@ -1,192 +1,287 @@
 ---
+import type { SpecRow } from "../data/work"
+
 export interface Props {
   title: string
-  description: string
+  arena: string
+  lede: string
+  responsibilities: string[]
+  learned: string
   roles: string[]
+  client: string
+  years: string
+  spec: SpecRow[]
+  specPlaceholder: boolean
   slug: string
   index: number
   total: number
-  image?: string
-  imageAttribution?: string
-  imageAlt?: string
 }
 
-const { title, description, roles, slug, index, total, image, imageAttribution, imageAlt } = Astro.props
-const alt = imageAlt ?? `${title} project screenshot`
+const {
+  title,
+  arena,
+  lede,
+  responsibilities,
+  learned,
+  roles,
+  client,
+  years,
+  spec,
+  specPlaceholder,
+  slug,
+} = Astro.props
+
+if (specPlaceholder && import.meta.env.PROD) {
+  console.warn(
+    `\n⚠️  work.ts: chapter "${slug}" still has specPlaceholder: true — its spec values are INVENTED. Replace them before deploying.\n`
+  )
+}
 ---
 
-<div class="work-card">
+<article class="work-card">
   <div class="card-left">
-    <span class="card-counter">{String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}</span>
+    <p class="card-arena">{arena}</p>
     <h3 class="card-title">{title}</h3>
-    <p class="card-description">{description}</p>
+    <p class="card-lede">{lede}</p>
+
+    <div class="card-block">
+      <h4 class="card-block-title">What I held</h4>
+      <ul class="card-list">
+        {responsibilities.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+
+    <div class="card-block">
+      <h4 class="card-block-title">What it taught me</h4>
+      <p class="card-learned">{learned}</p>
+    </div>
+
     <div class="card-roles">
-      {roles.map((role) => (
-        <span class="role-tag">{role}</span>
-      ))}
+      {roles.map((role) => <span class="role-tag">{role}</span>)}
     </div>
   </div>
+
   <div class="card-right">
-    <div class="card-image">
-      {image ? (
-        <img class="card-img" src={image} alt={alt} loading="lazy" />
-      ) : (
-        <div class="image-placeholder">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect x="4" y="8" width="40" height="32" rx="4" stroke="currentColor" stroke-width="1.5" fill="none" />
-            <circle cx="28" cy="22" r="6" stroke="currentColor" stroke-width="1.5" />
-            <path d="M8 36l10-10 8 8 6-6 8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <span class="placeholder-label">Project image</span>
-        </div>
-      )}
-      {imageAttribution && <span class="card-image-attribution">{imageAttribution}</span>}
-    </div>
+    <!-- The spec panel: an architect's own artifact, and the one place mono
+         does real work (aligned figures). Replaces the stock photograph. -->
+    <dl
+      class="spec"
+      data-spec-placeholder={specPlaceholder ? "true" : undefined}
+    >
+      <div class="spec-row spec-row--head">
+        <dt>Client</dt>
+        <dd>{client}</dd>
+      </div>
+      <div class="spec-row spec-row--head">
+        <dt>Years</dt>
+        <dd class="tabular">{years}</dd>
+      </div>
+      {
+        spec.map((row) => (
+          <div class="spec-row">
+            <dt>{row.label}</dt>
+            <dd class="tabular">{row.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
     <a href={`/work/${slug}`} class="card-cta">
       <span data-cta-label>
         Look inside
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M3 8h10M9 4l4 4-4 4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </span>
       <span data-cta-alt aria-hidden="true">👀👀👀👀👀👀</span>
     </a>
   </div>
-</div>
+</article>
 
 <style>
   .work-card {
     width: 75vw;
+    max-width: var(--max-width);
     flex-shrink: 0;
     display: grid;
-    grid-template-columns: 2fr 3fr;
-    gap: 40px;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 56px;
     background: var(--bg-surface);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: none;
+    border: 1px solid color-mix(in srgb, var(--border-color) 10%, transparent);
     border-radius: var(--radius);
-    padding: 40px;
-    aspect-ratio: 3 / 2;
+    padding: 48px;
     overflow: hidden;
   }
 
   .card-left {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    align-items: flex-start;
+    gap: 20px;
+    min-width: 0;
   }
 
-  .card-counter {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
+  /* The arena names the world. Not an eyebrow above the title — it is the
+     title's subject, set at reading size in its own right. */
+  .card-arena {
+    font-size: var(--size-sm);
     color: var(--text-muted);
+    letter-spacing: var(--tracking-tight);
   }
 
   .card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: var(--size-xl);
+    font-weight: var(--weight-black);
+    font-stretch: 108%;
+    letter-spacing: var(--tracking-display);
+    line-height: var(--leading-tight);
     color: var(--text-primary);
+    text-wrap: balance;
   }
 
-  .card-description {
-    font-size: 0.875rem;
+  /* The lede tier the old scale did not have. */
+  .card-lede {
+    font-size: var(--size-md);
+    line-height: var(--leading-snug);
+    color: var(--text-primary);
+    max-width: 34ch;
+  }
+
+  .card-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-block-title {
+    font-size: var(--size-xs);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--text-muted);
+  }
+
+  .card-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .card-list li {
+    position: relative;
+    padding-left: 18px;
+    font-size: var(--size-sm);
+    line-height: var(--leading-snug);
     color: var(--text-secondary);
-    line-height: 1.7;
+    max-width: 46ch;
+  }
+
+  .card-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .card-learned {
+    font-size: var(--size-sm);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    max-width: 46ch;
   }
 
   .card-roles {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: auto;
+    margin-top: 4px;
   }
 
   .role-tag {
-    font-size: 0.7rem;
+    font-size: var(--size-xs);
     font-family: var(--font-mono);
-    letter-spacing: 0.05em;
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--text-muted);
-    border: 1px solid var(--border-color);
-    padding: 4px 10px;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    padding: 5px 10px;
     border-radius: var(--radius-sm);
   }
 
   .card-right {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
+    min-width: 0;
   }
 
-  .card-image {
-    position: relative;
-    flex: 1;
-    overflow: hidden;
-    border-radius: var(--radius-sm);
+  /* --- Spec panel --------------------------------------------------------- */
+
+  .spec {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid color-mix(in srgb, var(--border-color) 22%, transparent);
   }
 
-  .card-image::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--bg-accent), var(--accent));
-    opacity: 0.40;
-    mix-blend-mode: overlay;
-    pointer-events: none;
+  .spec-row {
+    display: grid;
+    grid-template-columns: minmax(88px, 0.7fr) 1.3fr;
+    gap: 16px;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--border-color) 12%, transparent);
   }
 
-  .card-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  .spec-row dt {
+    font-size: var(--size-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: color-mix(in srgb, var(--text-secondary) 78%, var(--bg-surface));
   }
 
-  .card-image-attribution {
-    display: block;
-    font-size: 0.55rem;
-    font-family: var(--font-mono);
-    color: var(--text-muted);
-    opacity: 0.6;
-    margin-top: 4px;
+  .spec-row dd {
+    font-size: var(--size-sm);
+    color: var(--text-primary);
     text-align: right;
   }
 
-  .image-placeholder {
-    width: 100%;
-    height: 100%;
-    border: 2px dashed var(--border-color);
-    border-radius: var(--radius-sm);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: var(--text-muted);
+  .spec-row--head dd {
+    color: var(--accent);
+    font-weight: var(--weight-medium);
   }
 
-  .placeholder-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-family: var(--font-mono);
-  }
+  /* --- CTA (personality preserved) --------------------------------------- */
 
   .card-cta {
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
+    font-size: var(--size-xs);
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--text-primary);
-    padding: 10px 20px;
+    padding: 14px 22px;
+    min-height: 44px;
     border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
     background: transparent;
     align-self: flex-start;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    transition: background var(--duration-fast) var(--ease),
+      border-color var(--duration-fast) var(--ease),
+      color var(--duration-fast) var(--ease);
   }
 
   .card-cta:hover {
@@ -196,8 +291,11 @@ const alt = imageAlt ?? `${title} project screenshot`
   }
 
   .card-cta [data-cta-label] {
-    display: block;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity var(--duration-fast) ease,
+      transform var(--duration-fast) ease;
     opacity: 1;
     transform: translateY(0);
   }
@@ -215,8 +313,9 @@ const alt = imageAlt ?? `${title} project screenshot`
     justify-content: center;
     opacity: 0;
     transform: translateY(6px);
-    font-size: 1.25rem;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    font-size: var(--size-md);
+    transition: opacity var(--duration-fast) ease,
+      transform var(--duration-fast) ease;
   }
 
   .card-cta:hover [data-cta-alt] {
@@ -224,12 +323,44 @@ const alt = imageAlt ?? `${title} project screenshot`
     transform: translateY(0);
   }
 
-  @media (max-width: 768px) {
+  @media (prefers-reduced-motion: reduce) {
+    .card-cta [data-cta-label],
+    .card-cta [data-cta-alt] {
+      transition: opacity var(--duration-fast) ease;
+      transform: none;
+    }
+
+    .card-cta:hover [data-cta-label] {
+      transform: none;
+    }
+
+    .card-cta:hover [data-cta-alt] {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 900px) {
     .work-card {
-      aspect-ratio: auto;
       grid-template-columns: 1fr;
-      padding: 24px;
-      gap: 24px;
+      gap: 32px;
+      padding: 28px;
+    }
+
+    .card-lede {
+      max-width: none;
+    }
+  }
+
+  /* Right-aligned values in a narrow column wrapped badly ("Node.js · Python ·
+     PostgreSQL" over three ragged lines). Stack the pair instead. */
+  @media (max-width: 560px) {
+    .spec-row {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+
+    .spec-row dd {
+      text-align: left;
     }
   }
 </style>

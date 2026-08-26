@@ -8,7 +8,7 @@ export interface Props {
 }
 
 const { title, description } = Astro.props
-const { palette, font, layout, animation } = design
+const { palette, font, type, layout, animation } = design
 
 const cssVars = `
   --bg-primary: ${palette.bg.primary};
@@ -20,8 +20,31 @@ const cssVars = `
   --border-color: ${palette.border.default};
   --border-light: ${palette.border.light};
   --accent: ${palette.accent};
+  --font-display: ${font.display};
   --font-sans: ${font.sans};
   --font-mono: ${font.mono};
+  --size-min: ${type.size.min};
+  --size-xs: ${type.size.xs};
+  --size-sm: ${type.size.sm};
+  --size-base: ${type.size.base};
+  --size-md: ${type.size.md};
+  --size-lede: ${type.size.lede};
+  --size-xl: ${type.size.xl};
+  --size-2xl: ${type.size["2xl"]};
+  --size-display: ${type.size.display};
+  --size-section: ${type.size.section};
+  --leading-tight: ${type.leading.tight};
+  --leading-snug: ${type.leading.snug};
+  --leading-body: ${type.leading.body};
+  --tracking-display: ${type.tracking.display};
+  --tracking-tight: ${type.tracking.tight};
+  --tracking-label: ${type.tracking.label};
+  --weight-regular: ${type.weight.regular};
+  --weight-medium: ${type.weight.medium};
+  --weight-semibold: ${type.weight.semibold};
+  --weight-bold: ${type.weight.bold};
+  --weight-black: ${type.weight.black};
+  --measure: ${type.measure};
   --nav-height: ${layout.navHeight};
   --max-width: ${layout.maxWidth};
   --radius: ${layout.borderRadius};
@@ -42,7 +65,11 @@ const jsonLdPerson = {
   "name": "Salvatore Cirone",
   "givenName": "Salvatore",
   "familyName": "Cirone",
-  "jobTitle": "Senior Backend Engineer",
+  "jobTitle": [
+    "Cloud Solutions Architect",
+    "Senior Backend Engineer",
+    "AI Engineer"
+  ],
   "description": "Tech nomad turning complex cloud and AI challenges into elegant realities.",
   "url": siteUrl,
   "sameAs": [
@@ -91,9 +118,20 @@ const jsonLdWebsite = {
     <script type="application/ld+json" set:html={JSON.stringify(jsonLdPerson)} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLdWebsite)} />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href={font.googleFontsUrl} rel="stylesheet" />
+    <link
+      rel="preload"
+      href="/fonts/archivo-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/inter-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <style set:html={`:root {${cssVars}}`} is:global />
   </head>
   <body>
@@ -164,119 +202,8 @@ const jsonLdWebsite = {
         }
       }
 
-      // Services drag deck animation
-      const servicesTrack = document.querySelector("[data-services-track]")
-      const servicesWrapper = servicesTrack?.parentElement
-      const deckCards = servicesTrack
-        ? [...servicesTrack.querySelectorAll(".service-card")]
-        : []
-      const DN = deckCards.length
-
-      if (servicesTrack && servicesWrapper && DN) {
-        const SLOT = 384
-        // Push stack so card is half off the left edge of the viewport
-        const STACK_LEFT = -(servicesWrapper.getBoundingClientRect().left + 180)
-        const STACK_OFF_X = 6
-        const STACK_OFF_Y = 3
-        const STACK_ROT = -0.5
-        const clamp = gsap.utils.clamp
-        const lerp = gsap.utils.interpolate
-        let currentProgress = 0
-        const baseRots = deckCards.map((_, i) => (i - (DN - 1) / 2) * 1.5)
-
-        function layout(p: number) {
-          const prog = clamp(0, DN - 1, p)
-          currentProgress = prog
-          deckCards.forEach((card, i) => {
-            const depth = Math.max(0, prog - i)
-            const baseRot = baseRots[i]
-            if (depth >= 1) {
-              gsap.set(card, {
-                x: STACK_LEFT + i * STACK_OFF_X,
-                y: i * STACK_OFF_Y,
-                rotation: baseRot + i * STACK_ROT,
-                zIndex: i,
-              })
-            } else if (depth <= 0) {
-              gsap.set(card, {
-                x: (i - prog) * SLOT,
-                y: 0,
-                rotation: baseRot,
-                zIndex: DN + 1,
-              })
-            } else {
-              gsap.set(card, {
-                x: lerp((i - prog) * SLOT, STACK_LEFT + i * STACK_OFF_X, depth),
-                y: lerp(0, i * STACK_OFF_Y, depth),
-                rotation: lerp(baseRot, baseRot + i * STACK_ROT, depth),
-                zIndex: DN + 1,
-              })
-            }
-          })
-        }
-
-        layout(0)
-
-        const overlay = servicesWrapper.appendChild(document.createElement("div"))
-        Object.assign(overlay.style, {
-          position: "absolute",
-          inset: "0",
-          zIndex: "10",
-          cursor: "grab",
-          touchAction: "none",
-        })
-
-        let dragStartX = 0
-        let dragStartProgress = 0
-        let isDragging = false
-        let velX = 0
-        let lastX = 0
-        let lastT = 0
-        let snapTween: gsap.core.Tween | null = null
-
-        overlay.addEventListener("pointerdown", (e: PointerEvent) => {
-          snapTween?.kill()
-          isDragging = true
-          dragStartX = e.clientX
-          dragStartProgress = currentProgress
-          velX = 0
-          lastX = e.clientX
-          lastT = performance.now()
-          overlay.setPointerCapture(e.pointerId)
-          overlay.style.cursor = "grabbing"
-        })
-
-        overlay.addEventListener("pointermove", (e: PointerEvent) => {
-          if (!isDragging) return
-          const now = performance.now()
-          const dt = now - lastT
-          if (dt > 0) velX = (e.clientX - lastX) / dt
-          lastX = e.clientX
-          lastT = now
-          layout(clamp(0, DN - 1, dragStartProgress - (e.clientX - dragStartX) / SLOT))
-        })
-
-        const endDrag = () => {
-          if (!isDragging) return
-          isDragging = false
-          overlay.style.cursor = "grab"
-          const projected = clamp(0, DN - 1, currentProgress - (velX * 120) / SLOT)
-          snapTo(Math.round(projected))
-        }
-
-        overlay.addEventListener("pointerup", endDrag)
-        overlay.addEventListener("pointercancel", endDrag)
-
-        function snapTo(targetP: number) {
-          const proxy = { p: currentProgress }
-          snapTween = gsap.to(proxy, {
-            p: targetP,
-            duration: 0.4,
-            ease: "power2.out",
-            onUpdate: () => layout(proxy.p),
-          })
-        }
-      }
+      // The services deck now owns its own drag/flip logic in Services.astro,
+      // where the geometry it depends on actually lives.
 
       const loaderRects = gsap.utils.toArray("[data-loader-idx]").sort(
         (a, b) => Number(a.dataset.loaderIdx) - Number(b.dataset.loaderIdx)
@@ -316,6 +243,70 @@ const jsonLdWebsite = {
 </html>
 
 <style is:global>
+  /* --- Self-hosted variable faces. No third-party font request. ------------ */
+
+  @font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 100 900;
+    font-stretch: 62% 125%;
+    font-display: swap;
+    src: url("/fonts/archivo-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F,
+      U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215;
+  }
+
+  @font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 100 900;
+    font-stretch: 62% 125%;
+    font-display: swap;
+    src: url("/fonts/archivo-latin-ext.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+1E00-1E9F, U+2020, U+20A0-20AB, U+2C60-2C7F,
+      U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("/fonts/inter-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F,
+      U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215;
+  }
+
+  @font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("/fonts/inter-latin-ext.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+1E00-1E9F, U+2020, U+20A0-20AB, U+2C60-2C7F,
+      U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 100 800;
+    font-display: swap;
+    src: url("/fonts/jetbrainsmono-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F,
+      U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215;
+  }
+
+  @font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 100 800;
+    font-display: swap;
+    src: url("/fonts/jetbrainsmono-latin-ext.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+1E00-1E9F, U+2020, U+20A0-20AB, U+2C60-2C7F,
+      U+A720-A7FF;
+  }
+
   *,
   *::before,
   *::after {
@@ -327,15 +318,46 @@ const jsonLdWebsite = {
   html {
     scroll-behavior: smooth;
     scrollbar-width: thin;
-    scrollbar-color: var(--border-color) var(--bg-primary);
+    scrollbar-color: color-mix(in srgb, var(--bg-accent) 70%, white)
+      var(--bg-primary);
+  }
+
+  /* Smooth scrolling is motion too. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* WebKit does not read scrollbar-color; theme it explicitly. */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--bg-accent) 70%, white);
+    border: 3px solid var(--bg-primary);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
   }
 
   body {
     font-family: var(--font-sans);
     background: var(--bg-primary);
     color: var(--text-primary);
-    line-height: 1.6;
+    font-size: var(--size-base);
+    line-height: var(--leading-body);
+    caret-color: var(--accent);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   a {
@@ -346,6 +368,58 @@ const jsonLdWebsite = {
   img {
     max-width: 100%;
     display: block;
+  }
+
+  /* --- Focus. Authored once, on the dark palette, for every control. ------- */
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Only suppress the ring for pointer users, never for keyboard. */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* --- Shared section primitives -----------------------------------------
+   * These were duplicated verbatim in Services.astro and WorkCarousel.astro
+   * with divergent margins. One definition, one rail.
+   * -----------------------------------------------------------------------*/
+
+  .rail {
+    max-width: var(--max-width);
+    margin-inline: auto;
+  }
+
+  .section-label {
+    font-family: var(--font-display);
+    font-size: var(--size-section);
+    font-weight: var(--weight-black);
+    font-stretch: 112%;
+    letter-spacing: var(--tracking-display);
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+    text-wrap: balance;
+  }
+
+  /* Measure only. Alignment is the .rail wrapper's job — putting both on one
+     element makes `margin-inline: auto` centre the 66ch block instead of
+     aligning it to the rail. */
+  .section-description {
+    font-size: var(--size-md);
+    line-height: var(--leading-snug);
+    color: var(--text-secondary);
+    max-width: var(--measure);
+    margin-inline: 0;
+  }
+
+  /* Mono earns its place on figures, not on costume labels. */
+  .tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
   }
 
   .skip-link {
@@ -366,13 +440,15 @@ const jsonLdWebsite = {
     top: 0;
   }
 
+  /* Sections are separated by space and a hairline, not by a 5px white rule
+     that acted as a hard cut between every section. */
   section[id] {
     scroll-margin-top: var(--nav-height);
-    border-bottom: 5px solid var(--border-color);
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 12%, transparent);
   }
 
   ::selection {
-    background: var(--text-primary);
+    background: var(--accent);
     color: var(--bg-primary);
   }
 </style>

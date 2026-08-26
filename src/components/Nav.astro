@@ -1,6 +1,7 @@
 ---
-// ponytail: swap placeholder once Appointment Schedule exists in Google Calendar
-const BOOKING_URL = "https://calendar.app.google/PRkS5N4zfMgpPgud7"
+import { site } from "../data/site"
+
+const BOOKING_URL = site.bookingUrl
 
 const sections = [
   { id: "services", label: "Services" },
@@ -11,7 +12,7 @@ const sections = [
 
 <nav class="nav">
   <div class="nav-inner">
-    <a href="#" class="nav-logo" aria-label="Home">
+    <a href="/" class="nav-logo" aria-label="Salvatore Cirone — home">
       <svg height="32" viewBox="0 0 236 245" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="1.5" y="196.5" width="233" height="47" fill="#F3F3F3" />
         <rect x="87.5" y="91.5" width="147" height="22" fill="#F3F3F3" />
@@ -31,13 +32,13 @@ const sections = [
     </div>
 
     <div class="nav-socials">
-      <a href="https://www.linkedin.com/in/salvatore-cirone-it/" target="_blank" class="nav-social" aria-label="LinkedIn" rel="noopener noreferrer">
+      <a href={site.linkedin} target="_blank" class="nav-social" aria-label="LinkedIn" rel="noopener noreferrer">
         <img src="/images/social/linkedin.svg" alt="" width="20" height="20" />
       </a>
-      <a href="https://github.com/aka-somix" target="_blank" class="nav-social" aria-label="GitHub" rel="noopener noreferrer">
+      <a href={site.github} target="_blank" class="nav-social" aria-label="GitHub" rel="noopener noreferrer">
         <img src="/images/social/github.svg" alt="" width="20" height="20" />
       </a>
-      <a href="https://medium.com/@salvatorecirone" target="_blank" class="nav-social" aria-label="Medium" rel="noopener noreferrer">
+      <a href={site.medium} target="_blank" class="nav-social" aria-label="Medium" rel="noopener noreferrer">
         <img src="/images/social/medium.svg" alt="" width="20" height="20" />
       </a>
     </div>
@@ -67,13 +68,13 @@ const sections = [
       ))}
     </div>
     <div class="sidebar-socials">
-      <a href="https://www.linkedin.com/in/salvatore-cirone-it/" target="_blank" class="nav-social" aria-label="LinkedIn" rel="noopener noreferrer">
+      <a href={site.linkedin} target="_blank" class="nav-social" aria-label="LinkedIn" rel="noopener noreferrer">
         <img src="/images/social/linkedin.svg" alt="" width="20" height="20" />
       </a>
-      <a href="https://github.com/aka-somix" target="_blank" class="nav-social" aria-label="GitHub" rel="noopener noreferrer">
+      <a href={site.github} target="_blank" class="nav-social" aria-label="GitHub" rel="noopener noreferrer">
         <img src="/images/social/github.svg" alt="" width="20" height="20" />
       </a>
-      <a href="https://medium.com/@salvatorecirone" target="_blank" class="nav-social" aria-label="Medium" rel="noopener noreferrer">
+      <a href={site.medium} target="_blank" class="nav-social" aria-label="Medium" rel="noopener noreferrer">
         <img src="/images/social/medium.svg" alt="" width="20" height="20" />
       </a>
     </div>
@@ -119,11 +120,13 @@ const sections = [
   }
 
   .nav-link {
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
+    font-size: var(--size-xs);
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--text-muted);
-    transition: color 0.2s;
+    /* Gold on this purple ground measures 3.17:1 — below the 4.5:1 floor for
+       12px text. White is 6.53:1; gold moves to the hover state. */
+    color: var(--text-primary);
+    transition: color var(--duration-fast) var(--ease);
     overflow: hidden;
     height: 1.2em;
   }
@@ -266,17 +269,18 @@ const sections = [
   }
 
   .sidebar-link {
-    font-size: 1rem;
-    letter-spacing: 0.12em;
+    font-size: var(--size-base);
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
-    color: var(--text-muted);
-    transition: color 0.2s;
-    padding: 10px 0;
+    color: var(--text-primary);
+    transition: color var(--duration-fast) var(--ease);
+    padding: 12px 0;
+    min-height: 44px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .sidebar-link:hover {
-    color: var(--text-primary);
+    color: var(--accent);
   }
 
   .sidebar-socials {

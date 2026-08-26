@@ -1,95 +1,290 @@
 ---
 import { sections } from "../data/sections"
+import { site } from "../data/site"
 
 const section = sections.contact
 ---
 
 <section class="contact" id="contact" data-animate="section">
-  <div class="contact-inner">
-    <h2 class="contact-heading">{section.title}</h2>
-    <p class="section-description">{section.description}</p>
-    <div class="contact-content">
-      <div class="contact-bio">
-        <p>
-          Whether you need to scale your cloud architecture in cloud, bring AI into your product, 
-          or just want to brainstorm how to build a global tech team from anywhere—let's connect and make it happen 🤜🤛
-        </p>
+  <div class="contact-inner rail">
+    <div class="contact-head">
+      <h2 class="contact-heading">{section.title}</h2>
+      <p class="contact-lede">
+        Whether you need to scale your cloud architecture, bring AI into your
+        product, or just want to brainstorm how to build a global tech team from
+        anywhere — let's connect and make it happen 🤜🤛
+      </p>
+    </div>
+
+    <div class="contact-body">
+      <div class="contact-actions">
+      <!-- Primary. The highest-intent action on the site, which previously
+           existed only as a 12px button in the fixed nav. -->
+      <a
+        href={site.bookingUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="action action--primary"
+      >
+        <span class="action-title">Book a call</span>
+        <span class="action-note">30 minutes, no pitch — pick a slot</span>
+        <svg
+          class="action-arrow"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 10h11M11 5l5 5-5 5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </a>
+
+        <div class="action-secondary-row">
+          <a
+            href={site.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="action action--secondary"
+          >
+            <span class="action-title">Message on LinkedIn</span>
+            <span class="action-note">Fastest for a quick question</span>
+          </a>
+
+          <a href={`mailto:${site.email}`} class="action action--tertiary">
+            <span class="action-title">Email</span>
+            <span class="action-note">{site.email}</span>
+          </a>
+        </div>
       </div>
-      <div class="contact-email">
-        <span class="contact-label">Email</span>
-        <a href="mailto:s.cirone.work@gmail.com" class="contact-link">
-          s.cirone.work@gmail.com
-        </a>
-      </div>
+
+      <!-- The availability claim, on the page for the first time. A visitor at
+           the decision point should not have to guess whether he can take work.
+           Sitting beside the actions rather than under them also uses the width
+           that was previously empty. -->
+      <dl class="contact-facts">
+        <div class="fact">
+          <dt>Availability</dt>
+          <dd>{site.availability}</dd>
+        </div>
+        <div class="fact">
+          <dt>Based</dt>
+          <dd>{site.base} · <span class="tabular">{site.timezone}</span></dd>
+        </div>
+        <!-- A response-time expectation belongs here and measurably helps a
+             visitor commit. Left out because it is a promise only Salvatore can
+             make; add a `replyTime` to site.ts when he decides on one. -->
+      </dl>
     </div>
   </div>
 </section>
 
 <style>
   .contact {
-    padding: 100px 24px;
+    padding: 120px 24px 96px;
     border-bottom: none;
   }
 
-  .contact-inner {
-    max-width: var(--max-width);
-    margin: 0 auto;
+  .contact-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 72px;
+    align-items: start;
+  }
+
+  .contact-head {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 56px;
   }
 
   .contact-heading {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-bottom: 12px;
+    font-family: var(--font-display);
+    font-size: var(--size-section);
+    font-weight: var(--weight-black);
+    font-stretch: 112%;
+    letter-spacing: var(--tracking-display);
+    /* Was inheriting body leading (1.6), which rendered this heading with 64px
+       of leading on mobile. */
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+    max-width: 22ch;
   }
 
-  .section-description {
-    font-size: 1rem;
+  .contact-lede {
+    font-size: var(--size-md);
+    line-height: var(--leading-snug);
     color: var(--text-secondary);
-    margin-bottom: 40px;
+    max-width: 52ch;
   }
 
-  .contact-content {
+  /* --- Actions, in the order a visitor should reach for them -------------- */
+
+  .contact-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .action {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
+    gap: 4px;
+    padding: 22px 26px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    transition: background var(--duration-normal) var(--ease),
+      border-color var(--duration-normal) var(--ease),
+      transform var(--duration-normal) var(--ease),
+      box-shadow var(--duration-normal) var(--ease);
   }
 
-  .contact-bio p {
-    font-size: 1rem;
+  .action-title {
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .action-note {
+    font-size: var(--size-sm);
     color: var(--text-secondary);
-    line-height: 1.8;
-    max-width: 480px;
   }
 
-  .contact-label {
-    display: block;
-    font-size: 0.7rem;
+  .action--primary {
+    position: relative;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    background: var(--accent);
+    color: var(--bg-primary);
+    max-width: 620px;
+    padding-right: 60px;
+    box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+
+  .action--primary .action-title {
+    font-size: var(--size-lede);
+    grid-column: 1;
+  }
+
+  .action--primary .action-note {
+    grid-column: 1;
+    color: color-mix(in srgb, var(--bg-primary) 72%, var(--accent));
+  }
+
+  .action-arrow {
+    position: absolute;
+    right: 26px;
+    top: 50%;
+    translate: 0 -50%;
+    transition: translate var(--duration-normal) var(--ease);
+  }
+
+  .action--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 44px -14px color-mix(in srgb, var(--accent) 70%, transparent);
+  }
+
+  .action--primary:hover .action-arrow {
+    translate: 5px -50%;
+  }
+
+  .action-secondary-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    max-width: 620px;
+  }
+
+  .action--secondary,
+  .action--tertiary {
+    background: color-mix(in srgb, var(--bg-surface) 60%, transparent);
+    border-color: color-mix(in srgb, var(--border-color) 14%, transparent);
+  }
+
+  .action--secondary:hover,
+  .action--tertiary:hover {
+    background: var(--bg-surface);
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .action--tertiary .action-note {
+    word-break: break-word;
+  }
+
+  /* --- Facts -------------------------------------------------------------- */
+
+  .contact-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 18px;
+    border-top: 1px solid color-mix(in srgb, var(--border-color) 22%, transparent);
+  }
+
+  .fact {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .fact dt {
     font-family: var(--font-mono);
+    font-size: var(--size-min);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: var(--tracking-label);
     color: var(--text-muted);
-    margin-bottom: 8px;
   }
 
-  .contact-link {
-    font-size: 1.25rem;
-    color: var(--text-primary);
-    font-weight: 500;
-    text-decoration: underline;
-    text-decoration-color: var(--border-color);
-    text-underline-offset: 4px;
-    transition: text-decoration-color 0.2s;
+  .fact dd {
+    font-size: var(--size-sm);
+    color: var(--text-secondary);
+    max-width: 44ch;
   }
 
-  .contact-link:hover {
-    text-decoration-color: var(--text-primary);
+  @media (prefers-reduced-motion: reduce) {
+    .action,
+    .action-arrow {
+      transition: background var(--duration-normal) var(--ease),
+        border-color var(--duration-normal) var(--ease);
+    }
+
+    .action--primary:hover,
+    .action--secondary:hover,
+    .action--tertiary:hover {
+      transform: none;
+    }
+
+    .action--primary:hover .action-arrow {
+      translate: 0 -50%;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .contact-body {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
   }
 
   @media (max-width: 768px) {
-    .contact-content {
-      grid-template-columns: 1fr;
-      gap: 32px;
+    .contact {
+      padding: 84px 24px 72px;
+    }
+
+    .action--primary .action-title {
+      font-size: var(--size-md);
+    }
+
+    .action--primary {
+      padding-right: 52px;
     }
   }
 </style>

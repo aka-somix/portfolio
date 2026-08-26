@@ -2,109 +2,280 @@
 export interface Props {
   image: string
   title: string
+  tag: string
   description: string
+  help: string[]
   imageAlt: string
+  index: number
+  total: number
 }
 
-const { image, title, description, imageAlt } = Astro.props
+const { image, title, tag, description, help, imageAlt, index, total } =
+  Astro.props
 
-const bits = Array.from({ length: 32 }, () => Math.random() > 0.5)
+/**
+ * A work badge — a physical credential you can pick up and turn over.
+ *
+ * Three nested transform layers, deliberately separated so they never fight:
+ *   .service-card  — deck layout (x / y / rotation / zIndex), driven by GSAP
+ *   .badge-lift    — the pick-up (scale / lift / velocity tilt), driven by GSAP
+ *   .badge-inner   — the flip (rotateY), driven by CSS off aria-expanded
+ *
+ * The old randomised 32-bit barcode is gone: it was decoration cosplaying as
+ * encoded information on a page whose whole job is credibility. The lanyard slot
+ * is honest to the object instead — it is material, not fake data.
+ */
 ---
 
-<div class="service-card">
-  <div class="card-top-row">
-    <img class="card-image" src={image} alt={imageAlt} loading="lazy" />
-    <div class="card-barcode">
-      {bits.map((bit) => (
-        <span class:list={{ bar: true, "bar-1": bit }} />
-      ))}
-    </div>
-  </div>
-  <h3 class="card-title">{title}</h3>
-  <p class="card-description">{description}</p>
-</div>
+<button
+  class="service-card"
+  type="button"
+  aria-expanded="false"
+  aria-label={`${title} — flip for detail`}
+>
+  <span class="badge-lift">
+    <span class="badge-inner">
+      <span class="badge-face badge-face--front">
+        <span class="lanyard" aria-hidden="true"></span>
+
+        <span class="badge-head">
+          <img
+            class="badge-avatar"
+            src={image}
+            alt={imageAlt}
+            width="44"
+            height="44"
+            loading="lazy"
+          />
+          <span class="badge-index tabular">
+            {String(index + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
+          </span>
+        </span>
+
+        <span class="badge-title">{title}</span>
+        <span class="badge-tag">{tag}</span>
+        <span class="badge-desc">{description}</span>
+
+        <span class="badge-hint">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M2 8a6 6 0 0 1 10.2-4.2M14 8A6 6 0 0 1 3.8 12.2"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <path
+              d="M12 1.5v2.8H9.2M4 14.5v-2.8h2.8"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          How I help
+        </span>
+      </span>
+
+      <span class="badge-face badge-face--back">
+        <span class="lanyard" aria-hidden="true"></span>
+        <span class="badge-back-title">How I help</span>
+        <ul class="badge-list">
+          {help.map((item) => <li>{item}</li>)}
+        </ul>
+      </span>
+    </span>
+  </span>
+</button>
 
 <style>
   .service-card {
     position: absolute;
     top: 0;
     left: 0;
-    width: 360px;
-    height: 200px;
-    background: linear-gradient(145deg, var(--bg-surface), color-mix(in srgb, var(--bg-surface) 90%, #fff));
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 18px 20px 16px;
-    display: flex;
-    flex-direction: column;
+    /* Was a fixed 360px, which clipped at the right edge of a 390px viewport. */
+    width: min(340px, calc(100vw - 48px));
+    height: 290px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: grab;
     user-select: none;
-    transition:
-      border-color var(--duration-fast),
-      box-shadow var(--duration-fast);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: pan-y;
   }
 
   .service-card:active {
     cursor: grabbing;
   }
 
-  .service-card:hover {
-    border-color: var(--border-light);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  .badge-lift {
+    display: block;
+    width: 100%;
+    height: 100%;
+    perspective: 1200px;
   }
 
-  .card-top-row {
+  .badge-inner {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.62s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .service-card[aria-expanded="true"] .badge-inner {
+    transform: rotateY(180deg);
+  }
+
+  .badge-face {
+    position: absolute;
+    inset: 0;
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between;
+    gap: 6px;
+    padding: 26px 22px 18px;
+    text-align: left;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--border-color) 22%, transparent);
+    background: linear-gradient(
+      158deg,
+      color-mix(in srgb, var(--bg-surface) 92%, #fff),
+      var(--bg-surface) 62%,
+      color-mix(in srgb, var(--bg-surface) 88%, var(--bg-primary))
+    );
+    box-shadow: 0 3px 10px -2px rgba(0, 0, 0, 0.4);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
   }
 
-  .card-image {
-    width: 56px;
-    height: 56px;
+  .badge-face--back {
+    transform: rotateY(180deg);
+    gap: 12px;
+  }
+
+  /* The lanyard slot: a real affordance of the object, punched through the top
+     of the badge the way it is on a laminated card. */
+  .lanyard {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    translate: -50% 0;
+    width: 52px;
+    height: 7px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg-primary) 88%, #000);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+  }
+
+  .badge-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .badge-avatar {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     object-fit: cover;
+    /* The four source illustrations are near-identical at this size, so the
+       title carries the identification and the avatar is supporting texture. */
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
   }
 
-  .card-title {
-    font-size: 1.05rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+  .badge-index {
+    font-size: var(--size-min);
+    color: color-mix(in srgb, var(--text-secondary) 70%, var(--bg-surface));
+    letter-spacing: var(--tracking-label);
+  }
+
+  .badge-title {
+    font-size: var(--size-md);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
     color: var(--text-primary);
-    margin: 8px 0 0;
-    line-height: 1.3;
+    margin-top: 6px;
   }
 
-  .card-barcode {
-    display: flex;
-    align-items: flex-end;
-    gap: 1px;
-    height: 18px;
-    flex-shrink: 0;
-    padding-top: 2px;
+  .badge-tag {
+    font-family: var(--font-mono);
+    font-size: var(--size-min);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--accent);
   }
 
-  .bar {
-    width: 1px;
-    background: currentColor;
-    color: var(--text-muted);
-    opacity: 0.1;
-    height: 100%;
-    border-radius: 0;
-  }
-
-  .bar-1 {
-    width: 2px;
-    opacity: 0.85;
-    height: 100%;
-  }
-
-  .card-description {
-    font-size: 0.78rem;
+  .badge-desc {
+    font-size: var(--size-sm);
+    line-height: var(--leading-snug);
     color: var(--text-secondary);
-    line-height: 1.55;
-    margin: 0;
+    margin-top: 6px;
+  }
+
+  .badge-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin-top: auto;
-    padding-bottom: 2px;
+    font-size: var(--size-min);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: color-mix(in srgb, var(--text-secondary) 76%, var(--bg-surface));
+    transition: color var(--duration-fast) var(--ease);
+  }
+
+  .service-card:hover .badge-hint,
+  .service-card:focus-visible .badge-hint {
+    color: var(--accent);
+  }
+
+  /* --- Reverse ----------------------------------------------------------- */
+
+  .badge-back-title {
+    font-size: var(--size-min);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--accent);
+    margin-top: 10px;
+  }
+
+  .badge-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .badge-list li {
+    position: relative;
+    padding-left: 16px;
+    font-size: var(--size-sm);
+    line-height: var(--leading-snug);
+    color: var(--text-secondary);
+  }
+
+  .badge-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 7px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .badge-inner {
+      transition: none;
+    }
   }
 </style>

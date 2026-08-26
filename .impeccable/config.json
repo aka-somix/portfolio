@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-08-26T15:00:46.362Z",
+        "reason": "user confirmed: chose 'keep world, replace the type' — Inter retained as body/UI workhorse, Archivo carries the display tier"
+      }
+    ]
+  }
+}
