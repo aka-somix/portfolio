@@ -1,5 +1,6 @@
 # AGENTS.md — Portfolio
 
+
 ## Stack & setup
 
 - **Astro v6** — static site, no SSR
@@ -22,7 +23,7 @@
 - **Single-page portfolio** — sections: hero → services → work → contact → footer
 - **Dynamic routes** — `/work/[slug].astro` uses `getStaticPaths` from `src/data/work.ts`
 - **Design tokens** — centralized in `src/design.config.ts`, injected as CSS custom properties via `BaseLayout.astro` (`<style set:html={...}>`). For design intent, see `DESIGN.md`.
-- **Data** — `src/data/work.ts` and `src/data/services.ts` drive all content
+- **Data** — `src/data/*` should drive all the content, do not hardcode data inside the desing
 - **No tests, linter, or typecheck script** is configured
 
 ## Project structure
@@ -47,3 +48,4 @@ public/          — favicon.svg, favicon.ico
 ## Design doc rule
 
 - **`DESIGN.md`** must be kept in sync with the actual codebase — update it whenever changing layout, palette, typography, sections, animations, or assets.
+- **Copywrighting** should **NEVER** use this character: `—`, prefer `,` or `.`
