@@ -3,7 +3,7 @@
 # apex domain used by the sitemap. That discrepancy predates this refactor and is
 # deliberately left alone here.
 siteName: Salvatore Cirone
-siteUrl: https://salvatorecirone.dev
+siteUrl: https://about.salvatorecirone.dev
 ogImage: /images/og/v1.png
 ogImageWidth: "1200"
 ogImageHeight: "630"
