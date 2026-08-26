@@ -7,24 +7,44 @@ import { site } from "../data/site"
  * must never flatten to "senior backend engineer".
  *
  * Three explicit lines because the sentence is three sentences, and because the
- * width-axis motion below animates them in sequence.
+ * load-in animation expands them in sequence.
  */
 const headline = [
   "Architecture that holds.",
   "AI that ships.",
   "From wherever I am.",
 ]
+
+const PORTRAIT = "/images/Hero.webp"
 ---
 
 <section class="hero" id="hero">
-  <div class="hero-portrait" data-animate="hero-bg">
-    <img
-      src="/images/Hero.png"
-      alt="Illustrated low-poly portrait of Salvatore Cirone"
-      width="1024"
-      height="1024"
-      fetchpriority="high"
-    />
+  <!-- Faceted light field: the same low-poly material as the portrait, lit by a
+       light source that follows the pointer. Portrait and ground share one
+       light, so the illustration reads as native to the page rather than
+       placed on it. Static single render on touch and reduced-motion. -->
+  <canvas class="hero-facets" data-facets aria-hidden="true"></canvas>
+  <div class="hero-scrim" aria-hidden="true"></div>
+
+  <div class="hero-portrait" data-animate="hero-bg" data-portrait>
+    <div class="portrait-tilt" data-portrait-tilt>
+      <img
+        src={PORTRAIT}
+        alt="Illustrated low-poly portrait of Salvatore Cirone"
+        width="1440"
+        height="1440"
+        fetchpriority="high"
+        decoding="async"
+      />
+      <!-- Gold raking across the facets, masked by the portrait's own alpha and
+           tracking the same light. A directional rake, not a symmetric halo. -->
+      <div
+        class="portrait-sheen"
+        style={`--sheen-img: url(${PORTRAIT})`}
+        aria-hidden="true"
+      >
+      </div>
+    </div>
   </div>
 
   <div class="hero-inner rail">
@@ -40,8 +60,8 @@ const headline = [
       </h1>
 
       <p class="hero-lede" data-animate="hero-text">
-        Ciao! I'm <strong>Salvatore</strong> — I turn complex cloud and AI
-        challenges into elegant realities.
+        Ciao! I am <strong>Salvatore</strong>, a digital nomad and creative
+        software engineer
       </p>
 
       <p class="hero-base" data-animate="hero-text">
@@ -72,11 +92,36 @@ const headline = [
     align-items: center;
     padding: calc(var(--nav-height) + 48px) 24px 72px;
     overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero-facets {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Keeps the type column on near-solid ground so the facet field can never
+     erode text contrast, while the effect stays fully visible to the right. */
+  .hero-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      100deg,
+      var(--bg-primary) 0%,
+      color-mix(in srgb, var(--bg-primary) 82%, transparent) 34%,
+      transparent 60%
+    );
   }
 
   .hero-inner {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     width: 100%;
   }
 
@@ -85,7 +130,6 @@ const headline = [
     flex-direction: column;
     align-items: flex-start;
     gap: 28px;
-    /* Leaves the right of the composition to the portrait. */
     max-width: min(60ch, 62%);
   }
 
@@ -104,15 +148,12 @@ const headline = [
 
   .hl-line {
     display: block;
-    /* The width axis must not be able to trigger a rewrap mid-animation. */
+    /* Held so the load-in expansion cannot change how a line wraps. */
     white-space: nowrap;
-    /* Entrance start state; the script settles these to 100 / 1. */
     font-variation-settings: "wdth" 68;
     opacity: 0;
   }
 
-  /* The third line carries the differentiation, so it carries the accent —
-     rather than spending a decorative divider on the job. */
   .hl-line:last-child {
     color: var(--accent);
   }
@@ -123,7 +164,7 @@ const headline = [
     font-size: var(--size-lede);
     line-height: var(--leading-snug);
     color: var(--text-secondary);
-    max-width: 46ch;
+    max-width: 42ch;
   }
 
   .hero-lede strong {
@@ -172,17 +213,54 @@ const headline = [
     position: absolute;
     right: 0;
     bottom: 0;
-    z-index: 1;
+    z-index: 2;
     width: min(50vw, 720px);
     height: 92%;
     pointer-events: none;
+    perspective: 1100px;
   }
 
-  .hero-portrait img {
+  .portrait-tilt {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .portrait-tilt img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     object-position: bottom right;
+  }
+
+  .portrait-sheen {
+    position: absolute;
+    inset: 0;
+    /* Masked by the portrait's own alpha, so the light lands on the figure and
+       nowhere else. */
+    mask-image: var(--sheen-img);
+    mask-size: contain;
+    mask-position: bottom right;
+    mask-repeat: no-repeat;
+    -webkit-mask-image: var(--sheen-img);
+    -webkit-mask-size: contain;
+    -webkit-mask-position: bottom right;
+    -webkit-mask-repeat: no-repeat;
+    background-image: linear-gradient(
+      108deg,
+      transparent 32%,
+      color-mix(in srgb, var(--accent) 82%, #fff) 47%,
+      transparent 60%
+    );
+    background-size: 320% 100%;
+    background-position: calc(var(--sheen, 0.5) * 100%) 0;
+    background-repeat: no-repeat;
+    /* soft-light rather than overlay, at a third of the strength: the rake
+       should catch the existing facets, not repaint them. */
+    mix-blend-mode: soft-light;
+    opacity: 0.34;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -190,6 +268,10 @@ const headline = [
     .hero-jump:hover svg {
       transition: none;
       translate: 0;
+    }
+
+    .portrait-tilt {
+      will-change: auto;
     }
   }
 
@@ -204,10 +286,18 @@ const headline = [
       flex-direction: column;
       align-items: stretch;
       justify-content: flex-start;
-      /* No min-height on the type block: the old 60vh floor produced ~250px of
-         empty space on the highest-value screen. */
       min-height: 0;
       padding: calc(var(--nav-height) + 28px) 24px 56px;
+    }
+
+    .hero-scrim {
+      /* Vertical on a stacked layout: the type sits below the portrait here. */
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        color-mix(in srgb, var(--bg-primary) 80%, transparent) 38%,
+        var(--bg-primary) 62%
+      );
     }
 
     .hero-portrait {
@@ -219,10 +309,16 @@ const headline = [
       aspect-ratio: 1 / 1;
       margin: 0 auto 4px;
       align-self: center;
+      perspective: none;
     }
 
-    .hero-portrait img {
+    .portrait-tilt img {
       object-position: center bottom;
+    }
+
+    .portrait-sheen {
+      mask-position: center bottom;
+      -webkit-mask-position: center bottom;
     }
 
     .hero-type {
@@ -231,8 +327,6 @@ const headline = [
     }
 
     .hl-line {
-      /* Below this width the three-line composition cannot hold nowrap without
-         shrinking the type out of its own display register. */
       white-space: normal;
     }
 
@@ -242,6 +336,7 @@ const headline = [
 
     .hero-lede {
       font-size: var(--size-md);
+      max-width: none;
     }
   }
 </style>
@@ -249,15 +344,21 @@ const headline = [
 <script>
   import { gsap } from "gsap"
 
-  const lines = [...document.querySelectorAll<HTMLElement>("[data-hl-line]")]
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches
+  // No cursor to follow, or motion is unwelcome: render once, beautifully, and
+  // never start a loop. This is the composed still, not a degraded version.
+  const interactive = finePointer && !reduceMotion
 
-  // The width axis is this page's one authored moment. Archivo's wdth runs
-  // 62–125; the headline rests at 100 and is pushed wider by scroll energy, so
-  // the type responds to the reader instead of looping at them. This replaced
-  // seven animated sine waves — audio iconography on a cloud-architecture page.
+  /* ======================================================================
+   * Headline load-in
+   * The scroll-driven width response is deliberately gone. Below 768px the
+   * lines are allowed to wrap, so a width change mid-scroll could re-wrap the
+   * headline and shift everything beneath it. The load-in runs once, before
+   * any scrolling, and settles.
+   * ==================================================================== */
+  const lines = [...document.querySelectorAll<HTMLElement>("[data-hl-line]")]
   const REST = 100
-  const MAX = 108
   const START = 68
 
   if (lines.length) {
@@ -266,18 +367,13 @@ const headline = [
     }
 
     if (reduceMotion) {
-      // Settled and legible. Not a degraded version — just the static one.
       lines.forEach((el) => {
         write(el, REST)
         el.style.opacity = "1"
       })
     } else {
-      const state = lines.map(() => ({ w: START, target: REST }))
-
-      // Entrance: each line expands into place. Condensed-to-settled reads as
-      // type arriving, rather than as one more thing sliding up the page.
       lines.forEach((el, i) => {
-        const s = state[i]
+        const s = { w: START }
         gsap.to(s, {
           w: REST,
           duration: 1.1,
@@ -292,43 +388,205 @@ const headline = [
           ease: "power2.out",
         })
       })
+    }
+  }
 
-      // Scroll energy, sampled cheaply and decayed. No ScrollTrigger required.
-      let lastY = window.scrollY
-      let energy = 0
+  /* ======================================================================
+   * Faceted light field
+   * ==================================================================== */
+  const canvas = document.querySelector<HTMLCanvasElement>("[data-facets]")
+  const hero = document.querySelector<HTMLElement>(".hero")
+  const portrait = document.querySelector<HTMLElement>("[data-portrait]")
+  const tilt = document.querySelector<HTMLElement>("[data-portrait-tilt]")
 
+  if (canvas && hero) {
+    const ctx = canvas.getContext("2d", { alpha: true })
+
+    // Where the light rests with no pointer: high and right, so it rakes across
+    // the portrait's face rather than sitting in dead space.
+    const HOME = { x: 0.68, y: 0.3 }
+    const CELL = 118
+    const MAX_TILT_DEG = 6
+
+    type Tri = {
+      a: [number, number]
+      b: [number, number]
+      c: [number, number]
+      cx: number
+      cy: number
+      nx: number
+      ny: number
+    }
+
+    let tris: Tri[] = []
+    let W = 0
+    let H = 0
+
+    // Deterministic jitter, so the lattice is identical across resizes and
+    // never appears to "reshuffle" when the window changes.
+    let seed = 20260826
+    const rnd = () => {
+      seed = (seed * 1664525 + 1013904223) % 4294967296
+      return seed / 4294967296
+    }
+
+    const build = () => {
+      const rect = hero.getBoundingClientRect()
+      W = Math.max(1, Math.round(rect.width))
+      H = Math.max(1, Math.round(rect.height))
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      canvas.width = Math.round(W * dpr)
+      canvas.height = Math.round(H * dpr)
+      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+      seed = 20260826
+      const cols = Math.ceil(W / CELL) + 1
+      const rows = Math.ceil(H / CELL) + 1
+      const pts: [number, number][][] = []
+
+      for (let r = 0; r <= rows; r++) {
+        const row: [number, number][] = []
+        for (let c = 0; c <= cols; c++) {
+          const edge = r === 0 || c === 0 || r === rows || c === cols
+          const jx = edge ? 0 : (rnd() - 0.5) * CELL * 0.62
+          const jy = edge ? 0 : (rnd() - 0.5) * CELL * 0.62
+          row.push([c * CELL + jx, r * CELL + jy])
+        }
+        pts.push(row)
+      }
+
+      tris = []
+      const push = (
+        a: [number, number],
+        b: [number, number],
+        c: [number, number]
+      ) => {
+        const cx = (a[0] + b[0] + c[0]) / 3
+        const cy = (a[1] + b[1] + c[1]) / 3
+        // A per-facet orientation. This is what makes neighbouring triangles
+        // catch the light differently, the way a faceted surface does.
+        const ang = rnd() * Math.PI * 2
+        tris.push({ a, b, c, cx, cy, nx: Math.cos(ang), ny: Math.sin(ang) })
+      }
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const p00 = pts[r][c]
+          const p10 = pts[r][c + 1]
+          const p11 = pts[r + 1][c + 1]
+          const p01 = pts[r + 1][c]
+          push(p00, p10, p11)
+          push(p00, p11, p01)
+        }
+      }
+    }
+
+    const light = { x: 0, y: 0 }
+    const target = { x: 0, y: 0 }
+    let drawnX = Number.NaN
+    let drawnY = Number.NaN
+
+    const setHome = () => {
+      target.x = W * HOME.x
+      target.y = H * HOME.y
+    }
+
+    const draw = () => {
+      if (!ctx) return
+      ctx.clearRect(0, 0, W, H)
+      const reach = Math.hypot(W, H) * 0.62
+
+      for (const t of tris) {
+        const dx = light.x - t.cx
+        const dy = light.y - t.cy
+        const dist = Math.hypot(dx, dy) || 1
+        // Facing the light, falling off with distance.
+        const facing = (dx / dist) * t.nx + (dy / dist) * t.ny
+        const falloff = Math.max(0, 1 - dist / reach)
+        const lit = Math.max(0, facing) * falloff
+
+        // Base stays close to the page ground so the field reads as material
+        // rather than as a pattern laid on top of it.
+        const r = 22 + lit * 25
+        const g = 17 + lit * 17
+        const b = 49 + lit * 40
+        ctx.fillStyle = `rgb(${r | 0} ${g | 0} ${b | 0})`
+        ctx.beginPath()
+        ctx.moveTo(t.a[0], t.a[1])
+        ctx.lineTo(t.b[0], t.b[1])
+        ctx.lineTo(t.c[0], t.c[1])
+        ctx.closePath()
+        ctx.fill()
+
+        // Gold only on the brightest facet edges, and only as a hairline: a
+        // gold fill behind the type would wreck its contrast.
+        if (lit > 0.74) {
+          ctx.strokeStyle = `rgba(238, 167, 39, ${((lit - 0.74) / 0.26) * 0.38})`
+          ctx.lineWidth = 1
+          ctx.stroke()
+        }
+      }
+      drawnX = light.x
+      drawnY = light.y
+    }
+
+    const applyPortrait = () => {
+      if (!tilt || !portrait || !interactive) return
+      const nx = W ? light.x / W - 0.5 : 0
+      const ny = H ? light.y / H - 0.5 : 0
+      tilt.style.transform =
+        `rotateY(${(nx * MAX_TILT_DEG).toFixed(2)}deg) ` +
+        `rotateX(${(-ny * MAX_TILT_DEG * 0.7).toFixed(2)}deg) ` +
+        `translate3d(${(nx * -14).toFixed(1)}px, ${(ny * -8).toFixed(1)}px, 0)`
+      // The rake tracks the same light that shades the facets.
+      portrait.style.setProperty("--sheen", String(0.5 + nx * 0.9))
+    }
+
+    build()
+    setHome()
+    light.x = target.x
+    light.y = target.y
+    draw()
+    applyPortrait()
+
+    if (interactive) {
       window.addEventListener(
-        "scroll",
-        () => {
-          const y = window.scrollY
-          energy += Math.abs(y - lastY)
-          lastY = y
+        "pointermove",
+        (e: PointerEvent) => {
+          const rect = hero.getBoundingClientRect()
+          target.x = e.clientX - rect.left
+          target.y = e.clientY - rect.top
         },
         { passive: true }
       )
 
-      const clamp = gsap.utils.clamp(REST, MAX)
+      // Leaving the window returns the light home rather than freezing it
+      // wherever the cursor happened to exit.
+      document.addEventListener("pointerleave", setHome)
+      window.addEventListener("blur", setHome)
 
       gsap.ticker.add(() => {
-        energy *= 0.88
-        if (energy < 0.05) energy = 0
-
-        const push = clamp(REST + energy * 0.22)
-
-        lines.forEach((el, i) => {
-          const s = state[i]
-          // Later lines lag, so the response ripples down the headline.
-          const follow = 0.16 - i * 0.035
-          s.target = push
-          const next = s.w + (s.target - s.w) * follow
-          // Only touch the DOM when the axis actually moved: this property
-          // reflows the line, so a no-op write is not free.
-          if (Math.abs(next - s.w) > 0.12) {
-            s.w = next
-            write(el, s.w)
-          }
-        })
+        light.x += (target.x - light.x) * 0.075
+        light.y += (target.y - light.y) * 0.075
+        // Redraw only when the light actually moved. At rest this costs nothing.
+        if (Math.abs(light.x - drawnX) > 0.4 || Math.abs(light.y - drawnY) > 0.4) {
+          draw()
+          applyPortrait()
+        }
       })
     }
+
+    let resizeRaf = 0
+    window.addEventListener("resize", () => {
+      cancelAnimationFrame(resizeRaf)
+      resizeRaf = requestAnimationFrame(() => {
+        build()
+        if (!interactive) setHome()
+        light.x = target.x
+        light.y = target.y
+        draw()
+        applyPortrait()
+      })
+    })
   }
 </script>

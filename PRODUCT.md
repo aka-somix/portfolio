@@ -25,7 +25,7 @@ This makes the site closer to an *impression* artifact than a lead-generation pa
 
 ## Positioning
 
-The differentiator is the **combination**, not any single credential: deep backend and AWS architecture practice, current hands-on AI engineering work, and a genuinely location-independent working life ("tech nomad"). Most senior backend profiles have one or two of these. The nomad dimension is real operating experience, not a lifestyle aesthetic — it is offered as a service ("Digital Nomad Consulting") because it is practised.
+The differentiator is the **combination**, not any single credential: deep backend and AWS architecture practice, current hands-on AI engineering work, and a genuinely location-independent working life ("digital nomad"). Most senior backend profiles have one or two of these. The nomad dimension is real operating experience, not a lifestyle aesthetic — it is offered as a service ("Digital Nomad Consulting") because it is practised.
 
 A neighbouring portfolio could copy the palette and the motion. It could not truthfully copy "architect who ships AI features and has run senior delivery work from anywhere in the world."
 
@@ -64,7 +64,7 @@ A neighbouring portfolio could copy the palette and the motion. It could not tru
 ## Brand Commitments
 
 - **Name and identity**: Salvatore Cirone. Titles used in production: Senior Backend Engineer, Cloud Solutions Architect, AI Engineer.
-- **Voice**: professional but warm and first-person. Italian-inflected personality is deliberate — the hero opens on "Ciao!". Self-description is "a tech nomad who turns complex cloud and AI challenges into elegant realities". Playful punctuation (emoji as accent, e.g. `🤜🤛`, `👀`) is in-voice, used sparingly as texture rather than decoration.
+- **Voice**: professional but warm and first-person. Italian-inflected personality is deliberate — the hero opens on "Ciao!". Self-description is "a digital nomad who turns complex cloud and AI challenges into elegant realities". Playful punctuation (emoji as accent, e.g. `🤜🤛`, `👀`) is in-voice, used sparingly as texture rather than decoration.
 - **Framing**: work is presented as "Chapters" — a career narrative, not a case-study catalogue.
 - **Logo**: inline SVG geometric rect composition, used in nav, footer, and loading screen.
 - **Assets on hand**: hero portrait (`public/images/Hero.png`), four service avatars, four certification logos, social icons, OG image, favicons.

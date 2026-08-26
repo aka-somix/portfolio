@@ -83,21 +83,39 @@ Tokenised leading (`--leading-tight: 1.05`, `--leading-snug: 1.25`, `--leading-b
 - **Breakpoint transition**: GSAP animates the swap — desktop items fade up/out, burger fades in (mobile) and vice‑versa (desktop). Stagger on desktop items re‑entry. Sidebar auto‑closes on resize to desktop via `clearProps`.
 
 ### Hero Section
-Full-viewport (`min-height: 100svh`), type-led. The composition is a left type column on the page ground with the portrait absolutely positioned bottom-right, bleeding off the edge. **The glass card is gone** — the type sits directly on `--bg-primary`, which is both bolder and removes a decorative backdrop-filter panel.
+Full-viewport (`min-height: 100svh`), type-led. Left type column, portrait absolutely positioned bottom-right bleeding off the edge, and a **faceted light field** behind both. No glass card — the type sits on the page ground.
 
 **The headline is the claim, at display scale:**
 
 > Architecture that holds. / AI that ships. / **From wherever I am.**
 
-Three explicit `<span>` lines, Archivo, `clamp(2.5rem, 5vw, 4.75rem)`. The third line carries `--accent` because it carries the differentiation — replacing the decorative 3px gold divider that used to do that job.
+Three `<span>` lines, Archivo, `clamp(2.5rem, 5vw, 4.75rem)`. Third line carries `--accent` because it carries the differentiation.
 
-This inverts the previous hierarchy, where 104px of display type was spent on the greeting "Ciao!" while the positioning statement sat at 16px grey — the same size and colour as form helper text.
+**Lede:** *"Ciao! I am Salvatore, a digital nomad and creative software engineer"* at 28px. "Ciao!" opens the lede rather than sitting as a kicker above the heading (a banned pattern). The site standardises on **"digital nomad"** — not "tech nomad".
 
-**"Ciao!" now opens the lede**, below the headline: *"Ciao! I'm Salvatore — I turn complex cloud and AI challenges into elegant realities."* at 28px. The personality is preserved and more prominent than before; it is deliberately **not** a kicker above the heading (a banned pattern — the heading carries its own weight).
+Then the mono base line and a single quiet `See the work ↓` anchor. No booking button: the close belongs to the contact section, and this surface is Experience mode.
 
-Below that: the mono base line (`Based in Italy; living around the world`) and a single quiet `See the work ↓` anchor. No booking button here — the close belongs to the contact section; this surface is Experience mode and the artifact leads.
+#### Faceted light field
+The background is the **same low-poly material as the portrait**, lit by a source that follows the pointer. Portrait and ground share one light, so the illustration reads as native to the page rather than placed on it. This is the hero's authored moment.
 
-**Mobile (≤900px)**: portrait becomes a centred, bounded square above the type. The old `min-height: 60vh` floor on the text block — which produced ~250px of empty space on the highest-value screen — is gone; height is content-driven. Headline lines drop `white-space: nowrap` and are allowed to wrap.
+- Canvas 2D, a deterministically-jittered triangular lattice (~118px cells, seeded so it never reshuffles on resize), each facet carrying its own orientation vector
+- Shading is `max(0, dot(lightDir, facetNormal))` with distance falloff; facet fills stay close to `--bg-primary` so the field reads as material, not as a pattern laid on top
+- Gold appears **only as a hairline stroke on the brightest facet edges**, never as a fill — a gold fill behind the type would wreck its contrast
+- The light eases toward the pointer (0.075 lerp) and **redraws only when it actually moved**, so a resting page costs nothing
+- On pointer-leave or window blur the light returns home rather than freezing where the cursor exited
+
+#### Portrait
+- Tilts up to 6° on two axes plus a small parallax translate, driven by the same light position
+- A **gold rake** masked by the portrait's own alpha tracks that light — `soft-light` at 0.34 opacity, so it catches the existing facets rather than repainting them. A directional rake, deliberately not a symmetric halo.
+- Asset is `Hero.webp` — **76 KB, down from a 2.84 MB PNG** at 2048px. `Hero.png` remains in `public/` as the master and is no longer referenced.
+
+#### Scrim
+A directional gradient between the canvas and the type keeps the type column on near-solid ground, so the field can never erode text contrast while staying fully visible to the right. Measured worst case, with the light parked inside the text column: **16.8:1** headline, **11.3:1** lede, **8.5:1** mono base line. The gradient turns vertical below 900px, where the layout stacks.
+
+#### Where there is no cursor
+On touch and under `prefers-reduced-motion` the field renders **once** at a hand-picked light position (68% / 30%, so it rakes across the face) and no loop ever starts. The portrait does not tilt. This is the composed still, not a degraded version.
+
+**Mobile (≤900px)**: portrait becomes a centred bounded square above the type; no `min-height` floor on the text block; headline lines drop `nowrap` and may wrap.
 
 ### Services Section (`#services`)
 - Header: "Services" section label (the decorative `04` counter is gone; the deck indicator carries position)
@@ -183,7 +201,8 @@ The section whose job is to close. Previously it offered exactly one action — 
 
 | File | Usage |
 |---|---|
-| `public/images/Hero.png` | Hero section portrait |
+| `public/images/Hero.webp` | Hero portrait — 76 KB, 1440px, alpha preserved |
+| `public/images/Hero.png` | Master source of the above (2.84 MB, unreferenced) |
 | `public/images/services/backend.png` | Backend service card avatar |
 | `public/images/services/solution-architect.png` | Solution Architect avatar |
 | `public/images/services/ai-prompt-engineer.png` | AI Prompt Engineer avatar |
@@ -215,7 +234,8 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 |---|---|
 | **Loading screen** | Logo rectangles animate in/out on loop, then whole screen fades out on `window.load` |
 | **Hero fade-in** | Portrait fades in (`power2.out`, 1s). Lede, base line and jump link stagger from below (`y: 30`, 0.12s) |
-| **Headline width axis** | *The page's one authored moment.* Archivo's variable `wdth` axis (62–125) on each headline line. Entrance expands each line from `wdth 68` → `100` with a 0.13s stagger — type **arriving** rather than sliding. Then scroll energy pushes it `100 → 108`, each line lagging the one above so the response ripples down the headline. Exponential decay (`energy *= 0.88`), lerped, and the DOM is only written when the axis moves >0.12 (the property reflows the line, so a no-op write is not free). Measured at a locked 60fps: median 16.7ms, worst 17.7ms, zero frames over 32ms during a hard scroll. Static at `wdth 100` under `prefers-reduced-motion`. |
+| **Headline load-in** | Archivo's variable `wdth` axis expands each line from `68` → `100` with a 0.13s stagger — type **arriving** rather than sliding. Runs once, on load, then settles permanently. Static at `wdth 100` under `prefers-reduced-motion`.<br><br>**The scroll-driven width response was removed.** Below 768px the lines are allowed to wrap, so a width change mid-scroll could re-wrap the headline and shift everything beneath it — a layout-stability bug on exactly the small screens it was least wanted on. |
+| **Faceted light** | The hero's authored moment. Pointer-driven light over a seeded triangular lattice, portrait tilt and gold rake sharing the same light. Redraws only on light movement. Measured at a locked 60fps during a continuous pointer sweep: median 16.7ms, p95 17.7ms, worst 19.2ms, zero frames over 32ms. Renders once and never loops on touch or reduced-motion. |
 | **Section reveal** | ScrollTrigger on `data-animate="section"` — children stagger in from `y: 30` when section enters 85% viewport |
 | **Services scroll-trigger** | Header + hint text stagger in on scroll |
 | **Badge pick-up** | On drag intent: `scale 1.045`, `y -12`, deepened shadow, and `rotation` driven by pointer velocity so the badge lags the hand. Release settles on `back.out(1.7)`. Applied to `.badge-lift`, a layer the per-frame deck layout never touches. |
@@ -239,7 +259,7 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 
 ## 8. Content Strategy & Voice
 
-- **Tone**: Professional but approachable. "Ciao!" greeting, "tech nomad" self-description, playful emoji in CTA (`🤜🤛`)
+- **Tone**: Professional but approachable. "Ciao!" greeting, "digital nomad and creative software engineer" self-description, playful emoji in CTA (`🤜🤛`)
 - **Bio hook**: "turns complex cloud and AI challenges into elegant realities"
 - **CTA**: "Let's Build Together" — collaborative, forward-looking
 - **Work carousel**: "Work Chapters" frames each project as a distinct narrative chapter
@@ -287,5 +307,5 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 3. **Typography as hierarchy** — a single tokenised scale, with the display tier reserved for what actually differentiates. Three faces with three non-overlapping jobs; mono earns its place on figures, never as costume.
 4. **Real data over decorative data** — chapter spec panels carry actual figures in tabular mono; the service badges carry a real domain tag. Nothing on the page pretends to encode information it does not have.
 5. **Restrained palette, expressive motion** — only 2 accent colours (gold, purple) but rich animation vocabulary
-6. **Human details** — "Ciao!" greeting, playful emoji, "tech nomad" framing — personality within a professional container
+6. **Human details** — "Ciao!" greeting, playful emoji, "digital nomad" framing — personality within a professional container
 7. **Single-page rhythm** — sections flow hero → services → work → contact → footer, each with distinct layout but unified visual language
