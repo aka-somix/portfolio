@@ -1,0 +1,57 @@
+# UI label dictionary, keyed by component. A component reads exactly one block.
+# Structural labels, accessibility strings and button text all live here; prose
+# lives in sections/*.yaml.
+
+layout:
+  skipLink: Skip to main content
+
+nav:
+  logoAriaLabel: Salvatore Cirone — home
+  links:
+    - { id: services, label: Services }
+    - { id: work, label: Work }
+    - { id: contact, label: Contact }
+  cta:
+    label: Let's meet
+    alt: Book now
+  burgerAriaLabel: Toggle menu
+  sidebarAriaLabel: Navigation menu
+  socialAriaLabels:
+    linkedin: LinkedIn
+    github: GitHub
+    medium: Medium
+
+services:
+  deckAriaLabel: Services — draggable badge deck
+  prevAriaLabel: Previous service
+  nextAriaLabel: Next service
+
+serviceCard:
+  helpLabel: How I help
+  # Appended to the service title to form the flip button's aria-label.
+  flipAriaSuffix: " — flip for detail"
+
+work:
+  prevAriaLabel: Previous project
+  nextAriaLabel: Next project
+
+workCard:
+  held: What I held
+  taught: What it taught me
+  cta: Look inside
+  ctaAlt: 👀👀👀👀👀👀
+
+# Shared by the carousel card and the chapter page.
+workSpec:
+  client: Client
+  years: Years
+
+workPage:
+  back: All chapters
+  projects: Projects
+  writeUpTitle: The full write-up
+  holding:
+    title: The full write-up
+    body1: Still being written. The projects, the decisions that turned out to be right, and the ones that didn't are the interesting part, and they deserve more than a paragraph.
+    body2: Happy to walk you through any of it in the meantime.
+    cta: Ask me about it on a call

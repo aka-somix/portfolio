@@ -45,8 +45,50 @@ const seoSchema = z.object({
   }),
 })
 
+const uiSchema = z.object({
+  layout: z.object({ skipLink: z.string() }),
+  nav: z.object({
+    logoAriaLabel: z.string(),
+    links: z.array(z.object({ id: z.string(), label: z.string() })).min(1),
+    cta: z.object({ label: z.string(), alt: z.string() }),
+    burgerAriaLabel: z.string(),
+    sidebarAriaLabel: z.string(),
+    socialAriaLabels: z.object({
+      linkedin: z.string(),
+      github: z.string(),
+      medium: z.string(),
+    }),
+  }),
+  services: z.object({
+    deckAriaLabel: z.string(),
+    prevAriaLabel: z.string(),
+    nextAriaLabel: z.string(),
+  }),
+  serviceCard: z.object({ helpLabel: z.string(), flipAriaSuffix: z.string() }),
+  work: z.object({ prevAriaLabel: z.string(), nextAriaLabel: z.string() }),
+  workCard: z.object({
+    held: z.string(),
+    taught: z.string(),
+    cta: z.string(),
+    ctaAlt: z.string(),
+  }),
+  workSpec: z.object({ client: z.string(), years: z.string() }),
+  workPage: z.object({
+    back: z.string(),
+    projects: z.string(),
+    writeUpTitle: z.string(),
+    holding: z.object({
+      title: z.string(),
+      body1: z.string(),
+      body2: z.string(),
+      cta: z.string(),
+    }),
+  }),
+})
+
 export const collections = {
   footer: defineCollection({ loader: section('footer'), schema: footerSchema }),
   site: defineCollection({ loader: glob({ base: ROOT, pattern: 'site.yaml' }), schema: siteSchema }),
   seo:  defineCollection({ loader: glob({ base: ROOT, pattern: 'seo.yaml'  }), schema: seoSchema  }),
+  ui: defineCollection({ loader: glob({ base: ROOT, pattern: 'ui.yaml' }), schema: uiSchema }),
 }

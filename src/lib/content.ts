@@ -49,3 +49,26 @@ export const seo = () => data('seo', 'seo') as Promise<{
     work: { titleTemplate: string }
   }
 }>
+
+export const ui = () => data('ui', 'ui') as Promise<{
+  layout: { skipLink: string }
+  nav: {
+    logoAriaLabel: string
+    links: { id: string; label: string }[]
+    cta: { label: string; alt: string }
+    burgerAriaLabel: string
+    sidebarAriaLabel: string
+    socialAriaLabels: { linkedin: string; github: string; medium: string }
+  }
+  services: { deckAriaLabel: string; prevAriaLabel: string; nextAriaLabel: string }
+  serviceCard: { helpLabel: string; flipAriaSuffix: string }
+  work: { prevAriaLabel: string; nextAriaLabel: string }
+  workCard: { held: string; taught: string; cta: string; ctaAlt: string }
+  workSpec: { client: string; years: string }
+  workPage: {
+    back: string
+    projects: string
+    writeUpTitle: string
+    holding: { title: string; body1: string; body2: string; cta: string }
+  }
+}>

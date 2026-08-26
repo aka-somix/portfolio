@@ -1,7 +1,7 @@
 ---
 import { design } from "../design.config"
 import LoadingScreen from "../components/LoadingScreen.astro"
-import { seo, site } from "../lib/content"
+import { seo, site, ui } from "../lib/content"
 
 export interface Props {
   title: string
@@ -12,6 +12,7 @@ const { title, description } = Astro.props
 const { palette, font, type, layout, animation } = design
 const meta = await seo()
 const channels = await site()
+const labels = await ui()
 
 const cssVars = `
   --bg-primary: ${palette.bg.primary};
@@ -131,7 +132,7 @@ const jsonLdWebsite = {
     <style set:html={`:root {${cssVars}}`} is:global />
   </head>
   <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#main-content" class="skip-link">{labels.layout.skipLink}</a>
     <LoadingScreen />
     <div id="main-content">
       <slot />

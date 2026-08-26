@@ -1,18 +1,16 @@
 ---
-import { site } from "../data/site"
+import { site, ui } from "../lib/content"
 
-const BOOKING_URL = site.bookingUrl
+const channels = await site()
+const nav = (await ui()).nav
 
-const sections = [
-  { id: "services", label: "Services" },
-  { id: "work", label: "Work" },
-  { id: "contact", label: "Contact" },
-]
+const BOOKING_URL = channels.bookingUrl
+const sections = nav.links
 ---
 
 <nav class="nav">
   <div class="nav-inner">
-    <a href="/" class="nav-logo" aria-label="Salvatore Cirone — home">
+    <a href="/" class="nav-logo" aria-label={nav.logoAriaLabel}>
       <svg height="32" viewBox="0 0 236 245" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="1.5" y="196.5" width="233" height="47" fill="#F3F3F3" />
         <rect x="87.5" y="91.5" width="147" height="22" fill="#F3F3F3" />
@@ -32,23 +30,23 @@ const sections = [
     </div>
 
     <div class="nav-socials">
-      <a href={site.linkedin} target="_blank" class="nav-social" aria-label="LinkedIn" rel="noopener noreferrer">
+      <a href={channels.linkedin} target="_blank" class="nav-social" aria-label={nav.socialAriaLabels.linkedin} rel="noopener noreferrer">
         <img src="/images/social/linkedin.svg" alt="" width="20" height="20" />
       </a>
-      <a href={site.github} target="_blank" class="nav-social" aria-label="GitHub" rel="noopener noreferrer">
+      <a href={channels.github} target="_blank" class="nav-social" aria-label={nav.socialAriaLabels.github} rel="noopener noreferrer">
         <img src="/images/social/github.svg" alt="" width="20" height="20" />
       </a>
-      <a href={site.medium} target="_blank" class="nav-social" aria-label="Medium" rel="noopener noreferrer">
+      <a href={channels.medium} target="_blank" class="nav-social" aria-label={nav.socialAriaLabels.medium} rel="noopener noreferrer">
         <img src="/images/social/medium.svg" alt="" width="20" height="20" />
       </a>
     </div>
 
     <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" class="nav-cta" data-animate="cta">
-      <span data-cta-label>Let's meet</span>
-      <span data-cta-alt aria-hidden="true">Book now</span>
+      <span data-cta-label>{nav.cta.label}</span>
+      <span data-cta-alt aria-hidden="true">{nav.cta.alt}</span>
     </a>
 
-    <button class="nav-burger" data-burger aria-label="Toggle menu" aria-expanded="false">
+    <button class="nav-burger" data-burger aria-label={nav.burgerAriaLabel} aria-expanded="false">
       <span></span>
       <span></span>
       <span></span>
@@ -58,7 +56,7 @@ const sections = [
 
 <div class="sidebar-overlay" data-sidebar-overlay aria-hidden="true"></div>
 
-<aside class="sidebar" data-sidebar role="dialog" aria-modal="true" aria-label="Navigation menu">
+<aside class="sidebar" data-sidebar role="dialog" aria-modal="true" aria-label={nav.sidebarAriaLabel}>
   <div class="sidebar-inner">
     <div class="sidebar-links">
       {sections.map((section) => (
@@ -68,17 +66,17 @@ const sections = [
       ))}
     </div>
     <div class="sidebar-socials">
-      <a href={site.linkedin} target="_blank" class="nav-social" aria-label="LinkedIn" rel="noopener noreferrer">
+      <a href={channels.linkedin} target="_blank" class="nav-social" aria-label={nav.socialAriaLabels.linkedin} rel="noopener noreferrer">
         <img src="/images/social/linkedin.svg" alt="" width="20" height="20" />
       </a>
-      <a href={site.github} target="_blank" class="nav-social" aria-label="GitHub" rel="noopener noreferrer">
+      <a href={channels.github} target="_blank" class="nav-social" aria-label={nav.socialAriaLabels.github} rel="noopener noreferrer">
         <img src="/images/social/github.svg" alt="" width="20" height="20" />
       </a>
-      <a href={site.medium} target="_blank" class="nav-social" aria-label="Medium" rel="noopener noreferrer">
+      <a href={channels.medium} target="_blank" class="nav-social" aria-label={nav.socialAriaLabels.medium} rel="noopener noreferrer">
         <img src="/images/social/medium.svg" alt="" width="20" height="20" />
       </a>
     </div>
-    <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" class="sidebar-cta" data-sidebar-cta>Let's meet</a>
+    <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" class="sidebar-cta" data-sidebar-cta>{nav.cta.label}</a>
   </div>
 </aside>
 
