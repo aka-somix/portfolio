@@ -2,6 +2,11 @@
 > Author: Salvatore Cirone — Senior Backend Engineer & AWS Architect  
 > Built with: Astro v6 (static, no SSR)
 
+This document describes markup, layout, palette, typography and motion only.
+No copy lives here or in any component, every string comes from `src/content/en/**`
+via `src/lib/content.ts`. See `CONTENT.md` for where words live and `AGENTS.md`
+for the rule that enforces it.
+
 ---
 
 ## 1. Overview & Aesthetic Direction
