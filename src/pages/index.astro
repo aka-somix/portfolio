@@ -6,12 +6,12 @@ import Services from "../components/Services.astro"
 import WorkCarousel from "../components/WorkCarousel.astro"
 import Contact from "../components/Contact.astro"
 import Footer from "../components/Footer.astro"
+import { seo } from "../lib/content"
+
+const home = (await seo()).pages.home
 ---
 
-<BaseLayout
-  title="Salvatore Cirone | Senior Backend Engineer & AWS Architect"
-  description="Salvatore Cirone — Senior Backend Engineer, AWS Solutions Architect, and AI Prompt Engineer. Cloud-native development and scalable architectures for global teams."
->
+<BaseLayout title={home.title} description={home.description}>
   <Nav />
   <main>
     <Hero />

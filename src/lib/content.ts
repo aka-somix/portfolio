@@ -20,3 +20,32 @@ async function data<K extends CollectionKey>(collection: K, id: string) {
 }
 
 export const footer = () => data('footer', 'footer') as Promise<{ copyright: string }>
+
+export const site = () => data('site', 'site') as Promise<{
+  bookingUrl: string
+  email: string
+  linkedin: string
+  github: string
+  medium: string
+  base: string
+  person: {
+    name: string
+    givenName: string
+    familyName: string
+    jobTitle: string[]
+    description: string
+    knowsAbout: string[]
+  }
+}>
+
+export const seo = () => data('seo', 'seo') as Promise<{
+  siteName: string
+  siteUrl: string
+  ogImage: string
+  ogImageWidth: string
+  ogImageHeight: string
+  pages: {
+    home: { title: string; description: string }
+    work: { titleTemplate: string }
+  }
+}>

@@ -1,0 +1,17 @@
+# NOTE for the site owner: siteUrl below is the about. subdomain, which is what
+# canonical and OG tags have always used, while astro.config.mjs `site` is the
+# apex domain used by the sitemap. That discrepancy predates this refactor and is
+# deliberately left alone here.
+siteName: Salvatore Cirone
+siteUrl: https://about.salvatorecirone.dev
+ogImage: /images/og/v1.png
+ogImageWidth: "1200"
+ogImageHeight: "630"
+
+pages:
+  home:
+    title: Salvatore Cirone | Senior Backend Engineer & AWS Architect
+    description: Salvatore Cirone — Senior Backend Engineer, AWS Solutions Architect, and AI Prompt Engineer. Cloud-native development and scalable architectures for global teams.
+  work:
+    # {title} is replaced with the chapter title.
+    titleTemplate: "{title} | Salvatore Cirone"

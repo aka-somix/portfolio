@@ -1,6 +1,7 @@
 ---
 import { design } from "../design.config"
 import LoadingScreen from "../components/LoadingScreen.astro"
+import { seo, site } from "../lib/content"
 
 export interface Props {
   title: string
@@ -9,6 +10,8 @@ export interface Props {
 
 const { title, description } = Astro.props
 const { palette, font, type, layout, animation } = design
+const meta = await seo()
+const channels = await site()
 
 const cssVars = `
   --bg-primary: ${palette.bg.primary};
@@ -55,28 +58,21 @@ const cssVars = `
   --duration-slow: ${animation.durationSlow};
 `
 
-const siteUrl = "https://about.salvatorecirone.dev"
-const ogImage = "/images/og/v1.png"
-const siteName = "Salvatore Cirone"
+const siteUrl = meta.siteUrl
+const ogImage = meta.ogImage
+const siteName = meta.siteName
 
 const jsonLdPerson = {
   "@context": "https://schema.org",
   "@type": "Person",
-  "name": "Salvatore Cirone",
-  "givenName": "Salvatore",
-  "familyName": "Cirone",
-  "jobTitle": [
-    "Cloud Solutions Architect",
-    "Senior Backend Engineer",
-    "AI Engineer"
-  ],
-  "description": "Tech nomad turning complex cloud and AI challenges into elegant realities.",
+  "name": channels.person.name,
+  "givenName": channels.person.givenName,
+  "familyName": channels.person.familyName,
+  "jobTitle": channels.person.jobTitle,
+  "description": channels.person.description,
   "url": siteUrl,
-  "sameAs": [
-    "https://www.linkedin.com/in/salvatore-cirone-it/",
-    "https://github.com/aka-somix"
-  ],
-  "knowsAbout": ["AWS", "Cloud Architecture", "AI/ML", "Node.js", "Python", "Backend Engineering"],
+  "sameAs": [channels.linkedin, channels.github],
+  "knowsAbout": channels.person.knowsAbout,
   "image": `${siteUrl}${ogImage}`
 }
 
@@ -106,8 +102,8 @@ const jsonLdWebsite = {
     <meta property="og:description" content={description} />
     <meta property="og:url" content={new URL(Astro.url.pathname, siteUrl).href} />
     <meta property="og:image" content={`${siteUrl}${ogImage}`} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:width" content={meta.ogImageWidth} />
+    <meta property="og:image:height" content={meta.ogImageHeight} />
     <meta property="og:site_name" content={siteName} />
 
     <meta name="twitter:card" content="summary_large_image" />

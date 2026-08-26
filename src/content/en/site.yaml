@@ -1,0 +1,30 @@
+# Identity and contact channels. Single source of truth: these were previously
+# scattered across Nav.astro, Contact.astro and BaseLayout.astro.
+bookingUrl: https://calendar.app.google/PRkS5N4zfMgpPgud7
+email: s.cirone.work@gmail.com
+linkedin: https://www.linkedin.com/in/salvatore-cirone-it/
+github: https://github.com/aka-somix
+medium: https://medium.com/@salvatorecirone
+
+# Read in the hero base line.
+base: Based in Italy
+
+# Values for the schema.org Person block. The JSON-LD object shape lives in
+# BaseLayout.astro; only these values are content. `sameAs` is derived from the
+# linkedin and github channels above, in that order.
+person:
+  name: Salvatore Cirone
+  givenName: Salvatore
+  familyName: Cirone
+  jobTitle:
+    - Cloud Solutions Architect
+    - Senior Backend Engineer
+    - AI Engineer
+  description: Tech nomad turning complex cloud and AI challenges into elegant realities.
+  knowsAbout:
+    - AWS
+    - Cloud Architecture
+    - AI/ML
+    - Node.js
+    - Python
+    - Backend Engineering
