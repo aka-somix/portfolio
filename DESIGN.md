@@ -81,6 +81,7 @@ The palette is **deep purple dominant with gold accents**. Contrast is driven by
 
 ### Services Section (`#services`)
 - Header: "Services" (large section label) + counter `04`
+- Description text below header (driven from `sections.ts`)
 - Hint text: "Drag to explore" in monospaced uppercase
 - **Draggable card deck**: 4 cards positioned absolutely in a track, controlled by pointer drag with GSAP
   - Cards snap to nearest slot on release
@@ -92,6 +93,7 @@ The palette is **deep purple dominant with gold accents**. Contrast is driven by
 
 ### Work Section (`#work`)
 - Header: "Work Chapters" + counter `01`
+- Description text below header (driven from `sections.ts`)
 - **Horizontal carousel** with arrow navigation and `01/01` monospaced indicator
 - Cards are 75vw wide, 3/2 aspect ratio, two-column grid:
   - **Left**: counter (`01/01`), title, description, role tags (bordered monospaced pills)
@@ -113,6 +115,7 @@ The palette is **deep purple dominant with gold accents**. Contrast is driven by
 
 ### Contact Section (`#contact`)
 - Headline: "Let's Build Together" (Inter 800)
+- Description text below headline (driven from `sections.ts`)
 - Two-column grid:
   - Bio paragraph with playful emoji accent
   - Email: `s.cirone.work@gmail.com` with underline hover effect

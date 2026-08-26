@@ -2,13 +2,17 @@
 import WorkCard from "./WorkCard.astro"
 import { works } from "../data/work"
 import { certifications } from "../data/certifications"
+import { sections } from "../data/sections"
+
+const section = sections.work
 ---
 
 <section class="work" id="work" data-animate="section">
   <div class="work-header">
-    <h2 class="section-label">Work Chapters</h2>
+    <h2 class="section-label">{section.title}</h2>
     <span class="section-count">0{works.length}</span>
   </div>
+  <p class="section-description">{section.description}</p>
 
   <div class="carousel-wrapper">
     <div class="carousel-viewport" id="carousel-viewport">
@@ -193,6 +197,13 @@ import { certifications } from "../data/certifications"
     font-family: var(--font-mono);
     font-size: 0.7rem;
     color: var(--text-muted);
+  }
+
+  .section-description {
+    max-width: var(--max-width);
+    margin: 0 auto 40px;
+    font-size: 1rem;
+    color: var(--text-secondary);
   }
 
   .carousel-wrapper {

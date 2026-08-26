@@ -1,10 +1,13 @@
 ---
+import { sections } from "../data/sections"
 
+const section = sections.contact
 ---
 
 <section class="contact" id="contact" data-animate="section">
   <div class="contact-inner">
-    <h2 class="contact-heading">Let's Build Together</h2>
+    <h2 class="contact-heading">{section.title}</h2>
+    <p class="section-description">{section.description}</p>
     <div class="contact-content">
       <div class="contact-bio">
         <p>
@@ -37,6 +40,12 @@
     font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 800;
     letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+
+  .section-description {
+    font-size: 1rem;
+    color: var(--text-secondary);
     margin-bottom: 40px;
   }
 

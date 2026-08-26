@@ -1,13 +1,17 @@
 ---
 import ServiceCard from "./ServiceCard.astro"
 import { services } from "../data/services"
+import { sections } from "../data/sections"
+
+const section = sections.services
 ---
 
 <section class="services" id="services" data-services-section>
   <div class="services-header" data-services-header>
-    <h2 class="section-label">Services</h2>
+    <h2 class="section-label">{section.title}</h2>
     <span class="section-count">0{services.length}</span>
   </div>
+  <p class="section-description" data-services-header>{section.description}</p>
   <p class="services-hint" data-services-header>Drag to explore</p>
   <div class="services-track-wrapper">
     <div class="services-track" data-services-track>
@@ -46,9 +50,16 @@ import { services } from "../data/services"
     color: var(--text-muted);
   }
 
+  .section-description {
+    max-width: var(--max-width);
+    margin: 0 auto 8px;
+    font-size: 1rem;
+    color: var(--text-secondary);
+  }
+
   .services-hint {
     max-width: var(--max-width);
-    margin: 0 auto 24px;
+    margin: 0 auto 16px;
     font-size: 0.7rem;
     font-family: var(--font-mono);
     color: var(--text-muted);
