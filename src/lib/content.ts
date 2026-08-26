@@ -104,6 +104,16 @@ export const certifications = () => data('certifications', 'certifications') as 
   items: { name: string; issuer: string; logo: string; link: string }[]
 }>
 
+export const contact = () => data('contact', 'contact') as Promise<{
+  header: { title: string }
+  lede: string
+  actions: {
+    booking: { title: string; note: string }
+    linkedin: { title: string; note: string }
+    email: { title: string }
+  }
+}>
+
 /** Chapters in author-declared order. `entry.id` is the slug. */
 export async function workChapters(): Promise<CollectionEntry<'work'>[]> {
   const all = await getCollection('work')

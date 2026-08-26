@@ -140,6 +140,16 @@ const workSchema = z.object({
     .default([]),
 })
 
+const contactSchema = z.object({
+  header: z.object({ title: z.string() }),
+  lede: z.string(),
+  actions: z.object({
+    booking: z.object({ title: z.string(), note: z.string() }),
+    linkedin: z.object({ title: z.string(), note: z.string() }),
+    email: z.object({ title: z.string() }),
+  }),
+})
+
 const heroSchema = z.object({
   headline: z.array(z.string()).min(1),
   lede: z.object({ before: z.string(), name: z.string(), after: z.string() }),
@@ -157,6 +167,7 @@ export const collections = {
   services: defineCollection({ loader: section('services'), schema: servicesSchema }),
   workSection:    defineCollection({ loader: section('work'), schema: workSectionSchema }),
   certifications: defineCollection({ loader: section('certifications'), schema: certificationsSchema }),
+  contact: defineCollection({ loader: section('contact'), schema: contactSchema }),
   work: defineCollection({
     loader: glob({ base: `${ROOT}/work`, pattern: '**/*.md' }),
     schema: workSchema,

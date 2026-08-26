@@ -1,31 +1,38 @@
 ---
+import type { CollectionEntry } from "astro:content"
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import Nav from "../../components/Nav.astro"
 import Footer from "../../components/Footer.astro"
-import { site } from "../../data/site"
+import { renderChapter, seo, site, ui, workChapters } from "../../lib/content"
 
 export async function getStaticPaths() {
-  const { workChapters } = await import("../../lib/content")
-  const works = await workChapters()
-  return works.map((entry) => ({
-    params: { slug: entry.id },
-    props: { work: entry.data },
+  const chapters = await workChapters()
+  return chapters.map((chapter) => ({
+    params: { slug: chapter.id },
+    props: { chapter },
   }))
 }
 
 export interface Props {
-  // Task 7 replaces this with the content-collection entry type
-  work: any
+  chapter: CollectionEntry<"work">
 }
 
-const { work } = Astro.props
-const hasDetail = Boolean(work.detail?.projects?.length)
+const { chapter } = Astro.props
+const work = chapter.data
+const { Content } = await renderChapter(chapter)
+
+const channels = await site()
+const labels = (await ui()).workPage
+const cardLabels = (await ui()).workCard
+const specLabels = (await ui()).workSpec
+const meta = await seo()
+
+const hasProjects = work.projects.length > 0
+const hasWriteUp = Boolean(chapter.body?.trim())
+const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
 ---
 
-<BaseLayout
-  title={`${work.title} | Salvatore Cirone`}
-  description={work.lede}
->
+<BaseLayout title={pageTitle} description={work.description}>
   <Nav />
 
   <div class="page">
@@ -40,7 +47,7 @@ const hasDetail = Boolean(work.detail?.projects?.length)
             stroke-linejoin="round"
           />
         </svg>
-        All chapters
+        {labels.back}
       </a>
 
       <header class="page-head">
@@ -52,23 +59,23 @@ const hasDetail = Boolean(work.detail?.projects?.length)
       <div class="page-body">
         <div class="page-main">
           <section class="block">
-            <h2 class="block-title">What I held</h2>
+            <h2 class="block-title">{cardLabels.held}</h2>
             <ul class="block-list">
               {work.responsibilities.map((item) => <li>{item}</li>)}
             </ul>
           </section>
 
           <section class="block">
-            <h2 class="block-title">What it taught me</h2>
+            <h2 class="block-title">{cardLabels.taught}</h2>
             <p class="block-text">{work.learned}</p>
           </section>
 
           {
-            hasDetail ? (
+            hasProjects && (
               <section class="block">
-                <h2 class="block-title">Projects</h2>
+                <h2 class="block-title">{labels.projects}</h2>
                 <div class="projects">
-                  {work.detail!.projects.map((project) => (
+                  {work.projects.map((project) => (
                     <article class="project">
                       <h3 class="project-name">{project.name}</h3>
                       <p class="project-summary">{project.summary}</p>
@@ -77,26 +84,31 @@ const hasDetail = Boolean(work.detail?.projects?.length)
                   ))}
                 </div>
               </section>
+            )
+          }
+
+          {
+            hasWriteUp ? (
+              <section class="block">
+                <h2 class="block-title">{labels.writeUpTitle}</h2>
+                <div class="block-text">
+                  <Content />
+                </div>
+              </section>
             ) : (
-              /* Honest holding state. Carries real value — the facts are all
-                 true and already on the page — instead of a dashed box. */
+              /* Honest holding state. Carries real value: the facts are all
+                 true and already on the page, instead of a dashed box. */
               <section class="block holding">
-                <h2 class="block-title">The full write-up</h2>
-                <p class="block-text">
-                  Still being written. The projects, the decisions that turned out
-                  to be right, and the ones that didn't are the interesting part,
-                  and they deserve more than a paragraph.
-                </p>
-                <p class="block-text">
-                  Happy to walk you through any of it in the meantime.
-                </p>
+                <h2 class="block-title">{labels.holding.title}</h2>
+                <p class="block-text">{labels.holding.body1}</p>
+                <p class="block-text">{labels.holding.body2}</p>
                 <a
-                  href={site.bookingUrl}
+                  href={channels.bookingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   class="holding-cta"
                 >
-                  Ask me about it on a call
+                  {labels.holding.cta}
                   <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                     <path
                       d="M4 10h11M11 5l5 5-5 5"
@@ -118,11 +130,11 @@ const hasDetail = Boolean(work.detail?.projects?.length)
             data-spec-placeholder={work.specPlaceholder ? "true" : undefined}
           >
             <div class="spec-row spec-row--head">
-              <dt>Client</dt>
+              <dt>{specLabels.client}</dt>
               <dd>{work.client}</dd>
             </div>
             <div class="spec-row spec-row--head">
-              <dt>Years</dt>
+              <dt>{specLabels.years}</dt>
               <dd class="tabular">{work.years}</dd>
             </div>
             {

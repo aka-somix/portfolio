@@ -1,0 +1,15 @@
+header:
+  title: Let's Build Together
+
+lede: Whether you need to scale your cloud architecture, bring AI into your product, or just want to brainstorm how to build a global tech team from anywhere. Let's connect and make it happen 🤜🤛
+
+actions:
+  booking:
+    title: Book a call
+    note: 60 minutes, no pitch. Pick a slot
+  linkedin:
+    title: Message on LinkedIn
+    note: Fastest for a quick question
+  email:
+    # The note is the email address itself, read from site.yaml.
+    title: Email

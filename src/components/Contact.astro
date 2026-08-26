@@ -1,8 +1,10 @@
 ---
-import { sections } from "../data/sections"
-import { site } from "../data/site"
+import { contact, site } from "../lib/content"
 
-const section = sections.contact
+const content = await contact()
+const section = content.header
+const channels = await site()
+const actions = content.actions
 ---
 
 <section class="contact" id="contact" data-animate="section">
@@ -10,9 +12,7 @@ const section = sections.contact
     <div class="contact-head">
       <h2 class="contact-heading">{section.title}</h2>
       <p class="contact-lede">
-        Whether you need to scale your cloud architecture, bring AI into your
-        product, or just want to brainstorm how to build a global tech team from
-        anywhere. Let's connect and make it happen 🤜🤛
+        {content.lede}
       </p>
     </div>
 
@@ -21,14 +21,14 @@ const section = sections.contact
          is a proportion the layout holds rather than a larger font. -->
     <div class="contact-actions">
       <a
-        href={site.bookingUrl}
+        href={channels.bookingUrl}
         target="_blank"
         rel="noopener noreferrer"
         class="action action--primary"
       >
         <span class="action-copy">
-          <span class="action-title">Book a call</span>
-          <span class="action-note">60 minutes, no pitch. Pick a slot</span>
+          <span class="action-title">{actions.booking.title}</span>
+          <span class="action-note">{actions.booking.note}</span>
         </span>
 
         <span class="action-arrow" aria-hidden="true">
@@ -46,18 +46,18 @@ const section = sections.contact
 
       <div class="action-secondary-row">
         <a
-          href={site.linkedin}
+          href={channels.linkedin}
           target="_blank"
           rel="noopener noreferrer"
           class="action action--secondary"
         >
-          <span class="action-title">Message on LinkedIn</span>
-          <span class="action-note">Fastest for a quick question</span>
+          <span class="action-title">{actions.linkedin.title}</span>
+          <span class="action-note">{actions.linkedin.note}</span>
         </a>
 
-        <a href={`mailto:${site.email}`} class="action action--tertiary">
-          <span class="action-title">Email</span>
-          <span class="action-note">{site.email}</span>
+        <a href={`mailto:${channels.email}`} class="action action--tertiary">
+          <span class="action-title">{actions.email.title}</span>
+          <span class="action-note">{channels.email}</span>
         </a>
       </div>
     </div>
