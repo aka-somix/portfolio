@@ -21,6 +21,14 @@ async function data<K extends CollectionKey>(collection: K, id: string) {
 
 export const footer = () => data('footer', 'footer') as Promise<{ copyright: string }>
 
+export const hero = () => data('hero', 'hero') as Promise<{
+  headline: string[]
+  lede: { before: string; name: string; after: string }
+  baseSuffix: string
+  jumpLabel: string
+  portrait: { src: string; alt: string }
+}>
+
 export const site = () => data('site', 'site') as Promise<{
   bookingUrl: string
   email: string

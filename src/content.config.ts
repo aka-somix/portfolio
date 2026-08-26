@@ -86,8 +86,17 @@ const uiSchema = z.object({
   }),
 })
 
+const heroSchema = z.object({
+  headline: z.array(z.string()).min(1),
+  lede: z.object({ before: z.string(), name: z.string(), after: z.string() }),
+  baseSuffix: z.string(),
+  jumpLabel: z.string(),
+  portrait: z.object({ src: z.string(), alt: z.string() }),
+})
+
 export const collections = {
   footer: defineCollection({ loader: section('footer'), schema: footerSchema }),
+  hero: defineCollection({ loader: section('hero'), schema: heroSchema }),
   site: defineCollection({ loader: glob({ base: ROOT, pattern: 'site.yaml' }), schema: siteSchema }),
   seo:  defineCollection({ loader: glob({ base: ROOT, pattern: 'seo.yaml'  }), schema: seoSchema  }),
   ui: defineCollection({ loader: glob({ base: ROOT, pattern: 'ui.yaml' }), schema: uiSchema }),

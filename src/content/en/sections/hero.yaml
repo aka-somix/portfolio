@@ -1,0 +1,23 @@
+# The headline is the claim, at display scale. Three explicit lines because the
+# sentence is three sentences, and because the load-in animation expands them in
+# sequence.
+headline:
+  - Architecture that holds.
+  - AI that ships.
+  - From wherever I am.
+
+# Split around the <strong> in the markup. Leading and trailing spaces are
+# significant, so these are quoted.
+lede:
+  before: "Ciao! I am "
+  name: Salvatore
+  after: ", a digital nomad and creative software engineer"
+
+# Follows site.yaml `base` in the same paragraph.
+baseSuffix: "; living around the world"
+
+jumpLabel: See the work
+
+portrait:
+  src: /images/Hero.webp
+  alt: Illustrated low-poly portrait of Salvatore Cirone
