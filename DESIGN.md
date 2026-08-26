@@ -105,15 +105,17 @@ The background is the **same low-poly material as the portrait**, lit by a sourc
 - On pointer-leave or window blur the light returns home rather than freezing where the cursor exited
 
 #### Portrait
-- Tilts up to 6° on two axes plus a small parallax translate, driven by the same light position
-- A **gold rake** masked by the portrait's own alpha tracks that light — `soft-light` at 0.34 opacity, so it catches the existing facets rather than repainting them. A directional rake, deliberately not a symmetric halo.
+**The figure's geometry never moves.** It carried a 6° two-axis tilt plus a parallax translate, and that read cheap: a solid object does not swivel because a light moved, so the tilt announced itself as an effect applied to a picture rather than as light falling on a form. The 3D stage (`perspective`, `preserve-3d`, `will-change: transform`) went with it, and no inline transform is ever written to the figure.
+
+What the light still changes is where it lands:
+- A **gold rake** masked by the portrait's own alpha tracks the same light that shades the ground, `soft-light` at 0.34 opacity, so it catches the existing facets rather than repainting them. A directional rake, deliberately not a symmetric halo. This is now the whole of the portrait's response to the pointer, which is also the only response a fixed object should have.
 - Asset is `Hero.webp` — **76 KB, down from a 2.84 MB PNG** at 2048px. `Hero.png` remains in `public/` as the master and is no longer referenced.
 
 #### Scrim
 A directional gradient between the canvas and the type keeps the type column on near-solid ground, so the field can never erode text contrast while staying fully visible to the right. Measured worst case, with the light parked inside the text column: **16.8:1** headline, **11.3:1** lede, **8.5:1** mono base line. The gradient turns vertical below 900px, where the layout stacks.
 
 #### Where there is no cursor
-On touch and under `prefers-reduced-motion` the field renders **once** at a hand-picked light position (68% / 30%, so it rakes across the face) and no loop ever starts. The portrait does not tilt. This is the composed still, not a degraded version.
+On touch and under `prefers-reduced-motion` the field renders **once** at a hand-picked light position (68% / 30%, so it rakes across the face) and no loop ever starts. The rake is placed from that same home light, so the still is lit consistently with the ground beneath it (it previously defaulted to the rake's midpoint instead, a light the lattice was not using). This is the composed still, not a degraded version.
 
 **Mobile (≤900px)**: portrait becomes a centred bounded square above the type; no `min-height` floor on the text block; headline lines drop `nowrap` and may wrap.
 
@@ -179,18 +181,20 @@ Previously a dead end: no nav, no footer, and a dashed "PROJECT DETAIL COMING SO
 - When it does not, an **honest holding state**: says the write-up is still being written, and offers a booking link ("Ask me about it on a call") instead of a dashed rectangle
 
 ### Contact Section (`#contact`)
-The section whose job is to close. Previously it offered exactly one action — a `mailto:` in the right-hand column — while the booking link lived only in the fixed nav.
+The section whose job is to close. Three real channels, ranked, and nothing else.
 
-- Headline: "Let's Build Together" (Archivo display, `--leading-tight`; it previously inherited body leading of 1.6 and rendered with 64px of leading on mobile)
-- Lede at 21px carrying the voice, emoji accent preserved (`🤜🤛`)
-- **Action hierarchy, in the order a visitor should reach for them:**
-  1. **Book a call** — primary, gold ground, 28px title, animated arrow. The highest-intent action on the site, now on the page where the decision happens.
-  2. **Message on LinkedIn** — secondary
-  3. **Email** — tertiary
-- **Facts rail** beside the actions (using width that was previously empty):
-  - **Availability** — the honest claim from PRODUCT.md: at xFarm full-time, open to select projects and advisory work. This appeared nowhere on the site before.
-  - **Based** — Italy · CET/UTC+1, which turns the nomad claim into a practical booking fact
-- All channels and the availability copy live in `src/data/site.ts`, a single source of truth
+**The hierarchy is geometric, not typographic.** Head above, full rail beneath it: one gold block, then the secondary pair side by side. The block is measured in secondary doors rather than in pixels: `--door: 110px`, `--door-gap: 16px` and `--door-span: 1.6` live on `.contact-actions` and are the only numbers the composition is built on. The pair is a `grid-auto-rows: minmax(var(--door), auto)` track, so the email address can push a door taller instead of overflowing it, and the block's `min-height` is `calc(var(--door) * var(--door-span) + var(--door-gap))` = **192px against a 110px door**.
+
+`--door-span` was a flat `2` first, an exact `236 = 110 × 2 + 16`. The arithmetic was clean and the block read as an empty gold field rather than a lead action, so the span came down to 1.6. It is still plainly the largest element in the section; it is no longer the section's whole weight.
+
+- Headline: "Let's Build Together" (Archivo display, `--size-section`, `--leading-tight`, `max-width: 22ch`)
+- Lede at 21px carrying the voice, emoji accent preserved (`🤜🤛`). **Drops to 17px / `--leading-body` below 768px**, where 21px over a 342px column ran six lines and read as heavy as the heading above it.
+- **The gold block is set like a ticket.** Its content spans the height rather than floating at the midpoint: `Book a call` in Archivo black at `--size-2xl` on the top line, the practical detail at the foot, and a 64px circular arrow affordance bottom-right on the note's line. `align-content: stretch` is declared alongside `align-items: stretch` because inheriting `align-content: center` from `.action` collapsed the row to its content height and the distribution silently did nothing.
+- Arrow affordance inverts on hover and `:focus-visible` — dark fill, gold glyph, 3px glyph travel. It is an authored SVG, not a glyph.
+- **Action order:** Book a call (gold block) → Message on LinkedIn → Email.
+- **The facts rail was removed.** Availability and Based/timezone are no longer stated here; the availability claim lives in PRODUCT.md as a constraint on copy, not as page content. `availability` and `timezone` are gone from `src/data/site.ts` with it. `base` stays, read by the hero base line.
+- **Below 768px** the pair stacks, so the door ratio has no pair left to measure against. The block keeps its lead by scale alone at `min-height: 152px` with the title at `--size-xl` and a 48px arrow.
+- All channels live in `src/data/site.ts`, a single source of truth
 
 ### Footer
 - Inline logo SVG (same as nav) + "© 2026 Salvatore Cirone" in monospaced
@@ -235,7 +239,7 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 | **Loading screen** | Logo rectangles animate in/out on loop, then whole screen fades out on `window.load` |
 | **Hero fade-in** | Portrait fades in (`power2.out`, 1s). Lede, base line and jump link stagger from below (`y: 30`, 0.12s) |
 | **Headline load-in** | Archivo's variable `wdth` axis expands each line from `68` → `100` with a 0.13s stagger — type **arriving** rather than sliding. Runs once, on load, then settles permanently. Static at `wdth 100` under `prefers-reduced-motion`.<br><br>**The scroll-driven width response was removed.** Below 768px the lines are allowed to wrap, so a width change mid-scroll could re-wrap the headline and shift everything beneath it — a layout-stability bug on exactly the small screens it was least wanted on. |
-| **Faceted light** | The hero's authored moment. Pointer-driven light over a seeded triangular lattice, portrait tilt and gold rake sharing the same light. Redraws only on light movement. Measured at a locked 60fps during a continuous pointer sweep: median 16.7ms, p95 17.7ms, worst 19.2ms, zero frames over 32ms. Renders once and never loops on touch or reduced-motion. |
+| **Faceted light** | The hero's authored moment. Pointer-driven light over a seeded triangular lattice, with the portrait's gold rake reading from the same light. The figure itself is fixed; only the shading moves. Redraws only on light movement. Measured at a locked 60fps during a continuous pointer sweep: median 16.7ms, p95 17.7ms, worst 19.2ms, zero frames over 32ms. Renders once and never loops on touch or reduced-motion. |
 | **Section reveal** | ScrollTrigger on `data-animate="section"` — children stagger in from `y: 30` when section enters 85% viewport |
 | **Services scroll-trigger** | Header + hint text stagger in on scroll |
 | **Badge pick-up** | On drag intent: `scale 1.045`, `y -12`, deepened shadow, and `rotation` driven by pointer velocity so the badge lags the hand. Release settles on `back.out(1.7)`. Applied to `.badge-lift`, a layer the per-frame deck layout never touches. |

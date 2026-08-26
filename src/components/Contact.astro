@@ -12,75 +12,54 @@ const section = sections.contact
       <p class="contact-lede">
         Whether you need to scale your cloud architecture, bring AI into your
         product, or just want to brainstorm how to build a global tech team from
-        anywhere — let's connect and make it happen 🤜🤛
+        anywhere. Let's connect and make it happen 🤜🤛
       </p>
     </div>
 
-    <div class="contact-body">
-      <div class="contact-actions">
-      <!-- Primary. The highest-intent action on the site, which previously
-           existed only as a 12px button in the fixed nav. -->
+    <!-- The hierarchy is geometric, not typographic: the gold block is measured
+         in secondary doors rather than in pixels, so "the booking action leads"
+         is a proportion the layout holds rather than a larger font. -->
+    <div class="contact-actions">
       <a
         href={site.bookingUrl}
         target="_blank"
         rel="noopener noreferrer"
         class="action action--primary"
       >
-        <span class="action-title">Book a call</span>
-        <span class="action-note">30 minutes, no pitch — pick a slot</span>
-        <svg
-          class="action-arrow"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M4 10h11M11 5l5 5-5 5"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <span class="action-copy">
+          <span class="action-title">Book a call</span>
+          <span class="action-note">60 minutes, no pitch. Pick a slot</span>
+        </span>
+
+        <span class="action-arrow" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M5 12h13M13 6l6 6-6 6"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
       </a>
 
-        <div class="action-secondary-row">
-          <a
-            href={site.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="action action--secondary"
-          >
-            <span class="action-title">Message on LinkedIn</span>
-            <span class="action-note">Fastest for a quick question</span>
-          </a>
+      <div class="action-secondary-row">
+        <a
+          href={site.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="action action--secondary"
+        >
+          <span class="action-title">Message on LinkedIn</span>
+          <span class="action-note">Fastest for a quick question</span>
+        </a>
 
-          <a href={`mailto:${site.email}`} class="action action--tertiary">
-            <span class="action-title">Email</span>
-            <span class="action-note">{site.email}</span>
-          </a>
-        </div>
+        <a href={`mailto:${site.email}`} class="action action--tertiary">
+          <span class="action-title">Email</span>
+          <span class="action-note">{site.email}</span>
+        </a>
       </div>
-
-      <!-- The availability claim, on the page for the first time. A visitor at
-           the decision point should not have to guess whether he can take work.
-           Sitting beside the actions rather than under them also uses the width
-           that was previously empty. -->
-      <dl class="contact-facts">
-        <div class="fact">
-          <dt>Availability</dt>
-          <dd>{site.availability}</dd>
-        </div>
-        <div class="fact">
-          <dt>Based</dt>
-          <dd>{site.base} · <span class="tabular">{site.timezone}</span></dd>
-        </div>
-        <!-- A response-time expectation belongs here and measurably helps a
-             visitor commit. Left out because it is a promise only Salvatore can
-             make; add a `replyTime` to site.ts when he decides on one. -->
-      </dl>
     </div>
   </div>
 </section>
@@ -89,13 +68,6 @@ const section = sections.contact
   .contact {
     padding: 120px 24px 96px;
     border-bottom: none;
-  }
-
-  .contact-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: 72px;
-    align-items: start;
   }
 
   .contact-head {
@@ -122,21 +94,32 @@ const section = sections.contact
     font-size: var(--size-md);
     line-height: var(--leading-snug);
     color: var(--text-secondary);
-    max-width: 52ch;
+    max-width: 58ch;
   }
 
   /* --- Actions, in the order a visitor should reach for them -------------- */
 
   .contact-actions {
+    /* The height of one secondary door, and the only number this composition
+       is built on. The pair below is a grid track of exactly this height, and
+       the gold block is two of them plus the gap. */
+    --door: 110px;
+    --door-gap: 16px;
+    /* How many doors tall the gold block is. A flat 2 made it 236px, which read
+       as an empty gold field rather than a lead action; 1.6 keeps it plainly the
+       largest thing here without the block dominating the close. */
+    --door-span: 1.6;
+
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    min-width: 0;
+    gap: var(--door-gap);
   }
 
   .action {
+    box-sizing: border-box;
     display: grid;
-    gap: 4px;
+    align-content: center;
+    gap: 6px;
     padding: 22px 26px;
     border-radius: var(--radius);
     border: 1px solid transparent;
@@ -157,49 +140,89 @@ const section = sections.contact
     color: var(--text-secondary);
   }
 
+  /* --- Primary: the 2:1 block --------------------------------------------- */
+
+  /* The block is twice as tall as a secondary door, so its content spans that
+     height instead of floating in the middle of it: title at the top, the
+     practical detail at the foot, the way a ticket is set. */
   .action--primary {
-    position: relative;
-    grid-template-columns: 1fr auto;
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+    /* Both, deliberately: align-content stretches the single row to the block's
+       full height, align-items then lets .action-copy fill it. Inheriting
+       align-content: center from .action collapsed the row to its content. */
+    align-content: stretch;
+    align-items: stretch;
+    min-height: calc(var(--door) * var(--door-span) + var(--door-gap));
+    padding: 34px 48px;
     background: var(--accent);
     color: var(--bg-primary);
-    max-width: 620px;
-    padding-right: 60px;
-    box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+    box-shadow: 0 14px 40px -16px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  .action-copy {
+    display: grid;
+    align-content: space-between;
+    gap: 8px;
   }
 
   .action--primary .action-title {
-    font-size: var(--size-lede);
-    grid-column: 1;
+    font-size: var(--size-2xl);
+    font-family: var(--font-display);
+    font-weight: var(--weight-black);
+    font-stretch: 108%;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
   }
 
   .action--primary .action-note {
-    grid-column: 1;
-    color: color-mix(in srgb, var(--bg-primary) 72%, var(--accent));
+    font-size: var(--size-base);
+    color: color-mix(in srgb, var(--bg-primary) 74%, var(--accent));
   }
 
   .action-arrow {
-    position: absolute;
-    right: 26px;
-    top: 50%;
-    translate: 0 -50%;
+    /* On the note's line, not floating at the block's midpoint: the foot of the
+       block then carries the detail and the affordance as one row. */
+    align-self: end;
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 1.5px solid color-mix(in srgb, var(--bg-primary) 32%, transparent);
+    transition: background var(--duration-normal) var(--ease),
+      border-color var(--duration-normal) var(--ease),
+      color var(--duration-normal) var(--ease);
+  }
+
+  .action-arrow svg {
     transition: translate var(--duration-normal) var(--ease);
   }
 
   .action--primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 18px 44px -14px color-mix(in srgb, var(--accent) 70%, transparent);
+    transform: translateY(-3px);
+    box-shadow: 0 24px 56px -18px color-mix(in srgb, var(--accent) 72%, transparent);
   }
 
-  .action--primary:hover .action-arrow {
-    translate: 5px -50%;
+  .action--primary:hover .action-arrow,
+  .action--primary:focus-visible .action-arrow {
+    background: var(--bg-primary);
+    border-color: var(--bg-primary);
+    color: var(--accent);
   }
+
+  .action--primary:hover .action-arrow svg {
+    translate: 3px 0;
+  }
+
+  /* --- Secondary pair ----------------------------------------------------- */
 
   .action-secondary-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
-    max-width: 620px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* minmax, not a flat track: the pair stacks below 768px and the email
+       address is allowed to push a door taller rather than overflow it. */
+    grid-auto-rows: minmax(var(--door), auto);
+    gap: var(--door-gap);
   }
 
   .action--secondary,
@@ -212,48 +235,20 @@ const section = sections.contact
   .action--tertiary:hover {
     background: var(--bg-surface);
     border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
   }
 
   .action--tertiary .action-note {
     word-break: break-word;
   }
 
-  /* --- Facts -------------------------------------------------------------- */
-
-  .contact-facts {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding-top: 18px;
-    border-top: 1px solid color-mix(in srgb, var(--border-color) 22%, transparent);
-  }
-
-  .fact {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .fact dt {
-    font-family: var(--font-mono);
-    font-size: var(--size-min);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-    color: var(--text-muted);
-  }
-
-  .fact dd {
-    font-size: var(--size-sm);
-    color: var(--text-secondary);
-    max-width: 44ch;
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .action,
-    .action-arrow {
+    .action-arrow,
+    .action-arrow svg {
       transition: background var(--duration-normal) var(--ease),
-        border-color var(--duration-normal) var(--ease);
+        border-color var(--duration-normal) var(--ease),
+        color var(--duration-normal) var(--ease);
     }
 
     .action--primary:hover,
@@ -262,15 +257,8 @@ const section = sections.contact
       transform: none;
     }
 
-    .action--primary:hover .action-arrow {
-      translate: 0 -50%;
-    }
-  }
-
-  @media (max-width: 1000px) {
-    .contact-body {
-      grid-template-columns: 1fr;
-      gap: 48px;
+    .action--primary:hover .action-arrow svg {
+      translate: 0;
     }
   }
 
@@ -279,12 +267,33 @@ const section = sections.contact
       padding: 84px 24px 72px;
     }
 
-    .action--primary .action-title {
-      font-size: var(--size-md);
+    /* At 21px the lede ran six lines on a 342px column and read as heavy as
+       the heading it sits under. Dropping a tier restores the step. */
+    .contact-lede {
+      font-size: var(--size-base);
+      line-height: var(--leading-body);
     }
 
+    /* The pair stacks here, so the 2:1 ratio no longer has a pair to double.
+       The block keeps its lead by scale alone. */
     .action--primary {
-      padding-right: 52px;
+      min-height: 152px;
+      padding: 28px 26px;
+      gap: 20px;
     }
+
+    .action--primary .action-title {
+      font-size: var(--size-xl);
+    }
+
+    .action--primary .action-note {
+      font-size: var(--size-sm);
+    }
+
+    .action-arrow {
+      width: 48px;
+      height: 48px;
+    }
+
   }
 </style>
