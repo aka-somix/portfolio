@@ -104,6 +104,42 @@ const servicesSchema = z.object({
     .min(1),
 })
 
+const workSectionSchema = z.object({
+  header: z.object({ title: z.string(), description: z.string() }),
+})
+
+const certificationsSchema = z.object({
+  label: z.string(),
+  items: z
+    .array(
+      z.object({
+        name: z.string(),
+        issuer: z.string(),
+        logo: z.string(),
+        link: z.string().url(),
+      })
+    )
+    .min(1),
+})
+
+const workSchema = z.object({
+  order: z.number().int(),
+  title: z.string(),
+  arena: z.string(),
+  description: z.string(),
+  lede: z.string(),
+  responsibilities: z.array(z.string()).min(1),
+  learned: z.string(),
+  roles: z.array(z.string()).min(1),
+  client: z.string(),
+  years: z.string(),
+  specPlaceholder: z.boolean(),
+  spec: z.array(z.object({ label: z.string(), value: z.string() })).min(1),
+  projects: z
+    .array(z.object({ name: z.string(), summary: z.string(), outcome: z.string() }))
+    .default([]),
+})
+
 const heroSchema = z.object({
   headline: z.array(z.string()).min(1),
   lede: z.object({ before: z.string(), name: z.string(), after: z.string() }),
@@ -119,4 +155,10 @@ export const collections = {
   seo:  defineCollection({ loader: glob({ base: ROOT, pattern: 'seo.yaml'  }), schema: seoSchema  }),
   ui: defineCollection({ loader: glob({ base: ROOT, pattern: 'ui.yaml' }), schema: uiSchema }),
   services: defineCollection({ loader: section('services'), schema: servicesSchema }),
+  workSection:    defineCollection({ loader: section('work'), schema: workSectionSchema }),
+  certifications: defineCollection({ loader: section('certifications'), schema: certificationsSchema }),
+  work: defineCollection({
+    loader: glob({ base: `${ROOT}/work`, pattern: '**/*.md' }),
+    schema: workSchema,
+  }),
 }

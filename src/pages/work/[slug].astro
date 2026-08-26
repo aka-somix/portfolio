@@ -3,18 +3,19 @@ import BaseLayout from "../../layouts/BaseLayout.astro"
 import Nav from "../../components/Nav.astro"
 import Footer from "../../components/Footer.astro"
 import { site } from "../../data/site"
-import type { Work } from "../../data/work"
 
 export async function getStaticPaths() {
-  const { works } = await import("../../data/work")
-  return works.map((work) => ({
-    params: { slug: work.slug },
-    props: { work },
+  const { workChapters } = await import("../../lib/content")
+  const works = await workChapters()
+  return works.map((entry) => ({
+    params: { slug: entry.id },
+    props: { work: entry.data },
   }))
 }
 
 export interface Props {
-  work: Work
+  // Task 7 replaces this with the content-collection entry type
+  work: any
 }
 
 const { work } = Astro.props

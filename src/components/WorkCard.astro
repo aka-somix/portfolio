@@ -1,5 +1,5 @@
 ---
-import type { SpecRow } from "../data/work"
+import { ui } from "../lib/content"
 
 export interface Props {
   title: string
@@ -10,7 +10,7 @@ export interface Props {
   roles: string[]
   client: string
   years: string
-  spec: SpecRow[]
+  spec: { label: string; value: string }[]
   specPlaceholder: boolean
   slug: string
   index: number
@@ -31,11 +31,8 @@ const {
   slug,
 } = Astro.props
 
-if (specPlaceholder && import.meta.env.PROD) {
-  console.warn(
-    `\n⚠️  work.ts: chapter "${slug}" still has specPlaceholder: true — its spec values are INVENTED. Replace them before deploying.\n`
-  )
-}
+const labels = (await ui()).workCard
+const specLabels = (await ui()).workSpec
 ---
 
 <article class="work-card">
@@ -45,14 +42,14 @@ if (specPlaceholder && import.meta.env.PROD) {
     <p class="card-lede">{lede}</p>
 
     <div class="card-block">
-      <h4 class="card-block-title">What I held</h4>
+      <h4 class="card-block-title">{labels.held}</h4>
       <ul class="card-list">
         {responsibilities.map((item) => <li>{item}</li>)}
       </ul>
     </div>
 
     <div class="card-block">
-      <h4 class="card-block-title">What it taught me</h4>
+      <h4 class="card-block-title">{labels.taught}</h4>
       <p class="card-learned">{learned}</p>
     </div>
 
@@ -69,11 +66,11 @@ if (specPlaceholder && import.meta.env.PROD) {
       data-spec-placeholder={specPlaceholder ? "true" : undefined}
     >
       <div class="spec-row spec-row--head">
-        <dt>Client</dt>
+        <dt>{specLabels.client}</dt>
         <dd>{client}</dd>
       </div>
       <div class="spec-row spec-row--head">
-        <dt>Years</dt>
+        <dt>{specLabels.years}</dt>
         <dd class="tabular">{years}</dd>
       </div>
       {
@@ -88,7 +85,7 @@ if (specPlaceholder && import.meta.env.PROD) {
 
     <a href={`/work/${slug}`} class="card-cta">
       <span data-cta-label>
-        Look inside
+        {labels.cta}
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path
             d="M3 8h10M9 4l4 4-4 4"
@@ -99,7 +96,7 @@ if (specPlaceholder && import.meta.env.PROD) {
           />
         </svg>
       </span>
-      <span data-cta-alt aria-hidden="true">👀👀👀👀👀👀</span>
+      <span data-cta-alt aria-hidden="true">{labels.ctaAlt}</span>
     </a>
   </div>
 </article>

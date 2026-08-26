@@ -1,10 +1,11 @@
 ---
 import WorkCard from "./WorkCard.astro"
-import { works } from "../data/work"
-import { certifications } from "../data/certifications"
-import { sections } from "../data/sections"
+import { certifications, ui, workChapters, workSection } from "../lib/content"
 
-const section = sections.work
+const section = (await workSection()).header
+const works = await workChapters()
+const certs = await certifications()
+const labels = (await ui()).work
 ---
 
 <section class="work" id="work" data-animate="section">
@@ -20,17 +21,17 @@ const section = sections.work
       <div class="carousel-track" id="carousel-track">
         {works.map((work, i) => (
           <WorkCard
-            title={work.title}
-            arena={work.arena}
-            lede={work.lede}
-            responsibilities={work.responsibilities}
-            learned={work.learned}
-            roles={work.roles}
-            client={work.client}
-            years={work.years}
-            spec={work.spec}
-            specPlaceholder={work.specPlaceholder}
-            slug={work.slug}
+            title={work.data.title}
+            arena={work.data.arena}
+            lede={work.data.lede}
+            responsibilities={work.data.responsibilities}
+            learned={work.data.learned}
+            roles={work.data.roles}
+            client={work.data.client}
+            years={work.data.years}
+            spec={work.data.spec}
+            specPlaceholder={work.data.specPlaceholder}
+            slug={work.id}
             index={i}
             total={works.length}
           />
@@ -39,13 +40,13 @@ const section = sections.work
     </div>
 
     <div class="carousel-controls">
-      <button class="carousel-arrow" id="carousel-prev" aria-label="Previous project">
+      <button class="carousel-arrow" id="carousel-prev" aria-label={labels.prevAriaLabel}>
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
           <path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </button>
       <span class="carousel-indicator" id="carousel-indicator">01/{String(works.length).padStart(2, "0")}</span>
-      <button class="carousel-arrow" id="carousel-next" aria-label="Next project">
+      <button class="carousel-arrow" id="carousel-next" aria-label={labels.nextAriaLabel}>
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
           <path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
@@ -55,11 +56,11 @@ const section = sections.work
 
   <div class="cert-subsection">
     <div class="cert-subheading">
-      <span class="cert-label">Certifications</span>
+      <span class="cert-label">{certs.label}</span>
     </div>
     <div class="cert-viewport">
       <div class="cert-track" id="cert-track">
-        {certifications.map((cert) => (
+        {certs.items.map((cert) => (
           <a href={cert.link} target="_blank" rel="noopener noreferrer" class="cert-card">
             <div class="cert-logo">
               <img src={cert.logo} alt="" class="cert-logo-img" loading="lazy" />

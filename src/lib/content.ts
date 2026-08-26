@@ -1,5 +1,5 @@
-import { getEntry } from 'astro:content'
-import type { CollectionKey } from 'astro:content'
+import { getCollection, getEntry, render } from 'astro:content'
+import type { CollectionEntry, CollectionKey } from 'astro:content'
 
 /**
  * The ONLY module allowed to import `astro:content`. Components call the named
@@ -94,3 +94,35 @@ export const ui = () => data('ui', 'ui') as Promise<{
     holding: { title: string; body1: string; body2: string; cta: string }
   }
 }>
+
+export const workSection = () => data('workSection', 'work') as Promise<{
+  header: { title: string; description: string }
+}>
+
+export const certifications = () => data('certifications', 'certifications') as Promise<{
+  label: string
+  items: { name: string; issuer: string; logo: string; link: string }[]
+}>
+
+/** Chapters in author-declared order. `entry.id` is the slug. */
+export async function workChapters(): Promise<CollectionEntry<'work'>[]> {
+  const all = await getCollection('work')
+  return all.sort((a, b) => a.data.order - b.data.order)
+}
+
+export async function workChapter(slug: string): Promise<CollectionEntry<'work'>> {
+  const entry = await getEntry('work', slug)
+  if (!entry) {
+    throw new Error(
+      `Missing work chapter "${slug}". Expected src/content/${LOCALE}/work/${slug}.md — see CONTENT.md.`
+    )
+  }
+  return entry
+}
+
+/**
+ * Renders a chapter's Markdown body. `render()` from astro:content is the
+ * content-layer API; the legacy `entry.render()` method does not exist on
+ * glob-loader collections. Wrapped here so pages never import astro:content.
+ */
+export const renderChapter = (entry: CollectionEntry<'work'>) => render(entry)
