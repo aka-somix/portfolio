@@ -58,6 +58,20 @@ export const seo = () => data('seo', 'seo') as Promise<{
   }
 }>
 
+export const services = () => data('services', 'services') as Promise<{
+  header: { title: string; description: string }
+  hint: string
+  items: {
+    id: string
+    title: string
+    tag: string
+    description: string
+    help: string[]
+    image: string
+    imageAlt: string
+  }[]
+}>
+
 export const ui = () => data('ui', 'ui') as Promise<{
   layout: { skipLink: string }
   nav: {

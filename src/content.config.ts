@@ -86,6 +86,24 @@ const uiSchema = z.object({
   }),
 })
 
+const servicesSchema = z.object({
+  header: z.object({ title: z.string(), description: z.string() }),
+  hint: z.string(),
+  items: z
+    .array(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        tag: z.string(),
+        description: z.string(),
+        help: z.array(z.string()).min(1),
+        image: z.string(),
+        imageAlt: z.string(),
+      })
+    )
+    .min(1),
+})
+
 const heroSchema = z.object({
   headline: z.array(z.string()).min(1),
   lede: z.object({ before: z.string(), name: z.string(), after: z.string() }),
@@ -100,4 +118,5 @@ export const collections = {
   site: defineCollection({ loader: glob({ base: ROOT, pattern: 'site.yaml' }), schema: siteSchema }),
   seo:  defineCollection({ loader: glob({ base: ROOT, pattern: 'seo.yaml'  }), schema: seoSchema  }),
   ui: defineCollection({ loader: glob({ base: ROOT, pattern: 'ui.yaml' }), schema: uiSchema }),
+  services: defineCollection({ loader: section('services'), schema: servicesSchema }),
 }

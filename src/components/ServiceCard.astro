@@ -1,4 +1,6 @@
 ---
+import { ui } from "../lib/content"
+
 export interface Props {
   image: string
   title: string
@@ -12,6 +14,8 @@ export interface Props {
 
 const { image, title, tag, description, help, imageAlt, index, total } =
   Astro.props
+
+const labels = (await ui()).serviceCard
 
 /**
  * A work badge — a physical credential you can pick up and turn over.
@@ -31,7 +35,7 @@ const { image, title, tag, description, help, imageAlt, index, total } =
   class="service-card"
   type="button"
   aria-expanded="false"
-  aria-label={`${title} — flip for detail`}
+  aria-label={`${title}${labels.flipAriaSuffix}`}
 >
   <span class="badge-lift">
     <span class="badge-inner">
@@ -72,13 +76,13 @@ const { image, title, tag, description, help, imageAlt, index, total } =
               stroke-linejoin="round"
             />
           </svg>
-          How I help
+          {labels.helpLabel}
         </span>
       </span>
 
       <span class="badge-face badge-face--back">
         <span class="lanyard" aria-hidden="true"></span>
-        <span class="badge-back-title">How I help</span>
+        <span class="badge-back-title">{labels.helpLabel}</span>
         <ul class="badge-list">
           {help.map((item) => <li>{item}</li>)}
         </ul>

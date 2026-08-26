@@ -1,9 +1,11 @@
 ---
 import ServiceCard from "./ServiceCard.astro"
-import { services } from "../data/services"
-import { sections } from "../data/sections"
+import { services, ui } from "../lib/content"
 
-const section = sections.services
+const content = await services()
+const section = content.header
+const labels = (await ui()).services
+const items = content.items
 ---
 
 <section class="services" id="services" data-services-section>
@@ -14,7 +16,7 @@ const section = sections.services
     <p class="section-description">{section.description}</p>
   </div>
   <p class="services-hint rail" data-services-header>
-    Drag the badges, or tap one to turn it over
+    {content.hint}
   </p>
 
   <div class="services-deck rail">
@@ -22,12 +24,12 @@ const section = sections.services
       class="services-track-wrapper"
       data-services-wrapper
       role="group"
-      aria-label="Services — draggable badge deck"
+      aria-label={labels.deckAriaLabel}
       tabindex="0"
     >
       <div class="services-track" data-services-track>
         {
-          services.map((service, i) => (
+          items.map((service, i) => (
             <ServiceCard
               image={service.image}
               title={service.title}
@@ -36,7 +38,7 @@ const section = sections.services
               help={service.help}
               imageAlt={service.imageAlt}
               index={i}
-              total={services.length}
+              total={items.length}
             />
           ))
         }
@@ -46,7 +48,7 @@ const section = sections.services
     <span class="deck-falloff" aria-hidden="true"></span>
 
     <div class="deck-controls">
-      <button class="deck-arrow" data-deck-prev aria-label="Previous service">
+      <button class="deck-arrow" data-deck-prev aria-label={labels.prevAriaLabel}>
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
           <path
             d="M13 4l-6 6 6 6"
@@ -58,9 +60,9 @@ const section = sections.services
         </svg>
       </button>
       <span class="deck-indicator tabular" data-deck-indicator aria-live="polite">
-        01/{String(services.length).padStart(2, "0")}
+        01/{String(items.length).padStart(2, "0")}
       </span>
-      <button class="deck-arrow" data-deck-next aria-label="Next service">
+      <button class="deck-arrow" data-deck-next aria-label={labels.nextAriaLabel}>
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
           <path
             d="M7 4l6 6-6 6"
