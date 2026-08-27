@@ -41,6 +41,9 @@ workCard:
   taught: What it taught me
   cta: Look inside
   ctaAlt: 👀👀👀👀👀👀
+  # Small-screen only. Labels the disclosure that holds the two blocks above
+  # plus the spec panel, which are collapsed by default on a phone.
+  details: The details
 
 # Shared by the carousel card and the chapter page.
 workSpec:

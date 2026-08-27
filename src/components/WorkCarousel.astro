@@ -93,22 +93,30 @@ const labels = (await ui()).work
   const prev = document.getElementById("carousel-prev")
   const next = document.getElementById("carousel-next")
   const indicator = document.getElementById("carousel-indicator")
-  const cards = track?.children
+  // `.work-card` rather than track.children: Astro injects a component's
+  // hoisted script at the component's own position, which for WorkCard is
+  // inside this track, and a stray element there used to be counted as a card.
+  const cards = track?.querySelectorAll(".work-card")
 
-  if (track && viewport && prev && next && indicator && cards) {
+  if (track && viewport && prev && next && indicator && cards && cards.length) {
     let i = 0
     const n = cards.length
 
+    // Two paging modes. Wide: the track is transformed, the viewport does not
+    // scroll. Narrow: the viewport is a real scroll-snap scroller, because on a
+    // touch screen a full-width card that only answers to a 44px arrow reads as
+    // broken. The indicator and the arrows drive both.
+    const swipeMode = window.matchMedia("(max-width: 900px)") // content-ok: media query
+
     function animateCardText(card: Element) {
       if (reduceMotion) return
-      const targets = [
-        card.querySelector(".card-arena"),
-        card.querySelector(".card-title"),
-        card.querySelector(".card-lede"),
-        ...card.querySelectorAll(".card-block"),
-        card.querySelector(".card-roles"),
-        card.querySelector(".spec"),
-      ].filter(Boolean)
+      // Below 900px the blocks and the spec sit inside a collapsed disclosure,
+      // so animating them would spend the stagger on nothing.
+      const sel = swipeMode.matches
+        ? [".card-arena", ".card-title", ".card-lede", ".card-meta", ".card-roles", ".card-fold"]
+        : [".card-arena", ".card-title", ".card-lede", ".card-block", ".card-roles", ".spec"]
+      const targets = sel.flatMap((q) => [...card.querySelectorAll(q)])
+      if (!targets.length) return
 
       gsap.fromTo(
         targets,
@@ -117,29 +125,78 @@ const labels = (await ui()).work
       )
     }
 
+    const setIndicator = () => {
+      indicator.textContent = `${String(i + 1).padStart(2, "0")}/${String(n).padStart(2, "0")}`
+    }
+
     // Step by the real card width plus the real gap, read from layout rather
     // than assumed — the card is now max-width capped, so a hardcoded
     // multiplier no longer matches the rendered geometry.
-    const slide = (animateText = true) => {
-      const first = cards[0] as HTMLElement
-      const cardW = first.offsetWidth
-      const gap = parseFloat(getComputedStyle(track).columnGap || "0") || 0
-      const offset = (viewport.offsetWidth - cardW) / 2 - i * (cardW + gap)
-      track.style.transform = `translateX(${offset}px)` // content-ok: CSS transform value
-      indicator.textContent = `${String(i + 1).padStart(2, "0")}/${String(n).padStart(2, "0")}`
-      if (animateText) animateCardText(cards[i])
+    const place = (behavior: ScrollBehavior) => {
+      if (swipeMode.matches) {
+        if (track.style.transform) track.style.transform = ""
+        const card = cards[i] as HTMLElement
+        const left = card.offsetLeft - (viewport.clientWidth - card.offsetWidth) / 2
+        viewport.scrollTo({ left, behavior })
+      } else {
+        if (viewport.scrollLeft) viewport.scrollTo({ left: 0, behavior: "instant" })
+        const first = cards[0] as HTMLElement
+        const cardW = first.offsetWidth
+        const gap = parseFloat(getComputedStyle(track).columnGap || "0") || 0
+        const offset = (viewport.offsetWidth - cardW) / 2 - i * (cardW + gap)
+        track.style.transform = `translateX(${offset}px)` // content-ok: CSS transform value
+      }
+      setIndicator()
     }
 
-    prev.onclick = () => { i = (i - 1 + n) % n; slide() }
-    next.onclick = () => { i = (i + 1) % n; slide() }
+    const go = (to: number) => {
+      i = (to + n) % n
+      place(reduceMotion ? "instant" : "smooth")
+      animateCardText(cards[i])
+    }
 
-    slide(false)
+    prev.onclick = () => go(i - 1)
+    next.onclick = () => go(i + 1)
 
-    // Keep the active card centred when the viewport changes.
+    place("instant")
+
+    // A swipe changes the chapter without touching the arrows, so the indicator
+    // and the entrance are driven from the scroll position too. Arrow taps set
+    // `i` first, so this never fires the stagger twice.
+    let scrollRaf = 0
+    viewport.addEventListener(
+      "scroll",
+      () => {
+        if (!swipeMode.matches) return
+        cancelAnimationFrame(scrollRaf)
+        scrollRaf = requestAnimationFrame(() => {
+          const mid = viewport.scrollLeft + viewport.clientWidth / 2
+          let nearest = 0
+          let best = Infinity
+          for (let k = 0; k < n; k++) {
+            const c = cards[k] as HTMLElement
+            const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid)
+            if (d < best) {
+              best = d
+              nearest = k
+            }
+          }
+          if (nearest !== i) {
+            i = nearest
+            setIndicator()
+            animateCardText(cards[i])
+          }
+        })
+      },
+      { passive: true }
+    )
+
+    // Keep the active card centred when the viewport changes, and switch paging
+    // mode cleanly when the resize crosses the breakpoint.
     let resizeRaf = 0
     window.addEventListener("resize", () => {
       cancelAnimationFrame(resizeRaf)
-      resizeRaf = requestAnimationFrame(() => slide(false))
+      resizeRaf = requestAnimationFrame(() => place("instant"))
     })
 
     ScrollTrigger.create({
@@ -149,6 +206,22 @@ const labels = (await ui()).work
       onEnter: () => animateCardText(cards[0]),
     })
   }
+
+  // === Chapter disclosure (small screens) ===
+  // One button drives two panels, because on a wide screen the copy blocks and
+  // the spec live in different columns and must not be wrapped together. State
+  // lives on the card, so CSS opens both at once. Owned here rather than in
+  // WorkCard so the injected script lands outside the carousel track.
+  document.querySelectorAll<HTMLButtonElement>("[data-fold-toggle]").forEach((btn) => {
+    const card = btn.closest<HTMLElement>(".work-card")
+    if (!card) return
+
+    btn.addEventListener("click", () => {
+      const open = card.dataset.fold !== "open"
+      card.dataset.fold = open ? "open" : "closed"
+      btn.setAttribute("aria-expanded", String(open))
+    })
+  })
 
   // === Certifications auto-scroll ===
   const certTrack = document.getElementById("cert-track")
@@ -381,6 +454,69 @@ const labels = (await ui()).work
     text-transform: uppercase;
     letter-spacing: var(--tracking-label);
     text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .work {
+      padding: 72px 20px;
+    }
+
+    .work-header {
+      margin-bottom: 20px;
+    }
+
+    .work-description {
+      margin-bottom: 24px;
+    }
+
+    .carousel-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Paging moves above the card. Stacked, the card ran past a phone screen
+       several times over, so the arrows and the 01/02 counter sat below the
+       fold: a reader had no way to learn a second chapter exists. */
+    .carousel-controls {
+      order: -1;
+      justify-content: flex-start;
+      gap: 16px;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    /* The 90px edge mask fades 46% of a 390px viewport, taking the card's own
+       first and last words with it. It exists to soften a neighbouring card,
+       and at this width no neighbour is in view. */
+    .carousel-viewport {
+      mask-image: none;
+      -webkit-mask-image: none;
+      /* Real swipe. `overflow: hidden` on the base rule keeps overflow-y
+         hidden, so this adds a horizontal scroller and nothing else. */
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+    }
+
+    .carousel-viewport::-webkit-scrollbar {
+      display: none;
+    }
+
+    .carousel-track {
+      gap: 16px;
+      /* Equal-height cards are a wide-screen concern: side by side, a short
+         card next to a tall one is a ragged row. One card at a time, stretching
+         the shorter chapter only injects dead air above its own CTA. */
+      align-items: flex-start;
+      /* The transform is desktop paging; here the scroller moves instead. */
+      transition: none;
+    }
+
+    /* The 100px that used to hang under the controls. */
+    .cert-subsection {
+      margin-top: 64px;
+    }
   }
 
   @media (max-width: 768px) {

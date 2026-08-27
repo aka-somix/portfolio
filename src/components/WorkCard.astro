@@ -33,24 +33,59 @@ const {
 
 const labels = (await ui()).workCard
 const specLabels = (await ui()).workSpec
+
+// The small-screen disclosure drives two panels that live in different columns
+// on desktop, so the button references both by id.
+const foldId = `fold-${slug}`
+const specId = `spec-${slug}`
 ---
 
-<article class="work-card">
+<article class="work-card" data-fold="closed">
   <div class="card-left">
     <p class="card-arena">{arena}</p>
     <h3 class="card-title">{title}</h3>
     <p class="card-lede">{lede}</p>
 
-    <div class="card-block">
-      <h4 class="card-block-title">{labels.held}</h4>
-      <ul class="card-list">
-        {responsibilities.map((item) => <li>{item}</li>)}
-      </ul>
-    </div>
+    <!-- Small screens only. The two values a reader scans for are real; the six
+         spec rows below them are still placeholders. Promoting these two out of
+         the collapsed panel keeps the credential on screen at a cost of one
+         line. -->
+    <p class="card-meta">
+      <span class="card-meta-client">{client}</span>
+      <span class="card-meta-years tabular">{years}</span>
+    </p>
 
-    <div class="card-block">
-      <h4 class="card-block-title">{labels.taught}</h4>
-      <p class="card-learned">{learned}</p>
+    <!-- `display: contents` above 900px, so the desktop card is byte-identical
+         in layout: the two blocks stay direct flex children of .card-left. -->
+    <div class="card-fold">
+      <button
+        type="button"
+        class="fold-toggle"
+        data-fold-toggle
+        aria-expanded="false"
+        aria-controls={`${foldId} ${specId}`}
+      >
+        <span class="fold-toggle-label">{labels.details}</span>
+        <svg class="fold-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3.5 5.5L7 9l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <div class="fold-panel" id={foldId}>
+        <div class="fold-inner">
+          <div class="card-block">
+            <h4 class="card-block-title">{labels.held}</h4>
+            <ul class="card-list">
+              {responsibilities.map((item) => <li>{item}</li>)}
+            </ul>
+          </div>
+
+          <div class="card-block">
+            <h4 class="card-block-title">{labels.taught}</h4>
+            <p class="card-learned">{learned}</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="card-roles">
@@ -61,6 +96,8 @@ const specLabels = (await ui()).workSpec
   <div class="card-right">
     <!-- The spec panel: an architect's own artifact, and the one place mono
          does real work (aligned figures). Replaces the stock photograph. -->
+    <div class="fold-panel spec-fold" id={specId}>
+    <div class="fold-inner">
     <dl
       class="spec"
       data-spec-placeholder={specPlaceholder ? "true" : undefined}
@@ -82,6 +119,8 @@ const specLabels = (await ui()).workSpec
         ))
       }
     </dl>
+    </div>
+    </div>
 
     <a href={`/work/${slug}`} class="card-cta">
       <span data-cta-label>
@@ -100,6 +139,7 @@ const specLabels = (await ui()).workSpec
     </a>
   </div>
 </article>
+
 
 <style>
   .work-card {
@@ -223,6 +263,22 @@ const specLabels = (await ui()).workSpec
     min-width: 0;
   }
 
+  /* --- Small-screen disclosure ------------------------------------------- */
+
+  /* Above 900px there is no disclosure. The three wrappers dissolve, so the two
+     blocks stay direct flex children of .card-left and the spec stays a direct
+     child of .card-right: the desktop card lays out exactly as before. */
+  .card-fold,
+  .fold-panel,
+  .fold-inner {
+    display: contents;
+  }
+
+  .fold-toggle,
+  .card-meta {
+    display: none;
+  }
+
   /* --- Spec panel --------------------------------------------------------- */
 
   .spec {
@@ -336,15 +392,204 @@ const specLabels = (await ui()).workSpec
     }
   }
 
+  /* --- Small screens ------------------------------------------------------
+     A stacked chapter card was nine information blocks in one column: roughly
+     1250px of rectangle with the only action at the bottom. Below 900px the
+     card becomes the chapter's *cover* — arena, title, lede, the two real
+     credential values, roles — and everything that authenticates it moves
+     behind one disclosure. Nothing is deleted and nothing is pushed onto the
+     /work/[slug] pages, which are still placeholders. */
   @media (max-width: 900px) {
     .work-card {
+      /* Was 75vw, which never filled a phone. The carousel viewport is the
+         rail, so 100% is the full column. */
+      width: 100%;
       grid-template-columns: 1fr;
-      gap: 32px;
-      padding: 28px;
+      gap: 20px;
+      padding: 26px 22px 22px;
+      /* The carousel viewport is a scroll-snap scroller at this width. */
+      scroll-snap-align: center;
+    }
+
+    .card-left {
+      gap: 14px;
     }
 
     .card-lede {
       max-width: none;
+    }
+
+    /* Reading order on a phone: cover, then evidence on request, then action.
+       Flex order rather than a second DOM, so there is one source of truth. */
+    .card-arena {
+      order: 1;
+    }
+
+    .card-title {
+      order: 2;
+    }
+
+    .card-lede {
+      order: 3;
+    }
+
+    .card-meta {
+      order: 4;
+    }
+
+    .card-roles {
+      order: 5;
+    }
+
+    .card-fold {
+      order: 6;
+    }
+
+    /* Client and Years lifted out of the collapsed panel. Gold on this surface
+       measures 5.9:1, the same call the spec panel's head rows already make. */
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      font-family: var(--font-mono);
+      font-size: var(--size-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-label);
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .card-meta-client {
+      color: var(--accent);
+    }
+
+    .card-meta-years {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Separator travels with the value, so the pair wraps as a unit. */
+    .card-meta-years::before {
+      content: "\00B7";
+      padding: 0 0.6em;
+      color: color-mix(in srgb, var(--text-secondary) 45%, transparent);
+    }
+
+    .card-fold {
+      display: flex;
+      flex-direction: column;
+      align-self: stretch;
+      width: 100%;
+      margin-top: 2px;
+    }
+
+    .fold-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      min-height: 44px;
+      padding: 12px 0;
+      background: none;
+      border: 0;
+      border-top: 1px solid
+        color-mix(in srgb, var(--border-color) 14%, transparent);
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--border-color) 14%, transparent);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: var(--size-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-label);
+      text-align: left;
+      cursor: pointer;
+      transition: color var(--duration-fast) var(--ease);
+    }
+
+    .fold-toggle:hover,
+    .fold-toggle:focus-visible {
+      color: var(--text-primary);
+    }
+
+    .fold-chevron {
+      flex-shrink: 0;
+      color: var(--accent);
+      transition: transform var(--duration-normal) var(--ease);
+    }
+
+    .work-card[data-fold="open"] .fold-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* 0fr to 1fr animates a real auto height, so the panel opens to whatever
+       the copy needs without a measured pixel value. */
+    .fold-panel {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows var(--duration-normal) var(--ease);
+    }
+
+    .work-card[data-fold="open"] .fold-panel {
+      grid-template-rows: 1fr;
+    }
+
+    .fold-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-height: 0;
+      overflow: hidden;
+      /* A zero-height panel is still read aloud, which contradicts
+         aria-expanded="false". Visibility takes it out of the tree, delayed on
+         the way out so the content does not vanish mid-collapse. */
+      visibility: hidden;
+      transition: visibility 0s var(--duration-normal);
+    }
+
+    .work-card[data-fold="open"] .fold-inner {
+      visibility: visible;
+      transition: visibility 0s;
+    }
+
+    /* The panel's own padding would survive a zero-height grid row, because
+       overflow: hidden clips children and not the padding box. Margins on the
+       clipped children are clipped with them, so a closed panel is exactly 0. */
+    .fold-inner > :first-child {
+      margin-top: 16px;
+    }
+
+    /* The spec panel is the second half of the same disclosure, one column
+       over. It carries its own trailing space so a closed panel contributes
+       nothing at all. */
+    .card-right {
+      gap: 0;
+    }
+
+    .spec-fold .fold-inner > :first-child {
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    /* Promoted to .card-meta, so showing them again here would be a duplicate. */
+    .spec-row--head {
+      display: none;
+    }
+
+  }
+
+  /* A thumb-width action. Only where the column is actually thumb-width: at
+     820px a stretched button is a 734px bar. */
+  @media (max-width: 560px) {
+    .card-cta {
+      align-self: stretch;
+      justify-content: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fold-panel,
+    .fold-chevron {
+      transition: none;
     }
   }
 

@@ -188,6 +188,49 @@ The spec panel **replaced a stock photograph** of an anonymous person at a lapto
 
 > ⚠️ Spec values are currently **placeholder** (`specPlaceholder: true` in the frontmatter of `src/content/en/work/consultant.md` and `src/content/en/work/startup.md`). `pnpm check:content` warns per chapter, and this check runs as part of `pnpm build`, and the markup carries `data-spec-placeholder`. They must be replaced with real figures before deploy.
 
+#### Below 900px the card is the chapter's *cover*
+
+Stacked, a chapter card was nine information blocks in one column: roughly
+1250px of rectangle whose only action sat at the bottom. Four things were wrong
+at once, and one of them was a plain bug: the 90px edge mask fades 46% of a
+390px viewport, taking the card's own first and last words with it.
+
+| Wide | Narrow (≤900px) |
+|---|---|
+| Card `75vw`, edge mask on the viewport | Card **100%**, **mask removed**: no neighbour is in view to soften |
+| Arrows and `01/02` below the carousel | Controls **above** the card (`order: -1`), so paging is visible before the scroll |
+| Track paged by `translateX` | Viewport is a real **`scroll-snap`** scroller: a full-width card that only answers to a 44px arrow reads as broken on touch |
+| Cards stretched to equal height | `align-items: flex-start`: equalising heights only injects dead air above the shorter chapter's CTA |
+| Spec `<dl>` of eight rows | Six placeholder rows collapsed; **Client and Years promoted** to one mono line, gold at 5.9:1 on the surface |
+| Blocks always open | "What I held", "What it taught me" and the spec behind **one disclosure** |
+
+The card that remains is arena, title, lede, credential line, roles, one
+disclosure and the CTA: ~500px, with both actions inside the first screenful.
+Nothing is deleted and nothing is deferred to `/work/[slug]`, which is still a
+placeholder.
+
+Mechanics worth keeping straight:
+
+- **One button, two panels.** The copy blocks and the spec sit in different
+  columns on desktop and cannot be wrapped in a shared element, so the state
+  lives on the article (`data-fold`) and CSS opens both. `aria-controls` names
+  both ids.
+- **The wrappers dissolve above 900px.** `.card-fold`, `.fold-panel` and
+  `.fold-inner` are `display: contents`, so the wide card lays out exactly as it
+  did before the disclosure existed.
+- **`grid-template-rows: 0fr → 1fr`** animates a real auto height, so the panel
+  opens to whatever the copy needs. The panel's own `padding` would survive a
+  zero-height row (`overflow: hidden` clips children, not the padding box), so
+  the spacing is margins on the clipped children instead.
+- **`visibility: hidden` when closed**, delayed on the way out. A zero-height
+  panel is still read aloud, which would contradict `aria-expanded="false"`.
+- The mobile entrance stagger targets the visible elements only; animating
+  blocks inside a collapsed panel spends the stagger on nothing.
+- `cards` is read as `.work-card`, not `track.children`: Astro injects a
+  component's hoisted script at the component's own position, which for
+  WorkCard is inside the track, and that stray element was being counted as a
+  chapter (`01/03` for two chapters).
+
 - **Certifications sub-section** below carousel:
   - Subdued header: "Certifications" in mono uppercase (count removed)
   - **Seamless auto-scroll track**: GSAP loops cards via cloned content + modulus `x` translation
@@ -323,6 +366,49 @@ one factor on mobile, so the dealt spread survives the breakpoint.
 The spec panel **replaced a stock photograph** of an anonymous person at a laptop. For a visitor evaluating architectural judgement, a stock photo is anti-evidence; a specification is the artifact an architect actually produces. `public/images/work/consultant.jpg` is now unused.
 
 > ⚠️ Spec values are currently **placeholder** (`specPlaceholder: true` in the frontmatter of `src/content/en/work/consultant.md` and `src/content/en/work/startup.md`). `pnpm check:content` warns per chapter, and this check runs as part of `pnpm build`, and the markup carries `data-spec-placeholder`. They must be replaced with real figures before deploy.
+
+#### Below 900px the card is the chapter's *cover*
+
+Stacked, a chapter card was nine information blocks in one column: roughly
+1250px of rectangle whose only action sat at the bottom. Four things were wrong
+at once, and one of them was a plain bug: the 90px edge mask fades 46% of a
+390px viewport, taking the card's own first and last words with it.
+
+| Wide | Narrow (≤900px) |
+|---|---|
+| Card `75vw`, edge mask on the viewport | Card **100%**, **mask removed**: no neighbour is in view to soften |
+| Arrows and `01/02` below the carousel | Controls **above** the card (`order: -1`), so paging is visible before the scroll |
+| Track paged by `translateX` | Viewport is a real **`scroll-snap`** scroller: a full-width card that only answers to a 44px arrow reads as broken on touch |
+| Cards stretched to equal height | `align-items: flex-start`: equalising heights only injects dead air above the shorter chapter's CTA |
+| Spec `<dl>` of eight rows | Six placeholder rows collapsed; **Client and Years promoted** to one mono line, gold at 5.9:1 on the surface |
+| Blocks always open | "What I held", "What it taught me" and the spec behind **one disclosure** |
+
+The card that remains is arena, title, lede, credential line, roles, one
+disclosure and the CTA: ~500px, with both actions inside the first screenful.
+Nothing is deleted and nothing is deferred to `/work/[slug]`, which is still a
+placeholder.
+
+Mechanics worth keeping straight:
+
+- **One button, two panels.** The copy blocks and the spec sit in different
+  columns on desktop and cannot be wrapped in a shared element, so the state
+  lives on the article (`data-fold`) and CSS opens both. `aria-controls` names
+  both ids.
+- **The wrappers dissolve above 900px.** `.card-fold`, `.fold-panel` and
+  `.fold-inner` are `display: contents`, so the wide card lays out exactly as it
+  did before the disclosure existed.
+- **`grid-template-rows: 0fr → 1fr`** animates a real auto height, so the panel
+  opens to whatever the copy needs. The panel's own `padding` would survive a
+  zero-height row (`overflow: hidden` clips children, not the padding box), so
+  the spacing is margins on the clipped children instead.
+- **`visibility: hidden` when closed**, delayed on the way out. A zero-height
+  panel is still read aloud, which would contradict `aria-expanded="false"`.
+- The mobile entrance stagger targets the visible elements only; animating
+  blocks inside a collapsed panel spends the stagger on nothing.
+- `cards` is read as `.work-card`, not `track.children`: Astro injects a
+  component's hoisted script at the component's own position, which for
+  WorkCard is inside the track, and that stray element was being counted as a
+  chapter (`01/03` for two chapters).
 
 - **Certifications sub-section** below carousel:
   - Subdued header: "Certifications" in mono uppercase (count removed)
@@ -561,7 +647,8 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 - `scroll-margin-top: var(--nav-height)` on each section for anchored nav
 - `::selection` styling for branded highlight
 - Hero collapses to single-column stacked layout below 768px
-- Work card switches to single-column grid below 768px
+- Work card switches to single-column grid below 900px, where it also becomes a collapsed *cover* with one disclosure; the carousel becomes a `scroll-snap` scroller and the edge mask is dropped
+- The card CTA stretches to the full column only below 560px; at 820px a stretched button is a 734px bar
 - Nav collapses to burger + sidebar below 768px (sidebar slides from left, GSAP-animated); crossfade transition between desktop/mobile nav states
 - **`:focus-visible` authored globally** on the dark palette (2px gold ring, 3px offset). There were previously no focus styles anywhere in the codebase — keyboard users got UA defaults over a custom dark ground.
 - **Browser surfaces themed**: scrollbar (both `scrollbar-color` and the WebKit pseudo-elements), caret colour, `::selection`, and tabular figures via the `.tabular` utility

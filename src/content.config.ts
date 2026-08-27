@@ -71,6 +71,7 @@ const uiSchema = z.object({
     taught: z.string(),
     cta: z.string(),
     ctaAlt: z.string(),
+    details: z.string(),
   }),
   workSpec: z.object({ client: z.string(), years: z.string() }),
   tinyverse: z.object({
