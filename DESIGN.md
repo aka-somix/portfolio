@@ -17,7 +17,7 @@ A **dark, tech-forward portfolio** with a purple/night palette punctuated by gol
 - **Industrial tech** — uppercase functional labels, credential/badge material language, monospaced figures in spec panels
 - **Warm minimalism** — dark purple background, generous whitespace, accent-driven contrast
 
-Single-page scroll: hero → services → work → contact → footer, plus `/work/[slug]` project detail pages.
+Single-page scroll: hero → services → work → tinyverse → contact → footer, plus `/work/[slug]` project detail pages.
 
 ---
 
@@ -78,10 +78,30 @@ Tokenised leading (`--leading-tight: 1.05`, `--leading-snug: 1.25`, `--leading-b
 
 ### Navigation
 ```
-[Logo SVG]   [Services]  [Work]  [Contact]   [LinkedIn] [GitHub]   [Let's meet ▸]   [☰]
+[Logo SVG]   [Services]  [Work]  [Tinyverse ⊙]  [Contact]   [LinkedIn] [GitHub]   [Let's meet ▸]   [☰]
 ```
 - Logo: Inline SVG (abstract geometric rect composition) — left-aligned, links to `/`
-- 3 nav links (Services, Work, Contact) — right-aligned before socials. **White (`--text-primary`), not gold**: gold on the purple nav ground measures 3.17:1, below the 4.5:1 floor for 12px text. Gold is the hover/active state.
+- 4 nav links (Services, Work, Tinyverse, Contact) — right-aligned before socials. **White (`--text-primary`), not gold**: gold on the purple nav ground measures 3.17:1, below the 4.5:1 floor for 12px text. Gold is the hover/active state.
+- **The Tinyverse link carries an orbit mark**, and it is the only marked link
+  in the row: that section is the only one whose subject is a drawn system, so
+  it is the only one that gets drawn. A 22×14 squashed ellipse rotated -14°,
+  matching the tilt of the real orbits, with a 4px body on it. On hover or
+  `:focus-visible` the ring goes to full opacity and the body travels the ellipse
+  on a CSS `offset-path`, 2.6s linear.
+  - The animation is declared **running-but-paused** rather than applied on
+    hover, so leaving the link freezes the planet where it is instead of
+    snapping it back to the start. The orbit keeps its place between visits.
+  - The body turns gold only while hovered. Gold measures 3.17:1 on this purple,
+    which fails the 4.5:1 text floor the nav labels are held to but clears the
+    3:1 floor for a graphic.
+  - Declared inside `prefers-reduced-motion: no-preference`, and behind
+    `@supports (offset-path: ...)`. Without either, the body rests at the right
+    of the ring, which is exactly where the path begins.
+  - **The hover clip moved from `.nav-link` to a new `.nav-link-text` wrapper.**
+    `overflow: hidden` with `height: 1.2em` on the link is what masks the text
+    lift, and it cropped the mark to 1.2em and dragged it upward with the text.
+    Same box, one level in; the GSAP hover still targets `[data-nav-text]`
+    inside it and behaves identically.
 - Social icons (LinkedIn, GitHub SVG) — muted opacity, hover to full
 - CTA button: "Let's meet" with secondary label "Book now" (CSS flip on hover). Links to a Google Calendar booking page (appointment schedule) in a new tab — URL is the `BOOKING_URL` constant in Nav.astro
 - **Mobile (≤768px)**: desktop links/socials/CTA hidden; burger icon appears. Clicking opens a sidebar that slides in from the left with the same items. Overlay backdrop + GSAP stagger on links. Escape/overlay/link-click closes. GSAP nav-link hover code lives in Nav.astro's own `<script>`.
@@ -176,6 +196,246 @@ The spec panel **replaced a stock photograph** of an anonymous person at a lapto
   - Entire card links externally; edge-gradient mask on the viewport
   - Respects `prefers-reduced-motion` — static layout without GSAP
 
+### Tinyverse Section (`#tinyverse`)
+
+Standalone apps and proofs of concept, drawn as a **solar system**. The sun is
+the site's own logo mark, the same inline SVG used in nav, footer and loading
+screen: identity as the centre of gravity rather than as a caption. It links to
+`/`, so the centre of the Tinyverse is always this page.
+
+Header (section label, description, mono hint) on the rail, then a two-column
+body: the stage left, and right a quiet thesis paragraph above the detail panel.
+Below 1024px the body stacks and the stage is capped at 620px, which stops the
+system dwarfing the panel beneath it.
+
+#### Geometry is derived, never authored
+
+Every number comes from `items.length` in `src/content/en/sections/tinyverse.yaml`.
+**Adding an app is adding one YAML entry.**
+
+| Value | Rule |
+|---|---|
+| Orbit radius | evenly spaced across a 195–420 band; a lone app sits mid-band at 330, so the one-planet system is composed rather than sparse |
+| Angular phase | `index × (2π / N)`, so planets never bunch on one side of the sun |
+| Orbital speed | `√(330 / r)` — inner orbits run faster, because a real system is not a rigid wheel |
+| Stage box | `aspect-ratio: 1000 / 520`, locked to the SVG viewBox |
+
+The viewBox and the stage share one aspect ratio, so a viewBox unit is a fixed
+fraction of the stage at every width. That is what lets the **first paint place
+the planets in percentages** (correct before GSAP loads, and correct with no JS
+at all) while the script switches to transforms afterwards, so no frame of the
+orbit ever triggers layout.
+
+`TILT` is `0.46` at every width: the orbits are a system seen at an angle, not a
+top-down diagram. A per-breakpoint tilt was tried and dropped, because it forces
+a second stage aspect ratio and the ellipse is already legible on a 342px column.
+
+#### Material
+
+- Orbit rings are **SVG hairlines** at 13% border colour, `non-scaling-stroke`
+- The selected ring lifts to 20% **gold**, and the selected planet drags a short
+  **lit wake** along its own path: a sampled arc under a `userSpaceOnUse`
+  gradient whose endpoints are repointed every frame. Gold is edge light here,
+  never fill, exactly as in the hero
+- The sun carries the section's only light, in **two layers**: a small warm
+  `--accent` core that ties to the gold in the logo mark, and a wide
+  `--bg-accent` falloff reaching most of the way to the innermost orbit, with a
+  tighter bloom over it so the mark stays legible against its own light. A
+  single narrow purple wash was tried first and read as a smudge behind the
+  mark rather than as a star lighting a system. The innermost ring is
+  deliberately washed out by it: that planet is close to the star
+- Each planet is a sphere whose **terminator faces the sun**: `--lit-x` /
+  `--lit-y` are repointed every frame from the planet's own angle
+- Depth is real, not decorative: planets on the near half of the orbit scale to
+  1.0 and go fully opaque; the far half falls to 0.84 and 0.74, and `z-index`
+  flips so they pass behind the sun
+#### Bodies differ, and the difference means nothing
+
+Each planet gets its own diameter (13–19px), one of six tones, and its own
+terminator softness (36–48%), all **seeded from the app's `id`**: a planet looks
+the same on every build and every reload. Nothing here uses `Math.random()`,
+which is the trap this codebase already fell into once with the randomised
+service-badge barcode.
+
+**Tones and sizes are dealt without replacement**, not hashed independently.
+Straight per-id hashing was tried twice and dropped both times: FNV-1a
+avalanches poorly over short similar ids, and even with a murmur3 finalizer
+three distinct ids landed on one tone, which reads as a bug rather than as a
+coincidence. Each planet still chooses by its own hash, but only from the values
+not yet taken, and the bag refills when it empties. The cost is that inserting
+an app can shift the tone of the ones after it. That is a fair trade: what
+mattered was never that a tone is immutable, only that it does not reroll on
+refresh.
+
+Tones are dealt in bags, in order, so **the four greens and browns go out
+first**: a system of four apps is all bodies and no grey, silver and lilac join
+once there are more than four, and the sequence refills past six.
+
+| Tone | Value | Source |
+|---|---|---|
+| sage | `#9aa88f` | component-scoped |
+| moss | `#78896f` | component-scoped |
+| clay | `#ab8168` | component-scoped |
+| umber | `#8a6a55` | component-scoped |
+| silver | `--text-secondary` toward `--bg-accent` | site palette |
+| lilac | `--bg-accent` toward `--text-primary` | site palette |
+
+**The four hex values are a deliberate palette extension scoped to this
+component**, declared on `.tinyverse` and used nowhere else. The site palette is
+purple, gold and greys, and six tones mixed out of it gave six grey-to-lilac
+bodies, because planetary bodies are not lilac. They are held at low chroma so
+the system stays in the site's night, and the two token-derived tones are kept
+alongside them so the planets still read as belonging to this page. If they ever
+earn a place site-wide they belong in `src/design.config.ts`, not here. Gold
+itself is excluded, being both the selection ring and the section's light. Every
+body's limb derives from its own tone at 30% toward black.
+
+**The specular carries a quarter of the body colour** rather than being pure
+white, which is what a rough surface actually does, and the terminator band came
+down from 46–58% to 36–48%. Both exist for the same reason: at pure white and
+the higher band, the highlight covered most of a 15px body and every planet read
+as grey whatever tone it carried.
+
+**The variation encodes nothing, and is built so it cannot appear to.** The size
+range is narrow, nothing is ordered by index, and there is no status, domain or
+recency dimension behind any of it: bodies differ because bodies differ. A wide
+size range or a red-to-green tone ramp would read as a ranking the data does not
+support, which is what principle 4 forbids. `--dot-scale` shrinks every body by
+one factor on mobile, so the dealt spread survives the breakpoint.
+
+#### Interaction
+- **Pick-up**: on *drag intent* (8px threshold, so a tap never triggers it) the held badge tweens to `scale 1.045`, `y -12`, and a deepened shadow. `rotation` follows pointer velocity so the badge lags the hand. Release settles on `back.out(1.7)` — an overshoot, not a dead snap. A flick projects its throw.
+- **Tap to flip**, drag to move. Pointer capture is taken *only* once the drag threshold is crossed: taking it on `pointerdown` retargets the following click to the capturing element and silently swallowed every flip.
+- **A badge behind the front one comes forward first**; turning it over is the second gesture. Snapping on pointer-focus previously slid the badge out from under the cursor before its click could land.
+- **Keyboard**: the deck is a focusable `role="group"` — `←`/`→` step, `Escape` closes a flipped badge. Each badge is a real `<button>` with `aria-expanded`, so `Enter`/`Space` flips it, and the hidden face is `aria-hidden` so a screen reader is not read both sides at once. Tab-focus scrolls a badge into view; pointer focus deliberately does not.
+- **Geometry is measured, never assumed** (`offsetWidth` + gap, stack target from the live wrapper rect) and re-measured on resize. The previous implementation computed its stack target once at init, so it was stale after any window resize.
+- Logic lives in `Services.astro`, not `BaseLayout.astro` — 114 lines moved to the component whose geometry it depends on.
+
+### Work Section (`#work`)
+- Header: "Work Chapters" section label (the decorative `02` counter is gone — the carousel indicator already carries position)
+- Description text below header (driven from `sections.ts`)
+- **Horizontal carousel** with arrow navigation and a `01/02` tabular indicator. Viewport carries an edge mask so the neighbouring card fades rather than showing a strip of clipped sentences. Arrows are 44×44 (tap-target floor). Step distance is read from live layout (`offsetWidth` + computed `columnGap`), not a hardcoded multiplier.
+
+**A chapter is an arena, not a job.** Each card is a two-column split:
+  - **Left**: arena line, chapter title (Archivo), lede (the new 21px tier), "What I held" (responsibilities), "What it taught me" (the versatility payload), then role tags
+  - **Right**: the **spec panel** — a `<dl>` of Client / Years / Domain / Cloud / Core stack / Scale, set in JetBrains Mono with `tabular-nums` and hairline rules. This is where mono finally does real work.
+
+The spec panel **replaced a stock photograph** of an anonymous person at a laptop. For a visitor evaluating architectural judgement, a stock photo is anti-evidence; a specification is the artifact an architect actually produces. `public/images/work/consultant.jpg` is now unused.
+
+> ⚠️ Spec values are currently **placeholder** (`specPlaceholder: true` in the frontmatter of `src/content/en/work/consultant.md` and `src/content/en/work/startup.md`). `pnpm check:content` warns per chapter, and this check runs as part of `pnpm build`, and the markup carries `data-spec-placeholder`. They must be replaced with real figures before deploy.
+
+- **Certifications sub-section** below carousel:
+  - Subdued header: "Certifications" in mono uppercase (count removed)
+  - **Seamless auto-scroll track**: GSAP loops cards via cloned content + modulus `x` translation
+  - Animation starts paused; `ScrollTrigger.onToggle` resumes when work section is in view
+  - Issuer text raised from **8px to 11px** — that string authenticates the certification, so it is evidence, not fine print
+  - Entire card links externally; edge-gradient mask on the viewport
+  - Respects `prefers-reduced-motion` — static layout without GSAP
+
+### Tinyverse Section (`#tinyverse`)
+
+Standalone apps and proofs of concept, drawn as a **solar system**. The sun is
+the site's own logo mark, the same inline SVG used in nav, footer and loading
+screen: identity as the centre of gravity rather than as a caption. It links to
+`/`, so the centre of the Tinyverse is always this page.
+
+Header (section label, description, mono hint) on the rail, then a two-column
+body: the stage left, and right a quiet thesis paragraph above the detail panel.
+Below 1024px the body stacks and the stage is capped at 620px, which stops the
+system dwarfing the panel beneath it.
+
+#### Geometry is derived, never authored
+
+Every number comes from `items.length` in `src/content/en/sections/tinyverse.yaml`.
+**Adding an app is adding one YAML entry.**
+
+| Value | Rule |
+|---|---|
+| Orbit radius | evenly spaced across a 195–420 band; a lone app sits mid-band at 330, so the one-planet system is composed rather than sparse |
+| Angular phase | `index × (2π / N)`, so planets never bunch on one side of the sun |
+| Orbital speed | `√(330 / r)` — inner orbits run faster, because a real system is not a rigid wheel |
+| Stage box | `aspect-ratio: 1000 / 520`, locked to the SVG viewBox |
+
+The viewBox and the stage share one aspect ratio, so a viewBox unit is a fixed
+fraction of the stage at every width. That is what lets the **first paint place
+the planets in percentages** (correct before GSAP loads, and correct with no JS
+at all) while the script switches to transforms afterwards, so no frame of the
+orbit ever triggers layout.
+
+`TILT` is `0.46` at every width: the orbits are a system seen at an angle, not a
+top-down diagram. A per-breakpoint tilt was tried and dropped, because it forces
+a second stage aspect ratio and the ellipse is already legible on a 342px column.
+
+#### Material
+
+- Orbit rings are **SVG hairlines** at 13% border colour, `non-scaling-stroke`
+- The selected ring lifts to 20% **gold**, and the selected planet drags a short
+  **lit wake** along its own path: a sampled arc under a `userSpaceOnUse`
+  gradient whose endpoints are repointed every frame. Gold is edge light here,
+  never fill, exactly as in the hero
+- The sun carries the section's only light, in **two layers**: a small warm
+  `--accent` core that ties to the gold in the logo mark, and a wide
+  `--bg-accent` falloff reaching most of the way to the innermost orbit, with a
+  tighter bloom over it so the mark stays legible against its own light. A
+  single narrow purple wash was tried first and read as a smudge behind the
+  mark rather than as a star lighting a system. The innermost ring is
+  deliberately washed out by it: that planet is close to the star
+- Each planet is a sphere whose **terminator faces the sun**: `--lit-x` /
+  `--lit-y` are repointed every frame from the planet's own angle
+- Depth is real, not decorative: planets on the near half of the orbit scale to
+  1.0 and go fully opaque; the far half falls to 0.84 and 0.74, and `z-index`
+  flips so they pass behind the sun
+#### Bodies differ, and the difference means nothing
+
+Each planet gets its own diameter (13–19px), one of four tones, and its own
+terminator softness (46–58%), all **seeded from the app's `id`**: an app's planet
+looks the same on every build and every reload. Nothing here uses
+`Math.random()`, which is the trap this codebase already fell into once with the
+randomised service-badge barcode. Two ids sharing a prefix originally collided
+onto one tone and one size, so the FNV-1a seed now runs through a murmur3
+finalizer with a distinct salt per channel.
+
+The four tones are **mixed from existing tokens**, never from new hex, so the
+bodies cannot drift off-palette: silver (`--text-secondary` toward
+`--bg-accent`), light and deep lilac (`--bg-accent` toward `--text-primary`),
+and a warm ivory (`--text-secondary` with a trace of `--accent`). Gold itself is
+excluded, being both the selection ring and the section's light. The limb of
+every body derives from its own tone at 30% toward black.
+
+**The variation encodes nothing, and is built so it cannot appear to.** The
+range is narrow, nothing is ordered by index, and there is no status, domain or
+recency dimension behind any of it: bodies differ because bodies differ. A wide
+size range or a red-to-green tone ramp would read as a ranking the data does not
+support, which is what principle 4 forbids. `--dot-scale` shrinks every body by
+one factor on mobile, so the seeded spread survives the breakpoint.
+
+#### Interaction
+
+- **Scroll** through the section drives the orbital angle (`ScrollTrigger`,
+  `top bottom` → `bottom top`), and a slow drift adds about one revolution every
+  two minutes, running **only while the section is on screen**
+- **Drag** spins the system, with an 8px intent threshold and a projected throw
+  on release. Pointer capture is taken only once the threshold is crossed, and a
+  capture-phase click handler cancels the activation a drag would otherwise fire
+- **Selecting a planet turns the whole system** so that planet reaches the read
+  position (front, left of centre, clear of the panel), on a 0.95s `power3.out`.
+  The system moves, not just the marker
+- Each planet is a real `<button>` with `aria-pressed`, inside a
+  `role="group"` stage; `←` / `→` step the selection. The panel is
+  `aria-live="polite"`
+- **All panel content is server-rendered**, one card per app, toggled by the
+  `hidden` attribute. No copy is ever built in JavaScript, which is what keeps
+  the section inside the content rule
+- **Deep link**: `?tiny=<id>` selects that app's planet on load, so a Tiny app
+  can link back to its own planet with nothing but an anchor
+- Under `prefers-reduced-motion` the system renders once at its home angle: no
+  drift, no scroll response, no select tween. Drag still works, because drag is
+  input, not animation
+
+**Mobile (≤768px)**: the orbit survives rather than collapsing to a list. Sun
+drops to 68px, planet bodies to 13px, and the planet labels are **clipped rather
+than removed**, so each button keeps its accessible name.
+
 ### Chapter detail route (`/work/[slug]`)
 Previously a dead end: no nav, no footer, and a dashed "PROJECT DETAIL COMING SOON" box behind the site's most inviting interaction.
 
@@ -250,9 +510,12 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 | **Badge pick-up** | On drag intent: `scale 1.045`, `y -12`, deepened shadow, and `rotation` driven by pointer velocity so the badge lags the hand. Release settles on `back.out(1.7)`. Applied to `.badge-lift`, a layer the per-frame deck layout never touches. |
 | **Badge flip** | `rotateY(180deg)` on `.badge-inner` with `preserve-3d` and `backface-visibility: hidden`, 0.62s. Toggled by `aria-expanded`; transition removed under `prefers-reduced-motion` while the flip itself still works. |
 | **Nav link hover** | Text translates up `-4px`, font-weight bolds to 700 |
+| **Tinyverse nav mark** | A body travels a squashed ellipse on a CSS `offset-path` while the link is hovered or focused, and freezes in place when it is not. No GSAP: the animation is paused, not removed, which is what preserves the position. |
 | **Nav breakpoint transition** | Desktop ↔ mobile swap at 768px: desktop items fade up/out (or down/in with stagger on re‑entry), burger cross‑fades. Sidebar closes via `clearProps` |
 | **CTA hover** | "Let's meet" fades up out, "Book now" fades in from below |
 | **Work carousel** | CSS transform slide + GSAP text stagger on each card entry |
+| **Tinyverse orbit** | Orbital angle is the sum of scroll progress, drag, idle drift and the select tween. Input-driven first: scroll and drag are the primary movers, and the drift is slow enough to read as a system at rest rather than a loop playing at the visitor. Runs only while the section is in view, never under `prefers-reduced-motion`. |
+| **Tinyverse selection** | The system turns to bring the selected planet to the read position, 0.95s `power3.out`, while its orbit lifts to gold and its wake arc follows it. |
 | **Work card text entry** | Counter, title, description, roles stagger in from `y: 24` on first view |
 | **Certifications auto-scroll** | Seamless GSAP loop (cloned cards, modulus `x`). `ScrollTrigger.onToggle` pauses/resumes with work section visibility. Edge-gradient mask for smooth fade. |
 
@@ -317,4 +580,4 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 4. **Real data over decorative data** — chapter spec panels carry actual figures in tabular mono; the service badges carry a real domain tag. Nothing on the page pretends to encode information it does not have.
 5. **Restrained palette, expressive motion** — only 2 accent colours (gold, purple) but rich animation vocabulary
 6. **Human details** — "Ciao!" greeting, playful emoji, "digital nomad" framing — personality within a professional container
-7. **Single-page rhythm** — sections flow hero → services → work → contact → footer, each with distinct layout but unified visual language
+7. **Single-page rhythm** — sections flow hero → services → work → tinyverse → contact → footer, each with distinct layout but unified visual language

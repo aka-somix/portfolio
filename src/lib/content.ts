@@ -87,12 +87,27 @@ export const ui = () => data('ui', 'ui') as Promise<{
   work: { prevAriaLabel: string; nextAriaLabel: string }
   workCard: { held: string; taught: string; cta: string; ctaAlt: string }
   workSpec: { client: string; years: string }
+  tinyverse: { stageAriaLabel: string; sunAriaLabel: string; open: string }
   workPage: {
     back: string
     projects: string
     writeUpTitle: string
     holding: { title: string; body1: string; body2: string; cta: string }
   }
+}>
+
+export const tinyverse = () => data('tinyverse', 'tinyverse') as Promise<{
+  header: { title: string; description: string }
+  hint: string
+  thesis: string
+  items: {
+    id: string
+    name: string
+    summary: string
+    host: string
+    url: string
+    stack: string[]
+  }[]
 }>
 
 export const workSection = () => data('workSection', 'work') as Promise<{

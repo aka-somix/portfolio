@@ -73,6 +73,11 @@ const uiSchema = z.object({
     ctaAlt: z.string(),
   }),
   workSpec: z.object({ client: z.string(), years: z.string() }),
+  tinyverse: z.object({
+    stageAriaLabel: z.string(),
+    sunAriaLabel: z.string(),
+    open: z.string(),
+  }),
   workPage: z.object({
     back: z.string(),
     projects: z.string(),
@@ -99,6 +104,30 @@ const servicesSchema = z.object({
         help: z.array(z.string()).min(1),
         image: z.string(),
         imageAlt: z.string(),
+      })
+    )
+    .min(1),
+})
+
+/**
+ * The orbit derives every geometric value from `items.length` — radius band,
+ * angular phase, orbital speed, viewBox extent. Adding an app is adding an
+ * entry, never editing a layout number.
+ */
+const tinyverseSchema = z.object({
+  header: z.object({ title: z.string(), description: z.string() }),
+  hint: z.string(),
+  thesis: z.string(),
+  items: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        summary: z.string(),
+        host: z.string(),
+        url: z.string().url(),
+        /** Omitted rather than guessed. An empty list renders no tags. */
+        stack: z.array(z.string()).default([]),
       })
     )
     .min(1),
@@ -166,6 +195,7 @@ export const collections = {
   ui: defineCollection({ loader: glob({ base: ROOT, pattern: 'ui.yaml' }), schema: uiSchema }),
   services: defineCollection({ loader: section('services'), schema: servicesSchema }),
   workSection:    defineCollection({ loader: section('work'), schema: workSectionSchema }),
+  tinyverse:      defineCollection({ loader: section('tinyverse'), schema: tinyverseSchema }),
   certifications: defineCollection({ loader: section('certifications'), schema: certificationsSchema }),
   contact: defineCollection({ loader: section('contact'), schema: contactSchema }),
   work: defineCollection({

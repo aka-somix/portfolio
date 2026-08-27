@@ -1,0 +1,1002 @@
+---
+import { tinyverse, ui } from "../lib/content"
+
+const content = await tinyverse()
+const section = content.header
+const labels = (await ui()).tinyverse
+const items = content.items
+
+/**
+ * The system's geometry, derived entirely from `items.length`.
+ *
+ * The SVG viewBox and the stage share one aspect ratio, so a viewBox unit maps
+ * to a fixed fraction of the stage at every width. That is what lets the first
+ * paint place the planets in percentages (correct with no JS, and correct
+ * before GSAP loads) while the script switches to transforms afterwards.
+ *
+ * Adding an app changes nothing here.
+ */
+const VB_W = 1000
+/**
+ * Just tall enough for the outermost orbit plus a planet and its label. It was
+ * 620, which left a 170px dead band above the system at every width.
+ */
+const VB_H = 520
+const CX = VB_W / 2
+const CY = VB_H / 2
+
+/**
+ * Vertical squash of the orbits: a system seen at an angle, not a diagram.
+ * One value at every width. A per-breakpoint tilt would have forced a second
+ * stage aspect ratio, and at 0.46 the ellipse is legible on a 342px column
+ * without one.
+ */
+const TILT = 0.46
+
+const R_MIN = 195
+const R_MAX = 420
+/** A single app sits mid-band, so the one-planet system is composed, not sparse. */
+const R_SOLO = 330
+
+/** Where the system rests before any scroll, drag or selection. */
+const ROT_HOME = 0.62
+
+/**
+ * Bodies differ, so the planets differ. Every variation below is seeded from
+ * the id of the app itself, never from a random call: a planet looks the same
+ * on every build and every reload, the way the lattice in the hero is seeded
+ * so it never reshuffles. A body that changed size on refresh would be the
+ * same mistake as the randomised barcode this codebase already removed.
+ *
+ * The ranges are deliberately narrow, and nothing is ordered by index: this is
+ * material variety, not a ranking. There is no metric behind a planet's size.
+ */
+const DOT_SIZES = [13, 14, 15, 16, 17, 18, 19]
+
+/**
+ * Tones are dealt in bags, in this order. The four greens and browns go out
+ * first, so a small system is all bodies and no grey; silver and lilac join in
+ * once there are more than four apps, and the sequence refills past six.
+ */
+const TONE_BAGS = [
+  [2, 3, 4, 5],
+  [0, 1],
+]
+
+/** FNV-1a. Stable across runtimes, and cheap. */
+const seed = (text: string) => {
+  let h = 2166136261
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+/**
+ * FNV-1a alone avalanches poorly over short, similar strings: two ids sharing a
+ * prefix landed on the same tone and the same size, so the first four planets
+ * came out identical. A murmur3 finalizer, plus a distinct salt per channel,
+ * decorrelates size from tone from shading.
+ */
+const mix = (h: number) => {
+  h ^= h >>> 16
+  h = Math.imul(h, 2246822507)
+  h ^= h >>> 13
+  h = Math.imul(h, 3266489909)
+  h ^= h >>> 16
+  return h >>> 0
+}
+
+/** One decorrelated number per channel, from the same id. */
+const roll = (h: number, salt: number) => mix(h ^ salt)
+
+/**
+ * Seeded dealing without replacement. Each planet still chooses by its own
+ * hash, but only from the values not yet taken, and the bag refills when it
+ * empties.
+ *
+ * Straight per-id hashing was tried first and dropped: three distinct ids
+ * landed on the same tone, and a system of four planets wearing one colour
+ * reads as a bug rather than as a coincidence. The cost is that inserting an
+ * app can shift the tone of the ones after it, which is a fair trade, since
+ * what mattered was never that a tone is immutable, only that it is the same
+ * on every build and every reload instead of rerolling on refresh.
+ */
+const dealer = <T>(bags: readonly (readonly T[])[]) => {
+  let next = 0
+  let bag: T[] = []
+  return (h: number) => {
+    if (bag.length === 0) {
+      bag = [...bags[next % bags.length]]
+      next++
+    }
+    return bag.splice(h % bag.length, 1)[0]
+  }
+}
+
+const dealTone = dealer(TONE_BAGS)
+const dealSize = dealer([DOT_SIZES])
+
+const N = items.length
+
+const planets = items.map((item, i) => {
+  const r = N === 1 ? R_SOLO : R_MIN + (R_MAX - R_MIN) * (i / (N - 1))
+  // Even angular spread, so planets never bunch on one side of the sun.
+  const phase = (i * Math.PI * 2) / N
+  // Inner orbits run faster. Kepler is the reason a real system never looks
+  // like a rigid wheel turning.
+  const speed = Math.sqrt(R_SOLO / r)
+  const a = phase + speed * ROT_HOME
+  // Independent bits, so size, tone and shading do not move together.
+  const h = seed(item.id)
+  return {
+    ...item,
+    r,
+    phase,
+    speed,
+    size: dealSize(roll(h, 0x9e3779b9)),
+    tone: dealTone(roll(h, 0x85ebca6b)),
+    /**
+     * Where the lit face gives way to the limb. Held at 36-48%, not 46-58%:
+     * the higher band left the specular covering most of a 15px body, which is
+     * why every planet read as grey whatever tone it carried.
+     */
+    stop: 36 + (roll(h, 0xc2b2ae35) % 7) * 2,
+    left: ((CX + r * Math.cos(a)) / VB_W) * 100,
+    top: ((CY + r * TILT * Math.sin(a)) / VB_H) * 100,
+  }
+})
+---
+
+<section class="tinyverse" id="tinyverse" data-animate="section">
+  <div class="rail tiny-head">
+    <h2 class="section-label">{section.title}</h2>
+  </div>
+  <div class="rail">
+    <p class="section-description">{section.description}</p>
+  </div>
+  <p class="rail tiny-hint">{content.hint}</p>
+
+  <div class="rail tiny-body">
+    <div
+      class="tiny-stage"
+      data-tiny-stage
+      data-tilt={TILT}
+      data-home={ROT_HOME}
+      role="group"
+      aria-label={labels.stageAriaLabel}
+    >
+      <svg
+        class="tiny-orbits"
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        aria-hidden="true"
+        focusable="false"
+      >
+        <defs>
+          <linearGradient id="tiny-trail-gradient" gradientUnits="userSpaceOnUse">
+            <stop class="tiny-trail-from" offset="0" />
+            <stop class="tiny-trail-to" offset="1" />
+          </linearGradient>
+        </defs>
+        {
+          planets.map((p) => (
+            <ellipse
+              class="tiny-orbit"
+              data-tiny-orbit
+              cx={CX}
+              cy={CY}
+              rx={p.r}
+              ry={p.r * TILT}
+            />
+          ))
+        }
+        <path class="tiny-trail" data-tiny-trail />
+      </svg>
+
+      <span class="tiny-glow" aria-hidden="true"></span>
+
+      <a class="tiny-sun" href="/" aria-label={labels.sunAriaLabel}>
+        <svg height="34" viewBox="0 0 236 245" fill="none" aria-hidden="true" focusable="false">
+          <rect x="1.5" y="196.5" width="233" height="47" fill="#F3F3F3" />
+          <rect x="87.5" y="91.5" width="147" height="22" fill="#F3F3F3" />
+          <rect x="173.5" y="131.5" width="61" height="47" fill="#F3F3F3" />
+          <rect x="1.5" y="66.5" width="61" height="47" fill="#EEA727" />
+          <rect x="1.5" y="1.5" width="229" height="47" fill="#EEA727" />
+          <rect x="1.5" y="131.5" width="147" height="22" fill="#EEA727" />
+        </svg>
+      </a>
+
+      {
+        planets.map((p, i) => (
+          <button
+            type="button"
+            class="tiny-planet"
+            data-tiny-planet
+            data-id={p.id}
+            data-r={p.r}
+            data-phase={p.phase}
+            data-speed={p.speed}
+            data-tone={p.tone}
+            style={`left:${p.left.toFixed(3)}%;top:${p.top.toFixed(3)}%;--dot-size:${p.size}px;--dot-stop:${p.stop}%`}
+            aria-pressed={i === 0 ? "true" : "false"}
+          >
+            <span class="tiny-dot" aria-hidden="true" />
+            <span class="tiny-name">{p.name}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="tiny-side">
+      <p class="tiny-thesis">{content.thesis}</p>
+
+      <div class="tiny-panel" data-tiny-panel aria-live="polite">
+        {
+          items.map((item, i) => (
+            <article class="tiny-card" data-tiny-card hidden={i !== 0}>
+              <h3 class="tiny-app-name">{item.name}</h3>
+              <p class="tiny-summary">{item.summary}</p>
+              {item.stack.length > 0 && (
+                <ul class="tiny-stack">
+                  {item.stack.map((tech) => (
+                    <li>{tech}</li>
+                  ))}
+                </ul>
+              )}
+              <p class="tiny-host tabular">{item.host}</p>
+              <a class="tiny-open" href={item.url} target="_blank" rel="noopener noreferrer">
+                <span>{labels.open} {item.name}</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M4 12L12 4M12 4H6M12 4v6"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tinyverse {
+    /*
+     * Palette extension, scoped to this component and nowhere else.
+     *
+     * The site palette is purple, gold and greys, and four tones mixed out of
+     * it gave four grey-to-lilac bodies. Planetary bodies are not lilac. These
+     * four are the only raw hex in the section, all held at low chroma so the
+     * system stays in the site's night rather than turning into a fruit bowl,
+     * and the two token-derived tones below are kept alongside them so the
+     * planets still read as belonging to this page.
+     *
+     * If these ever earn a place site-wide they belong in
+     * src/design.config.ts, not here.
+     */
+    --planet-sage: #9aa88f;
+    --planet-moss: #78896f;
+    --planet-clay: #ab8168;
+    --planet-umber: #8a6a55;
+
+    padding: 100px 24px;
+    /* Orbits are sized off the stage, never off the viewport, but the glow can
+       still round up past the rail on narrow screens. */
+    overflow-x: clip;
+  }
+
+  .tiny-head {
+    margin-bottom: 16px;
+  }
+
+  .tiny-hint {
+    max-width: var(--max-width);
+    margin: 28px auto 0;
+    font-size: var(--size-min);
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+  }
+
+  .tiny-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+    gap: 56px;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  /* ---- the system ------------------------------------------------------ */
+
+  .tiny-stage {
+    position: relative;
+    width: 100%;
+    /* Locked to the viewBox, so a unit of orbit is a fixed fraction of the
+       stage and the percentage first paint lands exactly where GSAP will. */
+    aspect-ratio: 1000 / 520;
+    cursor: grab;
+    /* Horizontal drag spins the system; vertical drag still scrolls the page. */
+    touch-action: pan-y;
+  }
+
+  .tiny-stage:active {
+    cursor: grabbing;
+  }
+
+  .tiny-stage:focus-visible,
+  .tiny-stage:has(:focus-visible) {
+    outline: none;
+  }
+
+  .tiny-orbits {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .tiny-orbit {
+    fill: none;
+    stroke: color-mix(in srgb, var(--border-color) 13%, transparent);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    transition: stroke var(--duration-slow) var(--ease);
+  }
+
+  /* Gold is edge light in this world, never fill. The selected orbit is the
+     only gold line in the section. */
+  .tiny-orbit[data-active] {
+    stroke: color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  /* The lit arc the selected planet drags behind it, along its own path. */
+  .tiny-trail {
+    fill: none;
+    stroke: url(#tiny-trail-gradient);
+    stroke-width: 2;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .tiny-trail-from {
+    stop-color: var(--accent);
+    stop-opacity: 0;
+  }
+
+  .tiny-trail-to {
+    stop-color: var(--accent);
+    stop-opacity: 0.92;
+  }
+
+  /*
+   * The section's only light source, so it carries the whole depth read. Two
+   * layers rather than one: a small warm core that ties to the gold in the
+   * logo mark, and a wide purple falloff that reaches most of the way to the
+   * innermost orbit. It was a single 28% purple wash, which read as a smudge
+   * behind the mark instead of as a star lighting a system.
+   */
+  .tiny-glow {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 46%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--accent) 20%, transparent) 0%,
+      color-mix(in srgb, var(--bg-accent) 74%, transparent) 11%,
+      color-mix(in srgb, var(--bg-accent) 40%, transparent) 26%,
+      color-mix(in srgb, var(--bg-accent) 15%, transparent) 48%,
+      transparent 74%
+    );
+  }
+
+  /* The near field: a tight bloom that keeps the mark legible against its own
+     light instead of dissolving into it. */
+  .tiny-glow::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at center,
+      color-mix(in srgb, var(--accent) 26%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 8%, transparent) 40%,
+      transparent 70%
+    );
+  }
+
+  .tiny-sun {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 92px;
+    height: 92px;
+    margin: -46px 0 0 -46px;
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform var(--duration-normal) var(--ease);
+  }
+
+  .tiny-sun:hover,
+  .tiny-sun:focus-visible {
+    transform: scale(1.06);
+  }
+
+  /* ---- planets --------------------------------------------------------- */
+
+  .tiny-planet {
+    position: absolute;
+    /* 44px tap target around a 15px body. */
+    width: 44px;
+    height: 44px;
+    margin: -22px 0 0 -22px;
+    padding: 0;
+    border: 0;
+    background: none;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    z-index: 3;
+  }
+
+  /*
+   * Six tones: two carried over from the site palette so the bodies still
+   * belong to this page, and four desaturated greens and browns. Gold itself
+   * is excluded, being both the selection ring and the section's light.
+   */
+
+  /* Silver, and dusty lilac: the two that tie back to the site. */
+  .tiny-planet[data-tone="0"] .tiny-dot {
+    --dot-body: color-mix(in srgb, var(--text-secondary) 88%, var(--bg-accent));
+  }
+
+  .tiny-planet[data-tone="1"] .tiny-dot {
+    --dot-body: color-mix(in srgb, var(--bg-accent) 44%, var(--text-primary));
+  }
+
+  .tiny-planet[data-tone="2"] .tiny-dot {
+    --dot-body: var(--planet-sage);
+  }
+
+  .tiny-planet[data-tone="3"] .tiny-dot {
+    --dot-body: var(--planet-moss);
+  }
+
+  .tiny-planet[data-tone="4"] .tiny-dot {
+    --dot-body: var(--planet-clay);
+  }
+
+  .tiny-planet[data-tone="5"] .tiny-dot {
+    --dot-body: var(--planet-umber);
+  }
+
+  .tiny-dot {
+    /* Seeded per app in the frontmatter; --dot-scale is the breakpoint. */
+    width: calc(var(--dot-size, 15px) * var(--dot-scale, 1));
+    height: calc(var(--dot-size, 15px) * var(--dot-scale, 1));
+    border-radius: 50%;
+    /*
+     * Terminator faces the sun: --lit-* is repointed every frame. The specular
+     * carries a quarter of the body colour rather than being pure white, which
+     * is what a rough surface actually does, and is what lets a 13px sage or
+     * clay body read as sage or clay instead of as a white dot.
+     */
+    background: radial-gradient(
+      circle at var(--lit-x, 34%) var(--lit-y, 30%),
+      color-mix(in srgb, #ffffff 76%, var(--dot-body, var(--text-secondary))) 0%,
+      var(--dot-body, var(--text-secondary)) var(--dot-stop, 44%),
+      color-mix(in srgb, var(--dot-body, var(--bg-surface)) 30%, #000000) 100%
+    );
+    box-shadow: 0 3px 9px -3px rgba(0, 0, 0, 0.7);
+    /* Scaled, not resized: the dot grows on hover and on selection, and a
+       width/height transition here would lay out the stage on every frame of
+       it. The gradient is placed in percentages, so it scales with the body. */
+    transition: transform var(--duration-normal) var(--ease),
+      box-shadow var(--duration-normal) var(--ease);
+  }
+
+  .tiny-planet:hover .tiny-dot {
+    transform: scale(1.2);
+  }
+
+  .tiny-planet[aria-pressed="true"] .tiny-dot {
+    transform: scale(1.4);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 62%, transparent),
+      0 6px 16px -5px rgba(0, 0, 0, 0.8);
+  }
+
+  .tiny-name {
+    position: absolute;
+    top: calc(50% + 18px);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: var(--size-xs);
+    line-height: 1;
+    color: var(--text-secondary);
+    pointer-events: none;
+    transition: color var(--duration-normal) var(--ease);
+  }
+
+  .tiny-planet:hover .tiny-name,
+  .tiny-planet[aria-pressed="true"] .tiny-name {
+    color: var(--text-primary);
+  }
+
+  .tiny-planet[aria-pressed="true"] .tiny-name {
+    font-weight: var(--weight-semibold);
+  }
+
+  /* ---- the detail ------------------------------------------------------ */
+
+  .tiny-thesis {
+    font-size: var(--size-sm);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    max-width: 44ch;
+    margin-bottom: 22px;
+  }
+
+  .tiny-panel {
+    border: 1px solid color-mix(in srgb, var(--border-color) 14%, transparent);
+    border-radius: var(--radius);
+    padding: 28px 26px;
+    background: color-mix(in srgb, var(--bg-surface) 26%, transparent);
+  }
+
+  .tiny-card:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tiny-app-name {
+    font-family: var(--font-display);
+    font-size: var(--size-xl);
+    font-weight: var(--weight-bold);
+    font-stretch: 104%;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+  }
+
+  .tiny-summary {
+    margin-top: 12px;
+    font-size: var(--size-base);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+  }
+
+  .tiny-stack {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+    padding: 0;
+  }
+
+  .tiny-stack li {
+    padding: 3px 9px;
+    border: 1px solid color-mix(in srgb, var(--border-color) 22%, transparent);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--size-min);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--text-secondary);
+  }
+
+  /* The host authenticates the app the way the certification issuer does. */
+  .tiny-host {
+    margin-top: 18px;
+    font-size: var(--size-xs);
+    color: var(--text-secondary);
+  }
+
+  .tiny-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    margin-top: 22px;
+    padding: 0 20px;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--bg-primary);
+    font-size: var(--size-sm);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+    transition: background var(--duration-fast) var(--ease);
+  }
+
+  .tiny-open svg {
+    transition: transform var(--duration-fast) var(--ease);
+  }
+
+  .tiny-open:hover {
+    background: color-mix(in srgb, var(--accent) 88%, #ffffff);
+  }
+
+  .tiny-open:hover svg,
+  .tiny-open:focus-visible svg {
+    transform: translate(2px, -2px);
+  }
+
+  /* ---- responsive ------------------------------------------------------ */
+
+  @media (max-width: 1024px) {
+    .tiny-body {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 40px;
+    }
+
+    /* Unbounded, the stacked stage grew to the full rail and the system
+       dwarfed the panel under it. */
+    .tiny-stage {
+      max-width: 620px;
+    }
+
+    .tiny-side {
+      max-width: 560px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .tinyverse {
+      padding: 72px 24px;
+    }
+
+    .tiny-sun {
+      width: 68px;
+      height: 68px;
+      margin: -34px 0 0 -34px;
+    }
+
+    .tiny-sun svg {
+      height: 26px;
+    }
+
+    /* Every body shrinks by the same factor, so the seeded spread survives. */
+    .tiny-dot {
+      --dot-scale: 0.82;
+    }
+
+    /* Labels would collide at this width, and the panel already names the
+       selected app. Clipped rather than removed, so the button keeps its
+       accessible name. */
+    .tiny-name {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .tiny-panel {
+      padding: 24px 20px;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap"
+  import { ScrollTrigger } from "gsap/ScrollTrigger"
+  gsap.registerPlugin(ScrollTrigger)
+
+  const stage = document.querySelector<HTMLElement>("[data-tiny-stage]")
+  const svg = stage?.querySelector<SVGSVGElement>(".tiny-orbits")
+  const trail = stage?.querySelector<SVGPathElement>("[data-tiny-trail]")
+  const gradient = document.getElementById("tiny-trail-gradient")
+  const planetEls = stage ? [...stage.querySelectorAll<HTMLElement>("[data-tiny-planet]")] : []
+  const orbitEls = stage ? [...stage.querySelectorAll<SVGEllipseElement>("[data-tiny-orbit]")] : []
+  const cards = [...document.querySelectorAll<HTMLElement>("[data-tiny-card]")]
+
+  if (stage && svg && planetEls.length) {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
+    const VB_W = svg.viewBox.baseVal.width
+    const VB_H = svg.viewBox.baseVal.height
+    const CX = VB_W / 2
+    const CY = VB_H / 2
+    const TAU = Math.PI * 2
+
+    const TILT = Number(stage.dataset.tilt)
+    const ROT_HOME = Number(stage.dataset.home)
+
+    /** Front of the system, left of centre: clear of the panel on the right. */
+    const READ = 1.9
+    /** Angle travelled across one full scroll past the section. */
+    const TURN = Math.PI * 1.1
+    /** Length of the selected planet's lit arc, in radians. */
+    const TRAIL = 0.72
+    /** Radians per frame of idle drift: one revolution in about two minutes. */
+    const DRIFT = 0.0009
+    /** Radians per pixel of drag. */
+    const GRAB = 0.0055
+    const THRESHOLD = 8
+
+    // Everything geometric was decided in the frontmatter, from the list length.
+    const geo = planetEls.map((el) => ({
+      el,
+      id: el.dataset.id ?? "",
+      r: Number(el.dataset.r),
+      phase: Number(el.dataset.phase),
+      speed: Number(el.dataset.speed),
+    }))
+
+    let stageW = 0
+    let scrollRot = 0
+    let dragRot = 0
+    let driftRot = 0
+    let selectRot = 0
+    let selected = 0
+
+    const rotation = () => ROT_HOME + scrollRot + dragRot + driftRot + selectRot
+
+    // The percentage placement was for the first paint only. Transforms own the
+    // planets from here, so no frame ever triggers layout.
+    gsap.set(planetEls, { left: "50%", top: "50%" })
+
+    const measure = () => {
+      stageW = stage.clientWidth
+    }
+
+    const at = (p: (typeof geo)[number], angle: number) => ({
+      x: CX + p.r * Math.cos(angle),
+      y: CY + p.r * TILT * Math.sin(angle),
+    })
+
+    const render = () => {
+      const rot = rotation()
+      const unit = stageW / VB_W
+
+      geo.forEach((p) => {
+        const angle = p.phase + p.speed * rot
+        const cos = Math.cos(angle)
+        const sin = Math.sin(angle)
+        // sin > 0 is the near half of the orbit, in front of the sun.
+        const depth = (sin + 1) / 2
+        gsap.set(p.el, {
+          x: p.r * cos * unit,
+          y: p.r * TILT * sin * unit,
+          scale: 0.84 + 0.16 * depth,
+          opacity: 0.74 + 0.26 * depth,
+          zIndex: sin > 0 ? 6 : 2,
+          "--lit-x": `${(50 - 26 * cos).toFixed(1)}%`,
+          "--lit-y": `${(50 - 26 * TILT * sin).toFixed(1)}%`,
+        })
+      })
+
+      if (!trail || !gradient) return
+      const p = geo[selected]
+      const angle = p.phase + p.speed * rot
+      const STEPS = 18
+      let d = ""
+      for (let s = 0; s <= STEPS; s++) {
+        const t = angle - TRAIL + (TRAIL * s) / STEPS
+        const point = at(p, t)
+        d += `${s ? "L" : "M"}${point.x.toFixed(1)} ${point.y.toFixed(1)}`
+      }
+      trail.setAttribute("d", d)
+      // A gradient cannot follow a path, but across a 41 degree arc the chord
+      // is close enough that the fade reads as the planet's own wake.
+      const tail = at(p, angle - TRAIL)
+      const head = at(p, angle)
+      gradient.setAttribute("x1", String(tail.x))
+      gradient.setAttribute("y1", String(tail.y))
+      gradient.setAttribute("x2", String(head.x))
+      gradient.setAttribute("y2", String(head.y))
+    }
+
+    // --- selection --------------------------------------------------------
+    let selectTween: gsap.core.Tween | null = null
+
+    const select = (index: number, turnToRead = true) => {
+      const n = geo.length
+      selected = ((index % n) + n) % n
+
+      planetEls.forEach((el, i) => {
+        el.setAttribute("aria-pressed", i === selected ? "true" : "false")
+      })
+      orbitEls.forEach((orbit, i) => {
+        if (i === selected) orbit.setAttribute("data-active", "")
+        else orbit.removeAttribute("data-active")
+      })
+      cards.forEach((card, i) => {
+        card.hidden = i !== selected
+      })
+
+      if (!turnToRead || reduceMotion) {
+        render()
+        return
+      }
+
+      // The system turns to bring the selection to the read position, rather
+      // than the planet jumping there on its own.
+      const p = geo[selected]
+      const period = TAU / p.speed
+      let delta = ((READ - p.phase) / p.speed - rotation()) % period
+      if (delta > period / 2) delta -= period
+      if (delta < -period / 2) delta += period
+
+      const proxy = { v: selectRot }
+      selectTween?.kill()
+      selectTween = gsap.to(proxy, {
+        v: selectRot + delta,
+        duration: 0.95,
+        ease: "power3.out",
+        onUpdate: () => {
+          selectRot = proxy.v
+          render()
+        },
+      })
+    }
+
+    planetEls.forEach((el, i) => {
+      el.addEventListener("click", () => select(i))
+    })
+
+    stage.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        e.preventDefault()
+        select(selected + 1)
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault()
+        select(selected - 1)
+      }
+    })
+
+    // --- drag -------------------------------------------------------------
+    let dragging = false
+    let moved = false
+    let startX = 0
+    let startRot = 0
+    let velocity = 0
+    let lastX = 0
+    let lastT = 0
+    let dragTween: gsap.core.Tween | null = null
+
+    stage.addEventListener("pointerdown", (e: PointerEvent) => {
+      dragTween?.kill()
+      selectTween?.kill()
+      dragging = true
+      moved = false
+      startX = e.clientX
+      startRot = dragRot
+      velocity = 0
+      lastX = e.clientX
+      lastT = performance.now()
+    })
+
+    stage.addEventListener("pointermove", (e: PointerEvent) => {
+      if (!dragging) return
+      const dx = e.clientX - startX
+
+      if (!moved) {
+        if (Math.abs(dx) < THRESHOLD) return
+        moved = true
+        // Claimed only once this is provably a drag: capturing on pointerdown
+        // retargets the following click and would swallow every selection.
+        try {
+          stage.setPointerCapture(e.pointerId)
+        } catch {
+          /* best effort; the gesture still tracks without capture */
+        }
+      }
+
+      const now = performance.now()
+      const dt = now - lastT
+      if (dt > 0) velocity = (e.clientX - lastX) / dt
+      lastX = e.clientX
+      lastT = now
+
+      dragRot = startRot + dx * GRAB
+      render()
+    })
+
+    const endDrag = () => {
+      if (!dragging) return
+      dragging = false
+      if (!moved || reduceMotion) return
+      // A flick keeps spinning and settles, rather than stopping dead.
+      const proxy = { v: dragRot }
+      const target = dragRot + velocity * 34 * GRAB
+      dragTween = gsap.to(proxy, {
+        v: target,
+        duration: 1.1,
+        ease: "power2.out",
+        onUpdate: () => {
+          dragRot = proxy.v
+          render()
+        },
+      })
+    }
+
+    stage.addEventListener("pointerup", endDrag)
+    stage.addEventListener("pointercancel", endDrag)
+
+    // A drag that began on a planet or on the sun must not also activate it.
+    stage.addEventListener(
+      "click",
+      (e: MouseEvent) => {
+        if (!moved) return
+        e.preventDefault()
+        e.stopPropagation()
+        moved = false
+      },
+      true
+    )
+
+    // --- scroll and drift -------------------------------------------------
+    let drifting = false
+    const tick = (_time: number, delta: number) => {
+      driftRot += DRIFT * (delta / 16.667)
+      render()
+    }
+    const startDrift = () => {
+      if (drifting || reduceMotion) return
+      drifting = true
+      gsap.ticker.add(tick)
+    }
+    const stopDrift = () => {
+      if (!drifting) return
+      drifting = false
+      gsap.ticker.remove(tick)
+    }
+
+    if (!reduceMotion) {
+      ScrollTrigger.create({
+        trigger: stage.closest("section") ?? stage,
+        start: "top bottom",
+        end: "bottom top",
+        onUpdate: (self) => {
+          scrollRot = (self.progress - 0.5) * TURN
+          render()
+        },
+        // The drift only runs while the system is on screen. A resting page,
+        // or one scrolled past this section, costs nothing.
+        onToggle: (self) => (self.isActive ? startDrift() : stopDrift()),
+      })
+    }
+
+    // --- init -------------------------------------------------------------
+    // A Tiny app links back with ?tiny=<id>, and lands on its own planet.
+    const wanted = new URLSearchParams(window.location.search).get("tiny")
+    const requested = wanted ? geo.findIndex((p) => p.id === wanted) : -1
+
+    measure()
+    select(requested >= 0 ? requested : 0, false)
+
+    let resizeRaf = 0
+    const onResize = () => {
+      cancelAnimationFrame(resizeRaf)
+      resizeRaf = requestAnimationFrame(() => {
+        measure()
+        render()
+      })
+    }
+    window.addEventListener("resize", onResize)
+  }
+</script>

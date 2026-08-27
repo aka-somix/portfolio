@@ -32,7 +32,7 @@ A neighbouring portfolio could copy the palette and the motion. It could not tru
 ## Operating Context
 
 - **Site**: `https://about.salvatorecirone.dev` — static Astro build deployed to Cloudflare (Wrangler).
-- **Structure**: single-page scroll — hero → services → work → contact → footer — plus dynamic `/work/[slug]` chapter detail pages.
+- **Structure**: single-page scroll — hero → services → work → tinyverse → contact → footer — plus dynamic `/work/[slug]` chapter detail pages.
 - **Content sources**: all copy is data-driven from `src/data/` (`work.ts`, `services.ts`, `sections.ts`, `certifications.ts`). Content changes belong in data files, not in components.
 - **Design tokens**: centralised in `src/design.config.ts`, injected as CSS custom properties by `BaseLayout.astro`.
 - **Contact channels**: `s.cirone.work@gmail.com` and a Google Calendar appointment-schedule booking link (`BOOKING_URL` in `Nav.astro`). Both are live and real.

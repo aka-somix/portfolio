@@ -10,6 +10,7 @@ nav:
   links:
     - { id: services, label: Services }
     - { id: work, label: Work }
+    - { id: tinyverse, label: Tinyverse }
     - { id: contact, label: Contact }
   cta:
     label: Let's meet
@@ -55,3 +56,10 @@ workPage:
     body1: Still being written. The projects, the decisions that turned out to be right, and the ones that didn't are the interesting part, and they deserve more than a paragraph.
     body2: Happy to walk you through any of it in the meantime.
     cta: Ask me about it on a call
+
+tinyverse:
+  stageAriaLabel: A system of tiny apps in orbit
+  # The sun is the portfolio itself, so activating it returns you to the top.
+  sunAriaLabel: Salvatore Cirone, the centre of the Tinyverse
+  # Prefixed to the app name to form the outbound link: "Open Tiny Medleys".
+  open: Open

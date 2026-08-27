@@ -1,0 +1,34 @@
+# ---------------------------------------------------------------------------
+# DRAFT COPY NOTICE
+#
+# `header.description` and `hint` were drafted from Salvatore's own framing of
+# the Tinyverse ("demonstrative, kept low-scaled on purpose, they COULD scale
+# up") by someone who is not Salvatore. No claim here is measured: no user
+# counts, no outcomes, no dates. Still worth a read-through and an edit before
+# it represents him.
+#
+# `items[].summary` for tiny-medleys is Salvatore's own wording, unedited.
+# ---------------------------------------------------------------------------
+
+header:
+  title: Tinyverse
+  description: Standalone apps and proofs of concept, orbiting the same domain as everything else here.
+
+# Sits under the header, above the orbit. Names both affordances.
+hint: Drag to spin the system, or pick a planet
+
+# The thesis of the word "Tiny". Sits beside the system, not inside the header,
+# so the graphic is the first thing read.
+thesis: Each one is deliberately small. They could scale. They stay tiny so I can host them for nothing and keep shipping the next one.
+
+# Adding an app is adding an entry here. Orbit radius, angular phase, orbital
+# speed and the SVG geometry are all derived from this list's length.
+#   id      the slug, used by the ?tiny= deep link
+#   host    shown as authenticating detail, in mono
+#   stack   optional, omit rather than guess
+items:
+  - id: tiny-medleys
+    name: Tiny Medleys
+    summary: Create your medleys from chords progressions
+    host: tinymedleys.salvatorecirone.dev
+    url: https://tinymedleys.salvatorecirone.dev

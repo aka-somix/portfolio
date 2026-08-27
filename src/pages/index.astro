@@ -4,6 +4,7 @@ import Nav from "../components/Nav.astro"
 import Hero from "../components/Hero.astro"
 import Services from "../components/Services.astro"
 import WorkCarousel from "../components/WorkCarousel.astro"
+import Tinyverse from "../components/Tinyverse.astro"
 import Contact from "../components/Contact.astro"
 import Footer from "../components/Footer.astro"
 import { seo } from "../lib/content"
@@ -17,6 +18,7 @@ const home = (await seo()).pages.home
     <Hero />
     <Services />
     <WorkCarousel />
+    <Tinyverse />
     <Contact />
   </main>
   <Footer />

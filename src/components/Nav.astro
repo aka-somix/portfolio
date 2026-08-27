@@ -6,6 +6,13 @@ const nav = (await ui()).nav
 
 const BOOKING_URL = channels.bookingUrl
 const sections = nav.links
+
+/**
+ * The one nav link that carries a mark. A section id, not copy: the Tinyverse
+ * is the only section whose subject is a drawn system, so its link is the only
+ * one that gets drawn. Everything else in the row stays a word.
+ */
+const ORBIT_LINK = "tinyverse"
 ---
 
 <nav class="nav">
@@ -24,7 +31,15 @@ const sections = nav.links
     <div class="nav-links">
       {sections.map((section) => (
         <a href={`#${section.id}`} class="nav-link" data-animate="nav-link">
-          <span data-nav-text>{section.label}</span>
+          <span class="nav-link-text"><span data-nav-text>{section.label}</span></span>
+          {section.id === ORBIT_LINK && (
+            <span class="nav-orbit" aria-hidden="true">
+              <svg class="nav-orbit-ring" viewBox="0 0 22 14" fill="none" focusable="false">
+                <ellipse cx="11" cy="7" rx="9.5" ry="4.6" stroke="currentColor" stroke-width="1" />
+              </svg>
+              <span class="nav-orbit-body"></span>
+            </span>
+          )}
         </a>
       ))}
     </div>
@@ -113,6 +128,7 @@ const sections = nav.links
 
   .nav-links {
     display: flex;
+    align-items: center;
     gap: 32px;
     margin-left: 48px;
   }
@@ -125,6 +141,18 @@ const sections = nav.links
        12px text. White is 6.53:1; gold moves to the hover state. */
     color: var(--text-primary);
     transition: color var(--duration-fast) var(--ease);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /*
+   * The clip that masks the hover lift. It sat on .nav-link itself, which meant
+   * anything else in the link was cropped to 1.2em too, so the orbit mark was
+   * cut in half and moved out of frame with the text. Same box, one level in.
+   */
+  .nav-link-text {
+    display: block;
     overflow: hidden;
     height: 1.2em;
   }
@@ -135,6 +163,85 @@ const sections = nav.links
 
   .nav-link:hover {
     color: var(--text-primary);
+  }
+
+  /* ---- the Tinyverse mark ---------------------------------------------- */
+
+  .nav-orbit {
+    position: relative;
+    display: block;
+    width: 22px;
+    height: 14px;
+    /* Seen at an angle, like the system it points at. */
+    transform: rotate(-14deg);
+  }
+
+  .nav-orbit-ring {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .nav-orbit-ring ellipse {
+    stroke-opacity: 0.42;
+    transition: stroke-opacity var(--duration-normal) var(--ease);
+  }
+
+  .nav-orbit-body {
+    position: absolute;
+    /* Rest position: the right of the ring, where the path also begins, so the
+       fallback and the animated first frame are the same point. */
+    top: 5px;
+    left: 18.5px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    transition: background var(--duration-normal) var(--ease);
+  }
+
+  .nav-link:hover .nav-orbit-ring ellipse,
+  .nav-link:focus-visible .nav-orbit-ring ellipse {
+    stroke-opacity: 1;
+  }
+
+  .nav-link:hover .nav-orbit-body,
+  .nav-link:focus-visible .nav-orbit-body {
+    background: var(--accent);
+  }
+
+  @supports (offset-path: path("M 0 0 L 1 1")) {
+    .nav-orbit-body {
+      top: 0;
+      left: 0;
+      offset-path: path("M 20.5 7 A 9.5 4.6 0 1 1 1.5 7 A 9.5 4.6 0 1 1 20.5 7");
+      offset-distance: 0%;
+      offset-rotate: 0deg;
+    }
+  }
+
+  @keyframes nav-orbit-run {
+    to {
+      offset-distance: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /*
+     * Declared running-but-paused rather than applied on hover, so leaving the
+     * link freezes the planet where it is instead of snapping it back to the
+     * start. The orbit keeps its place between visits to the link.
+     */
+    .nav-orbit-body {
+      animation: nav-orbit-run 2.6s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .nav-link:hover .nav-orbit-body,
+    .nav-link:focus-visible .nav-orbit-body {
+      animation-play-state: running;
+    }
   }
 
   .nav-socials {
