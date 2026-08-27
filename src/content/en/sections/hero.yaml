@@ -3,8 +3,8 @@
 # sequence.
 headline:
   - Architecture that holds.
+  - Software that scales.
   - AI that ships.
-  - From wherever I am.
 
 # Split around the <strong> in the markup. Leading and trailing spaces are
 # significant, so these are quoted.
@@ -16,7 +16,7 @@ lede:
 # Follows site.yaml `base` in the same paragraph.
 baseSuffix: "; living around the world"
 
-jumpLabel: See the work
+jumpLabel: Jump to work experience
 
 portrait:
   src: /images/Hero.webp

@@ -31,11 +31,11 @@ items:
 
   - id: solution-architect
     title: Cloud Solutions Architect
-    tag: AWS · Well-Architected
+    tag: AWS · Cloud native · Well Architected
     description: Designing and implementing scalable, secure, and cost-effective cloud architectures tailored to your business needs.
     help:
       - Target-state architecture your team can actually operate
-      - Migration paths that work around live production constraints
+      - Cloud native solutions that are cost-effective and secure
       - Cost and security review of an existing AWS estate
       - Written decisions, so the reasoning outlives the engagement
     image: /images/services/solution-architect.png
@@ -48,19 +48,17 @@ items:
     help:
       - Find the AI features worth building, and the ones that aren't
       - Ship LLM features into a product without destabilising it
-      - Build the evaluation loop before the demo, not after
-      - Keep cost and latency inside something you can budget for
+      - Keep solution inside something you can budget for
     image: /images/services/ai-engineer.png
     imageAlt: AI Engineer avatar
 
   - id: digital-nomad
     title: Digital Nomad Consulting
-    tag: Distributed teams · Async
-    description: Help in working remotely while traveling the world, maintaining productivity and work-life balance.
+    tag: Remote Life · 
+    description: Taking a leap and living as a digital nomad is a real challenge. I can help you make it work.
     help:
-      - Set up an engineering team that works across timezones
-      - Async practices that survive people being offline
-      - Practical logistics from someone who actually does this
-      - Hiring and onboarding when nobody shares an office
+      - Organize around this lifestyle, not the other way around
+      - Build habits that survive location and comfort zones
+      - Remove work practices that survive outside the office boundaries
     image: /images/services/digital-nomad.png
     imageAlt: Digital Nomad Consulting avatar
