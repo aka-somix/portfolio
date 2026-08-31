@@ -10,7 +10,7 @@ ogImageHeight: "630"
 
 pages:
   home:
-    title: Salvatore Cirone | Senior Backend Engineer & AWS Architect
+    title: Salvatore Cirone Tech Portfolio
     description: Salvatore Cirone — Senior Backend Engineer, AWS Solutions Architect, and AI Prompt Engineer. Cloud-native development and scalable architectures for global teams.
   work:
     # {title} is replaced with the chapter title.

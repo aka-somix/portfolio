@@ -12,14 +12,14 @@
 
 header:
   title: Tinyverse
-  description: Standalone apps and proofs of concept, orbiting the same domain as everything else here.
+  description: My playground. When an idea will not leave me alone I build it end to end, ship it, and leave it running.
 
 # Sits under the header, above the orbit. Names both affordances.
 hint: Drag to spin the system, or pick a planet
 
 # The thesis of the word "Tiny". Sits beside the system, not inside the header,
 # so the graphic is the first thing read.
-thesis: Each one is deliberately small. They could scale. They stay tiny so I can host them for nothing and keep shipping the next one.
+thesis: Small is the point. Each one could scale, and stays tiny so it costs nothing to host and I can start the next one tomorrow.
 
 # Adding an app is adding an entry here. Orbit radius, angular phase, orbital
 # speed and the SVG geometry are all derived from this list's length.
