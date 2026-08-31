@@ -9,6 +9,7 @@ JSON-LD values all live in `src/content/`. `pnpm build` fails if they do not.
     src/content/en/
       site.yaml                # identity, contact channels, employer, schema.org Person values
       seo.yaml                 # site metadata, per-page title and description
+                               #   pages.home / pages.work / pages.notFound
       ui.yaml                  # label dictionary, keyed by component
       sections/
         hero.yaml              # hidden h1, headline, lede, base line, jump label, portrait
@@ -16,6 +17,7 @@ JSON-LD values all live in `src/content/`. `pnpm build` fails if they do not.
         work.yaml              # work section header
         certifications.yaml    # label + credentials
         contact.yaml           # header + lede + action cards
+        not-found.yaml         # the /404 route: heading, lede, door, panel labels
         footer.yaml            # copyright
       work/
         <slug>.md               # one chapter: frontmatter = brief, body = detail

@@ -1,0 +1,412 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+import Nav from "../components/Nav.astro"
+import Footer from "../components/Footer.astro"
+import {
+  certifications,
+  notFound,
+  seo,
+  services,
+  tinyverse,
+  workChapters,
+} from "../lib/content"
+
+const content = await notFound()
+const labels = content.inventory
+const meta = (await seo()).pages.notFound
+
+/**
+ * The status is the route's own name, not copy: this file IS 404.html.
+ * Everything else in the panel is counted, so the inventory describes the site
+ * as it is at build time rather than as somebody last remembered it.
+ */
+const STATUS = "404"
+const pad = (n: number) => String(n).padStart(2, "0")
+
+const rows = [
+  { label: labels.chapters, value: pad((await workChapters()).length) },
+  { label: labels.services, value: pad((await services()).items.length) },
+  { label: labels.tiny, value: pad((await tinyverse()).items.length) },
+  {
+    label: labels.certifications,
+    value: pad((await certifications()).items.length),
+  },
+]
+---
+
+<BaseLayout title={meta.title} description={meta.description} noindex>
+  <Nav />
+
+  <div class="page">
+    <div class="page-inner rail">
+      {/* No eyebrow above the heading: the heading names the problem itself,
+          and the HTTP status belongs in the panel where the site already sets
+          measured values in mono. */}
+      <header class="page-head">
+        <h1 class="page-title" data-animate="hero-text">{content.header.title}</h1>
+        <p class="page-lede" data-animate="hero-text">{content.header.lede}</p>
+      </header>
+
+      <div class="page-body">
+        <div class="page-main">
+          <p class="page-text" data-animate="hero-text">{content.body}</p>
+
+          <!-- The same gold block the contact section closes on, set like a
+               ticket: title on the top line, the practical detail and the arrow
+               affordance sharing the foot. A dead end gets one door, and it is
+               the largest object on the page.
+
+               The entrance hook sits on the wrapper, never on the anchor: GSAP
+               writes an inline `transform` for the y-stagger, and the anchor's
+               own `transform` transition then interpolates toward each frame of
+               it, so the tween stalled short of zero and left the block 29px
+               low with a dead hover lift. One element, one transform owner. -->
+          <div class="action-slot" data-animate="hero-text">
+            <a href="/" class="action">
+              <span class="action-copy">
+                <span class="action-title">{content.action.title}</span>
+                <span class="action-note">{content.action.note}</span>
+              </span>
+
+              <span class="action-arrow" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 12h13M13 6l6 6-6 6"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <aside class="page-side">
+          <h2 class="side-label">{labels.label}</h2>
+
+          <dl class="spec">
+            <div class="spec-row spec-row--head" style="--row: 0">
+              <dt>{labels.status}</dt>
+              <dd class="tabular">{STATUS}</dd>
+            </div>
+            {
+              /* The rule-in delay is driven by --row, not by :nth-child: a sixth
+                 collection added to the inventory would otherwise get a row
+                 whose hairline sweeps with no delay and breaks the sequence. */
+              rows.map((row, i) => (
+                <div class="spec-row" style={`--row: ${i + 1}`}>
+                  <dt>{row.label}</dt>
+                  <dd class="tabular">{row.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .page {
+    /* Taller top padding than the chapter page: this page is short, and letting
+       it start where a chapter starts would leave the block floating in the
+       middle of the viewport with the footer pulled up under it. */
+    padding: calc(var(--nav-height) + 96px) 24px 140px;
+    min-height: 100svh;
+    display: grid;
+    align-content: start;
+  }
+
+  .page-head {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 56px;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: var(--size-display);
+    font-weight: var(--weight-black);
+    font-stretch: 110%;
+    letter-spacing: var(--tracking-display);
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+    /* The line breaks itself rather than running the full 1280px rail. */
+    max-width: 18ch;
+  }
+
+  .page-lede {
+    font-size: var(--size-lede);
+    line-height: var(--leading-snug);
+    color: var(--text-secondary);
+    max-width: 46ch;
+  }
+
+  .page-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 72px;
+    align-items: start;
+  }
+
+  .page-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 40px;
+    min-width: 0;
+  }
+
+  .page-text {
+    font-size: var(--size-base);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    max-width: var(--measure);
+  }
+
+  /* --- The one door ------------------------------------------------------- */
+
+  .action-slot {
+    width: 100%;
+    /* 520px left the copy column at ~352px, which broke a 48px Archivo label
+       into "Back to the / start": a one-word last line on the only action the
+       page has. */
+    max-width: 600px;
+  }
+
+  .action {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-content: stretch;
+    align-items: stretch;
+    gap: 24px;
+    width: 100%;
+    /* Sized to the one-line title: at 176px `space-between` opened a ~57px
+       trench between title and note and the note stopped reading as the foot
+       of the ticket. */
+    min-height: 164px;
+    padding: 30px 40px;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--bg-primary);
+    box-shadow: 0 14px 40px -16px color-mix(in srgb, var(--accent) 60%, transparent);
+    transition: transform var(--duration-normal) var(--ease),
+      box-shadow var(--duration-normal) var(--ease);
+  }
+
+  .action-copy {
+    display: grid;
+    align-content: space-between;
+    gap: 8px;
+  }
+
+  .action-title {
+    font-family: var(--font-display);
+    font-size: var(--size-2xl);
+    font-weight: var(--weight-black);
+    font-stretch: 108%;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+
+  .action-note {
+    font-size: var(--size-base);
+    color: color-mix(in srgb, var(--bg-primary) 74%, var(--accent));
+  }
+
+  .action-arrow {
+    align-self: end;
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 1.5px solid color-mix(in srgb, var(--bg-primary) 32%, transparent);
+    transition: background var(--duration-normal) var(--ease),
+      border-color var(--duration-normal) var(--ease),
+      color var(--duration-normal) var(--ease);
+  }
+
+  .action-arrow svg {
+    transition: translate var(--duration-normal) var(--ease);
+  }
+
+  /* Focus-visible is listed on every one of these, not just the disc: a
+     keyboard visitor was getting a lesser version of the page's only action. */
+  .action:hover,
+  .action:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 24px 56px -18px color-mix(in srgb, var(--accent) 72%, transparent);
+  }
+
+  .action:hover .action-arrow,
+  .action:focus-visible .action-arrow {
+    background: var(--bg-primary);
+    border-color: var(--bg-primary);
+    color: var(--accent);
+  }
+
+  .action:hover .action-arrow svg,
+  .action:focus-visible .action-arrow svg {
+    translate: 3px 0;
+  }
+
+  /* --- Inventory panel ---------------------------------------------------- */
+
+  .page-side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .side-label {
+    font-size: var(--size-xs);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--text-muted);
+  }
+
+  .spec {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid color-mix(in srgb, var(--border-color) 22%, transparent);
+  }
+
+  /* The rule is drawn by a pseudo-element rather than by border-bottom so it can
+     be ruled in from the left on load: the page's one authored moment, and the
+     motion a spec sheet actually has. */
+  .spec-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(80px, 1fr) auto;
+    gap: 12px;
+    align-items: baseline;
+    padding: 12px 0;
+  }
+
+  .spec-row::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 1px;
+    background: color-mix(in srgb, var(--border-color) 12%, transparent);
+    transform-origin: left center;
+  }
+
+  .spec-row dt {
+    font-size: var(--size-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: color-mix(in srgb, var(--text-secondary) 72%, var(--bg-primary));
+  }
+
+  .spec-row dd {
+    font-size: var(--size-sm);
+    color: var(--text-primary);
+    text-align: right;
+  }
+
+  .spec-row--head dd {
+    color: var(--accent);
+    font-weight: var(--weight-medium);
+  }
+
+  /* The page has one entrance in two beats, not two entrance systems: the
+     inherited GSAP `hero-text` y-stagger lifts the copy and the door in, and
+     the panel rules itself up afterwards. The 0.7s base delay is what puts the
+     sweep after that stagger rather than under it.
+
+     `both`, not `backwards`. With `backwards` the fill covered only the delay,
+     so every hairline reverted to the declared scale: 0 1 the moment its 0.6s
+     run finished and the panel lost all five rules 1.1s after load. */
+  @media (prefers-reduced-motion: no-preference) {
+    .spec-row::after {
+      scale: 0 1;
+      animation: rule-in var(--duration-slow) var(--ease) both;
+      animation-delay: calc(0.7s + var(--row, 0) * 0.09s);
+    }
+  }
+
+  @keyframes rule-in {
+    from {
+      scale: 0 1;
+    }
+    to {
+      scale: 1 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .action:hover {
+      transform: none;
+    }
+
+    .action:hover .action-arrow svg {
+      translate: 0;
+    }
+  }
+
+  /* 1100px, not the chapter page's 900px, and the extra 200px is the door.
+     This column carries a 600px fixed-width object beside a 320px panel; below
+     1100px the 1fr track drops under 600 and the 48px label orphans "start"
+     again, which is the one thing this page's only action must never do. The
+     chapter page has no such object and keeps its own 900px switch. */
+  @media (max-width: 1100px) {
+    .page {
+      padding: calc(var(--nav-height) + 64px) 24px 96px;
+    }
+
+    .page-head {
+      margin-bottom: 40px;
+    }
+
+    .page-body {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+
+    /* The panel stays last on one column. Promoting it above the copy split
+       the lede from the paragraph that answers it, which cost more than the
+       evidence gained by reading the counts first. */
+  }
+
+  @media (max-width: 768px) {
+    /* 28px over a 342px column reads as heavy as the display line above it,
+       the same step the contact lede drops here. */
+    .page-lede {
+      font-size: var(--size-md);
+    }
+
+    .action-slot {
+      max-width: none;
+    }
+
+    .action {
+      min-height: 152px;
+      padding: 26px;
+      gap: 20px;
+    }
+
+    .action-title {
+      font-size: var(--size-xl);
+    }
+
+    .action-note {
+      font-size: var(--size-sm);
+    }
+
+    .action-arrow {
+      width: 48px;
+      height: 48px;
+    }
+  }
+</style>

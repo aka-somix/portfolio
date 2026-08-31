@@ -1,0 +1,27 @@
+# The 404 route, written in the site's own vocabulary. Work is presented as
+# Chapters, so an address with nothing behind it is a chapter that was never
+# written: the failure is named in a word the visitor has already met on this
+# site rather than in HTTP language.
+#
+# The inventory panel carries no authored numbers. Every count is read from the
+# content collections at build time, so adding a chapter, a service or a Tiny
+# app updates this page without anyone remembering to.
+
+header:
+  title: This page has no chapter.
+  lede: You found an address I never wrote. Nothing is broken here, there is just nothing to read.
+
+body: The rest of the site is intact. The work chapters, the services, the Tinyverse and every way to reach me all sit one page away.
+
+action:
+  title: Back to the start
+  note: Everything that does exist begins there.
+
+inventory:
+  label: What is actually here
+  # Row labels. The values beside them are derived, never written.
+  status: Status
+  chapters: Work chapters
+  services: Services
+  tiny: Tiny apps
+  certifications: Certifications

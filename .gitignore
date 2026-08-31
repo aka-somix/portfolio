@@ -29,3 +29,6 @@ pnpm-debug.log*
 !.dev.vars.example
 !.env.example
 dist-baseline/
+
+# impeccable review captures (regenerated per run)
+.impeccable/review/

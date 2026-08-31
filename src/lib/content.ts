@@ -57,6 +57,7 @@ export const seo = () => data('seo', 'seo') as Promise<{
   pages: {
     home: { title: string; description: string }
     work: { titleTemplate: string }
+    notFound: { title: string; description: string }
   }
 }>
 
@@ -128,6 +129,24 @@ export const contact = () => data('contact', 'contact') as Promise<{
     booking: { title: string; note: string }
     linkedin: { title: string; note: string }
     email: { title: string }
+  }
+}>
+
+/**
+ * The 404 route's copy. `inventory` carries labels only; the counts rendered
+ * beside them are derived from the other collections in the page itself.
+ */
+export const notFound = () => data('notFound', 'not-found') as Promise<{
+  header: { title: string; lede: string }
+  body: string
+  action: { title: string; note: string }
+  inventory: {
+    label: string
+    status: string
+    chapters: string
+    services: string
+    tiny: string
+    certifications: string
   }
 }>
 

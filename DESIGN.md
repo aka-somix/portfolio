@@ -17,7 +17,7 @@ A **dark, tech-forward portfolio** with a purple/night palette punctuated by gol
 - **Industrial tech** — uppercase functional labels, credential/badge material language, monospaced figures in spec panels
 - **Warm minimalism** — dark purple background, generous whitespace, accent-driven contrast
 
-Single-page scroll: hero → services → work → tinyverse → contact → footer, plus `/work/[slug]` project detail pages.
+Single-page scroll: hero → services → work → tinyverse → contact → footer, plus `/work/[slug]` project detail pages and the `/404` route.
 
 ---
 
@@ -554,6 +554,71 @@ Previously a dead end: no nav, no footer, and a dashed "PROJECT DETAIL COMING SO
 - When `detail.projects` exists it renders projects with name / summary / outcome
 - When it does not, an **honest holding state**: says the write-up is still being written, and offers a booking link ("Ask me about it on a call") instead of a dashed rectangle
 
+### Not-found route (`/404`)
+
+Replaces Astro's default 404. It carries `<Nav />` and `<Footer />` for the same
+reason the chapter page does: a dead end is never allowed to be a trap.
+
+**The failure is named in the site's own vocabulary.** Work here is presented as
+Chapters, so an address with nothing behind it is a chapter that was never
+written: *"This page has no chapter."* at display scale. No giant numeral, no
+apology, no cartoon, and deliberately **no eyebrow above the heading**, even
+though the chapter page carries an arena line in that slot.
+
+The skeleton is the chapter page's, reused rather than reinvented: `.page` →
+`.rail` → `.page-head` → `.page-body` as `minmax(0, 1fr) 320px` at a 72px gap,
+**collapsing to one column at 1100px, not the chapter page's 900px.** The extra
+200px is the door: this column carries a 600px fixed-width object beside a 320px
+panel, so below 1100px the `1fr` track drops under 600 and the 48px label
+orphans "start" on its own line. The chapter page has no such object and keeps
+its 900px switch.
+
+- **Left**: the lede at 28px, one explanatory paragraph, then **one door**. The
+  door is the contact section's gold ticket block, same anatomy (title on the
+  top line, note and 64px circular arrow sharing the foot), capped at **600px**
+  so a 48px Archivo label holds on one line. The block is **164px**, not the
+  contact block's 192px: with the title on one line, `space-between` across a
+  taller box opened a trench between title and note and the note stopped
+  reading as the foot of the ticket. Home is the only route offered;
+  section shortcuts, an echo of the failed URL and a contact channel were all
+  considered and declined.
+- **Right**: an **inventory panel**, a `<dl>` of what does exist. A gold `404`
+  status row, then Work chapters / Services / Tiny apps / Certifications. **Every
+  count is read from the content collections at build time**, so the panel
+  cannot drift from the site it describes, and the numbers are evidence rather
+  than decoration. Below 900px the panel stays last: promoting it above the copy
+  split the lede from the paragraph that answers it.
+- The route is `noindex, follow` and carries **no canonical link** (a canonical
+  URL is a claim the page is worth indexing). `BaseLayout` gained a `noindex`
+  prop for it, and the sitemap excludes it.
+- All copy lives in `src/content/en/sections/not-found.yaml`; the page title and
+  description in `seo.yaml` under `pages.notFound`.
+
+#### One entrance, two beats
+The inherited GSAP `hero-text` y-stagger lifts the heading, lede, paragraph and
+door in, and then the panel **rules itself up**: each `.spec-row::after`
+hairline sweeps from `scale(0, 1)` on a 0.09s stagger, base delay 0.7s so the
+sweep reads as the second beat rather than as noise under the first. Two
+mechanics that are easy to get wrong and were:
+
+- **`animation-fill-mode` is `both`, never `backwards`.** `backwards` fills only
+  the delay, so every hairline reverted to its declared `scale: 0 1` the instant
+  its run ended and the panel silently lost all five rules 1.1s after load.
+- **The delay is driven by a `--row` custom property**, not by `:nth-child`, so
+  adding a sixth row to a data-derived panel cannot produce a rule that sweeps
+  with no delay.
+- The stagger is declared inside `prefers-reduced-motion: no-preference`; the
+  reduced-motion render is the finished sheet, fully ruled.
+
+**The entrance hook sits on a `.action-slot` wrapper, never on the anchor.** GSAP
+writes an inline `transform` for the y-stagger while the anchor's own
+`transform` transition interpolates toward each frame of it, and the tween
+stalled 29px short of zero with a dead hover lift. Same separation of transform
+owners the service badges use.
+
+`:focus-visible` gets the door's full response, lift and disc inversion and 3px
+glyph travel, not just the disc.
+
 ### Contact Section (`#contact`)
 The section whose job is to close. Three real channels, ranked, and nothing else.
 
@@ -627,6 +692,7 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 | **Tinyverse selection** | The system turns to bring the selected planet to the read position, 0.95s `power3.out`, while its orbit lifts to gold and its wake arc follows it. |
 | **Work card text entry** | Counter, title, description, roles stagger in from `y: 24` on first view |
 | **Certifications auto-scroll** | Seamless GSAP loop (cloned cards, modulus `x`). `ScrollTrigger.onToggle` pauses/resumes with work section visibility. Edge-gradient mask for smooth fade. |
+| **404 rule-in** | The not-found route's authored moment, and pure CSS. The inventory panel's five hairlines sweep from `scale(0, 1)`, 0.09s stagger off a `--row` property, 0.7s base delay so they land after the inherited `hero-text` stagger. `animation-fill-mode: both`, gated behind `prefers-reduced-motion: no-preference`. |
 
 ---
 

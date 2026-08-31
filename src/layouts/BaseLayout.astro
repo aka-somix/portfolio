@@ -13,9 +13,15 @@ export interface Props {
    * page may claim it.
    */
   pageType?: "profile" | "website"
+  /**
+   * Keeps the route out of the index. Only the 404 sets it: a canonical URL is
+   * a claim that the page is worth indexing, so the canonical link is dropped
+   * alongside it rather than pointing search engines at a dead end.
+   */
+  noindex?: boolean
 }
 
-const { title, description, pageType = "website" } = Astro.props
+const { title, description, pageType = "website", noindex = false } = Astro.props
 const isProfile = pageType === "profile"
 const { palette, font, type, layout, animation } = design
 const meta = await seo()
@@ -147,7 +153,15 @@ const jsonLdProfilePage = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content={channels.person.name} />
-    <link rel="canonical" href={pageUrl} />
+    {
+      /* follow, not nofollow: the links out of a 404 are the visitor's way back
+         and there is no reason to cut the crawl there. */
+      noindex ? (
+        <meta name="robots" content="noindex, follow" />
+      ) : (
+        <link rel="canonical" href={pageUrl} />
+      )
+    }
 
     <!-- Identity corroboration. rel="me" is how a search engine is invited to
          treat these profiles and this domain as one person. -->

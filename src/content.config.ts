@@ -43,6 +43,7 @@ const seoSchema = z.object({
   pages: z.object({
     home: z.object({ title: z.string(), description: z.string() }),
     work: z.object({ titleTemplate: z.string() }),
+    notFound: z.object({ title: z.string(), description: z.string() }),
   }),
 })
 
@@ -135,6 +136,25 @@ const tinyverseSchema = z.object({
     .min(1),
 })
 
+/**
+ * The 404 route. `inventory` holds row LABELS only: the counts beside them are
+ * read from the other collections at build time, so the panel cannot drift out
+ * of date with the site it describes.
+ */
+const notFoundSchema = z.object({
+  header: z.object({ title: z.string(), lede: z.string() }),
+  body: z.string(),
+  action: z.object({ title: z.string(), note: z.string() }),
+  inventory: z.object({
+    label: z.string(),
+    status: z.string(),
+    chapters: z.string(),
+    services: z.string(),
+    tiny: z.string(),
+    certifications: z.string(),
+  }),
+})
+
 const workSectionSchema = z.object({
   header: z.object({ title: z.string(), description: z.string() }),
 })
@@ -202,6 +222,7 @@ export const collections = {
   tinyverse:      defineCollection({ loader: section('tinyverse'), schema: tinyverseSchema }),
   certifications: defineCollection({ loader: section('certifications'), schema: certificationsSchema }),
   contact: defineCollection({ loader: section('contact'), schema: contactSchema }),
+  notFound: defineCollection({ loader: section('not-found'), schema: notFoundSchema }),
   work: defineCollection({
     loader: glob({ base: `${ROOT}/work`, pattern: '**/*.md' }),
     schema: workSchema,

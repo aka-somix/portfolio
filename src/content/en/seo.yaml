@@ -17,3 +17,8 @@ pages:
   work:
     # {title} is replaced with the chapter title.
     titleTemplate: "{title} | Salvatore Cirone"
+  notFound:
+    # The route is noindex, so this title exists for the browser tab and for a
+    # shared link, not for search.
+    title: Page not found | Salvatore Cirone
+    description: This address has no page behind it. The work chapters, the services and every way to reach me all live on the home page.
