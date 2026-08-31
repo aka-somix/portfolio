@@ -1,3 +1,10 @@
+# The accessible page heading. Rendered as a visually hidden <h1> so the page
+# has one heading that names the person, while the display headline below stays
+# the visible h2 it has always been. Screen readers announce this; nothing about
+# the rendered page changes. Must stay identical in substance to seo.pages.home
+# and to the schema.org Person block in site.yaml.
+srHeadline: Salvatore Cirone, Cloud Solutions Architect and Senior Backend Engineer
+
 # The headline is the claim, at display scale. Three explicit lines because the
 # sentence is three sentences, and because the load-in animation expands them in
 # sequence.

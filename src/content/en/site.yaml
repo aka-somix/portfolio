@@ -21,6 +21,11 @@ person:
     - Senior Backend Engineer
     - AI Engineer
   description: Tech nomad turning complex cloud and AI challenges into elegant realities.
+  # Current employer, read into schema.org Person.worksFor. Verified reachable
+  # at the URL below.
+  worksFor:
+    name: xFarm Technologies
+    url: https://www.xfarm.ag/
   knowsAbout:
     - AWS
     - Cloud Architecture

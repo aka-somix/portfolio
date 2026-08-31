@@ -1,18 +1,28 @@
 ---
 import { design } from "../design.config"
 import LoadingScreen from "../components/LoadingScreen.astro"
-import { seo, site, ui } from "../lib/content"
+import { certifications, hero, seo, site, ui } from "../lib/content"
 
 export interface Props {
   title: string
   description: string
+  /**
+   * Which schema.org page type this route is. `profile` additionally emits a
+   * ProfilePage whose mainEntity resolves to the Person node, which is how a
+   * search engine is told the route's subject IS that entity. Only the home
+   * page may claim it.
+   */
+  pageType?: "profile" | "website"
 }
 
-const { title, description } = Astro.props
+const { title, description, pageType = "website" } = Astro.props
+const isProfile = pageType === "profile"
 const { palette, font, type, layout, animation } = design
 const meta = await seo()
 const channels = await site()
 const labels = await ui()
+const certs = await certifications()
+const heroContent = await hero()
 
 const cssVars = /* content-ok: CSS custom property declarations, not copy */ `
   --bg-primary: ${palette.bg.primary};
@@ -63,25 +73,65 @@ const siteUrl = meta.siteUrl
 const ogImage = meta.ogImage
 const siteName = meta.siteName
 
+const pageUrl = new URL(Astro.url.pathname, siteUrl).href
+
+/**
+ * One connected graph, not three loose blocks. The @id values are what let
+ * ProfilePage.mainEntity and WebSite.author point AT the Person instead of
+ * restating it, which is how a search engine resolves the three into a single
+ * entity. Changing an @id breaks those references.
+ */
+const PERSON_ID = `${siteUrl}/#person`
+const WEBSITE_ID = `${siteUrl}/#website`
+
 const jsonLdPerson = {
   "@context": "https://schema.org",
   "@type": "Person",
+  "@id": PERSON_ID,
   "name": channels.person.name,
   "givenName": channels.person.givenName,
   "familyName": channels.person.familyName,
   "jobTitle": channels.person.jobTitle,
   "description": channels.person.description,
   "url": siteUrl,
-  "sameAs": [channels.linkedin, channels.github],
+  "email": `mailto:${channels.email}`,
+  "sameAs": [channels.linkedin, channels.github, channels.medium],
   "knowsAbout": channels.person.knowsAbout,
+  "worksFor": {
+    "@type": "Organization",
+    "name": channels.person.worksFor.name,
+    "url": channels.person.worksFor.url
+  },
+  /* Third-party-verifiable credentials. The strongest disambiguator against
+     other people who share this name, so they belong in the graph. */
+  "hasCredential": certs.items.map((cert) => ({
+    "@type": "EducationalOccupationalCredential",
+    "name": cert.name,
+    "credentialCategory": "certificate",
+    "url": cert.link,
+    "recognizedBy": { "@type": "Organization", "name": cert.issuer }
+  })),
   "image": `${siteUrl}${ogImage}`
 }
 
 const jsonLdWebsite = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": WEBSITE_ID,
   "name": siteName,
-  "url": siteUrl
+  "url": siteUrl,
+  "author": { "@id": PERSON_ID },
+  "publisher": { "@id": PERSON_ID }
+}
+
+const jsonLdProfilePage = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "@id": `${pageUrl}#profilepage`,
+  "url": pageUrl,
+  "name": title,
+  "isPartOf": { "@id": WEBSITE_ID },
+  "mainEntity": { "@id": PERSON_ID }
 }
 ---
 
@@ -96,25 +146,52 @@ const jsonLdWebsite = {
 
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={new URL(Astro.url.pathname, siteUrl).href} />
+    <meta name="author" content={channels.person.name} />
+    <link rel="canonical" href={pageUrl} />
 
-    <meta property="og:type" content="website" />
+    <!-- Identity corroboration. rel="me" is how a search engine is invited to
+         treat these profiles and this domain as one person. -->
+    <link rel="me" href={channels.linkedin} />
+    <link rel="me" href={channels.github} />
+    <link rel="me" href={channels.medium} />
+
+    <meta property="og:type" content={isProfile ? "profile" : "website"} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={new URL(Astro.url.pathname, siteUrl).href} />
+    <meta property="og:url" content={pageUrl} />
     <meta property="og:image" content={`${siteUrl}${ogImage}`} />
     <meta property="og:image:width" content={meta.ogImageWidth} />
     <meta property="og:image:height" content={meta.ogImageHeight} />
+    <meta property="og:image:alt" content={heroContent.portrait.alt} />
     <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="en_US" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+    <meta name="twitter:image:alt" content={heroContent.portrait.alt} />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLdPerson)} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLdWebsite)} />
+    {
+      isProfile && (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(jsonLdProfilePage)}
+        />
+      )
+    }
 
+    <!-- The hero portrait is the LCP candidate. The <img> already carries
+         fetchpriority="high"; this only moves its discovery ahead of the CSS.
+         Purely a network hint: nothing about the render changes. -->
+    <link
+      rel="preload"
+      href={heroContent.portrait.src}
+      as="image"
+      fetchpriority="high"
+    />
     <link
       rel="preload"
       href="/fonts/archivo-latin.woff2"
@@ -435,6 +512,24 @@ const jsonLdWebsite = {
 
   .skip-link:focus {
     top: 0;
+  }
+
+  /* Visible to assistive technology, invisible to the eye, and — because it is
+     absolutely positioned — outside flow entirely, so it contributes no height
+     and no flex gap wherever it is placed. Deliberately NOT `display: none` or
+     `visibility: hidden`: those drop the node from the accessibility tree,
+     which would make hidden heading text a search-engine-only trick rather
+     than a real heading. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* Sections are separated by space and a hairline, not by a 5px white rule

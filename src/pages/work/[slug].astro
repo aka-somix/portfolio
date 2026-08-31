@@ -27,6 +27,31 @@ const cardLabels = (await ui()).workCard
 const specLabels = (await ui()).workSpec
 const meta = await seo()
 
+/**
+ * Breadcrumb graph. Gives the chapter a declared relationship to the home page
+ * instead of reading as an orphan URL. Names come from content (`siteName` and
+ * the chapter title), so no new strings are introduced. JSON-LD in <body> is
+ * supported by search engines and renders nothing.
+ */
+const jsonLdBreadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": meta.siteName,
+      "item": new URL("/", meta.siteUrl).href
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": work.title,
+      "item": new URL(Astro.url.pathname, meta.siteUrl).href
+    }
+  ]
+}
+
 const hasProjects = work.projects.length > 0
 const hasWriteUp = Boolean(chapter.body?.trim())
 const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
@@ -156,6 +181,11 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
   </div>
 
   <Footer />
+
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(jsonLdBreadcrumb)}
+  />
 </BaseLayout>
 
 <style>

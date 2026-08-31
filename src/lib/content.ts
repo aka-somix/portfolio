@@ -22,6 +22,7 @@ async function data<K extends CollectionKey>(collection: K, id: string) {
 export const footer = () => data('footer', 'footer') as Promise<{ copyright: string }>
 
 export const hero = () => data('hero', 'hero') as Promise<{
+  srHeadline: string
   headline: string[]
   lede: { before: string; name: string; after: string }
   baseSuffix: string
@@ -42,6 +43,7 @@ export const site = () => data('site', 'site') as Promise<{
     familyName: string
     jobTitle: string[]
     description: string
+    worksFor: { name: string; url: string }
     knowsAbout: string[]
   }
 }>

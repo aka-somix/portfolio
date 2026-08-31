@@ -29,6 +29,7 @@ const siteSchema = z.object({
     familyName: z.string(),
     jobTitle: z.array(z.string()).min(1),
     description: z.string(),
+    worksFor: z.object({ name: z.string(), url: z.string().url() }),
     knowsAbout: z.array(z.string()).min(1),
   }),
 })
@@ -181,6 +182,8 @@ const contactSchema = z.object({
 })
 
 const heroSchema = z.object({
+  /** Visually hidden <h1>. See the note in hero.yaml. */
+  srHeadline: z.string(),
   headline: z.array(z.string()).min(1),
   lede: z.object({ before: z.string(), name: z.string(), after: z.string() }),
   baseSuffix: z.string(),

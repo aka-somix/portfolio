@@ -1,17 +1,19 @@
-# NOTE for the site owner: siteUrl below is the about. subdomain, which is what
-# canonical and OG tags have always used, while astro.config.mjs `site` is the
-# apex domain used by the sitemap. That discrepancy predates this refactor and is
-# deliberately left alone here.
+# Canonical host. This value drives <link rel="canonical">, every og:* URL and
+# the JSON-LD @id graph; astro.config.mjs `site` drives the sitemap. The two MUST
+# stay equal, otherwise the sitemap advertises URLs whose canonical names a
+# different host and neither host consolidates in search.
 siteName: Salvatore Cirone
-siteUrl: https://about.salvatorecirone.dev
+siteUrl: https://salvatorecirone.dev
 ogImage: /images/og/v1.png
 ogImageWidth: "1200"
 ogImageHeight: "630"
 
 pages:
   home:
-    title: Salvatore Cirone Tech Portfolio
-    description: Salvatore Cirone — Senior Backend Engineer, AWS Solutions Architect, and AI Prompt Engineer. Cloud-native development and scalable architectures for global teams.
+    # The name comes first: this page competes with several other people called
+    # Salvatore Cirone, so the strongest slot is spent on the name, not a noun.
+    title: Salvatore Cirone | Cloud Architect, Backend & AI Engineer
+    description: Salvatore Cirone, Senior Backend Engineer and AWS Solutions Architect. Cloud native architecture, AI engineering, and a digital nomad practice.
   work:
     # {title} is replaced with the chapter title.
     titleTemplate: "{title} | Salvatore Cirone"

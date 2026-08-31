@@ -116,6 +116,29 @@ Full-viewport (`min-height: 100svh`), type-led. Left type column, portrait absol
 
 Three `<span>` lines, Archivo, `clamp(2.5rem, 5vw, 4.75rem)`. Third line carries `--accent` because it carries the differentiation.
 
+**Heading structure: the display headline is an `<h2>`, not the `<h1>`.** The
+page's `<h1>` is a visually hidden heading naming the person and the role
+(`hero.srHeadline`), placed as the first child of `<section class="hero">`. This
+is a semantics-only arrangement: the site competes for a personal-name query
+against several other people with the same name, and the display headline is a
+claim rather than an identity.
+
+It is **pixel-neutral by construction**, and the two reasons are worth keeping
+written down because both are easy to break:
+
+- The hidden `<h1>` sits in `.hero`, **not** in `.hero-type`. `.hero-type` is a
+  flex column with `gap: 28px`, so any in-flow child added there widens the
+  stack by 28px. `.hero` is `position: relative; overflow: hidden`, which makes
+  it a clean containing block and rules out any scroll side-effect.
+- `.sr-only` is `position: absolute`, so the node takes part in no flex or block
+  layout at all and contributes zero height. See §10 for why it must not become
+  `display: none`.
+
+Verified: outside the animated nav band, all four full-page screenshots (home
+and chapter × desktop 1440 and mobile 390) are pixel-identical to the build
+before the change, and every measured bounding box and scroll extent is
+unchanged.
+
 **Lede:** *"Ciao! I am Salvatore, a digital nomad and creative software engineer"* at 28px. "Ciao!" opens the lede rather than sitting as a kicker above the heading (a banned pattern). The site standardises on **"digital nomad"** — not "tech nomad".
 
 Then the mono base line and a single quiet `See the work ↓` anchor. No booking button: the close belongs to the contact section, and this surface is Experience mode.
@@ -587,7 +610,7 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 
 | Pattern | Implementation |
 |---|---|
-| **Loading screen** | Logo rectangles animate in/out on loop, then whole screen fades out on `window.load` |
+| **Loading screen** | Logo rectangles animate in/out on loop, then whole screen fades out on `window.load` — **known cost, unchanged:** the overlay is opaque and removed only by that JS handler plus a 0.6s fade, so LCP cannot occur until every image, font and the GSAP bundle have loaded, and with JS disabled the page stays blank. Fixing it changes when the loader clears, which is a visible behavioural change, so it is deliberately out of scope for pixel-neutral work. |
 | **Hero fade-in** | Portrait fades in (`power2.out`, 1s). Lede, base line and jump link stagger from below (`y: 30`, 0.12s) |
 | **Headline load-in** | Archivo's variable `wdth` axis expands each line from `68` → `100` with a 0.13s stagger — type **arriving** rather than sliding. Runs once, on load, then settles permanently. Static at `wdth 100` under `prefers-reduced-motion`.<br><br>**The scroll-driven width response was removed.** Below 768px the lines are allowed to wrap, so a width change mid-scroll could re-wrap the headline and shift everything beneath it — a layout-stability bug on exactly the small screens it was least wanted on. |
 | **Faceted light** | The hero's authored moment. Pointer-driven light over a seeded triangular lattice, with the portrait's gold rake reading from the same light. The figure itself is fixed; only the shading moves. Redraws only on light movement. Measured at a locked 60fps during a continuous pointer sweep: median 16.7ms, p95 17.7ms, worst 19.2ms, zero frames over 32ms. Renders once and never loops on touch or reduced-motion. |
@@ -642,7 +665,21 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 
 - `viewport-fit=cover` — mobile notch safe areas
 - `<a href="#main-content">Skip to main content</a>` — keyboard accessibility
-- Full OpenGraph + Twitter Card meta + JSON-LD structured data (Person + WebSite)
+- **`.sr-only`** (global, authored beside `.skip-link`): the visually-hidden
+  utility. `position: absolute` + `1px` box + `clip-path: inset(50%)`.
+  Deliberately **not** `display: none` and **not** `visibility: hidden`, both of
+  which drop the node from the accessibility tree. That distinction is the whole
+  point: the hidden hero `<h1>` is a real heading a screen reader announces
+  first, not text addressed only to crawlers. Verified present in Chrome's
+  accessibility tree with the outline reading `h1` name/role → `h2` display
+  headline → `h2` section labels.
+- One `<h1>` per page: the hidden identity heading on `/`, the chapter title on
+  `/work/[slug]`. Section labels are `<h2>`.
+- Full OpenGraph + Twitter Card meta, and a connected JSON-LD graph:
+  `Person` (with `@id`, `worksFor`, and `hasCredential` for the four
+  certifications) ← referenced by `WebSite.author/publisher` and, on the home
+  page only, by `ProfilePage.mainEntity`. Chapter pages add a `BreadcrumbList`.
+  Canonical, every `og:*` URL and the sitemap all name the apex host.
 - Scroll-triggered animations respect `prefers-reduced-motion: reduce` — skipped entirely
 - `scroll-margin-top: var(--nav-height)` on each section for anchored nav
 - `::selection` styling for branded highlight

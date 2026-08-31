@@ -31,9 +31,9 @@ A neighbouring portfolio could copy the palette and the motion. It could not tru
 
 ## Operating Context
 
-- **Site**: `https://about.salvatorecirone.dev` — static Astro build deployed to Cloudflare (Wrangler).
+- **Site**: `https://salvatorecirone.dev` — static Astro build deployed to Cloudflare (Wrangler). This apex host is canonical; `about.salvatorecirone.dev` was the previous host and 301-redirects here. `seo.yaml` `siteUrl` and `astro.config.mjs` `site` must both name it.
 - **Structure**: single-page scroll — hero → services → work → tinyverse → contact → footer — plus dynamic `/work/[slug]` chapter detail pages.
-- **Content sources**: all copy is data-driven from `src/data/` (`work.ts`, `services.ts`, `sections.ts`, `certifications.ts`). Content changes belong in data files, not in components.
+- **Content sources**: all copy lives in `src/content/en/**` (YAML sections + Markdown chapters), is schema-validated in `src/content.config.ts`, and is read only through `src/lib/content.ts`. There is no `src/data/` directory. Content changes belong in content files, never in components. See `CONTENT.md`.
 - **Design tokens**: centralised in `src/design.config.ts`, injected as CSS custom properties by `BaseLayout.astro`.
 - **Contact channels**: `s.cirone.work@gmail.com` and a Google Calendar appointment-schedule booking link (`BOOKING_URL` in `Nav.astro`). Both are live and real.
 - **Reading situation**: visitors arrive on desktop and mobile in roughly equal measure; the page is often opened mid-conversation (a link shared in a chat or email thread), so the first viewport carries disproportionate weight.
@@ -67,7 +67,7 @@ A neighbouring portfolio could copy the palette and the motion. It could not tru
 - **Voice**: professional but warm and first-person. Italian-inflected personality is deliberate — the hero opens on "Ciao!". Self-description is "a digital nomad who turns complex cloud and AI challenges into elegant realities". Playful punctuation (emoji as accent, e.g. `🤜🤛`, `👀`) is in-voice, used sparingly as texture rather than decoration.
 - **Framing**: work is presented as "Chapters" — a career narrative, not a case-study catalogue.
 - **Logo**: inline SVG geometric rect composition, used in nav, footer, and loading screen.
-- **Assets on hand**: hero portrait (`public/images/Hero.png`), four service avatars, four certification logos, social icons, OG image, favicons.
+- **Assets on hand**: hero portrait (`public/images/Hero.webp`, with `Hero.png` kept on disk as the unreferenced master and excluded from deploys via `public/.assetsignore`), four service avatars, four certification logos, social icons, OG image, favicons.
 
 ## Evidence on Hand
 

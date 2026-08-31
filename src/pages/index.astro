@@ -12,7 +12,7 @@ import { seo } from "../lib/content"
 const home = (await seo()).pages.home
 ---
 
-<BaseLayout title={home.title} description={home.description}>
+<BaseLayout title={home.title} description={home.description} pageType="profile">
   <Nav />
   <main>
     <Hero />

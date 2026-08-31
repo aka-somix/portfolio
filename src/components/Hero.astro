@@ -9,6 +9,14 @@ const PORTRAIT = content.portrait.src
 ---
 
 <section class="hero" id="hero">
+  <!-- The page's one h1. Visually hidden, announced by screen readers, and
+       absolutely positioned so it takes part in no layout: `.hero` is
+       position:relative + overflow:hidden, so it cannot affect geometry or
+       scroll extent. It lives here rather than inside `.hero-type`, which is a
+       flex column with a 28px gap that an in-flow child would widen. The
+       visible display headline below is the h2. -->
+  <h1 class="sr-only">{content.srHeadline}</h1>
+
   <!-- Faceted light field: the same low-poly material as the portrait, lit by a
        light source that follows the pointer. Portrait and ground share one
        light, so the illustration reads as native to the page rather than
@@ -42,7 +50,7 @@ const PORTRAIT = content.portrait.src
 
   <div class="hero-inner rail">
     <div class="hero-type">
-      <h1 class="hero-headline">
+      <h2 class="hero-headline">
         {
           headline.map((line) => (
             <span class="hl-line" data-hl-line>
@@ -50,7 +58,7 @@ const PORTRAIT = content.portrait.src
             </span>
           ))
         }
-      </h1>
+      </h2>
 
       <p class="hero-lede" data-animate="hero-text">
         {content.lede.before}<strong>{content.lede.name}</strong>{content.lede.after}

@@ -7,11 +7,11 @@ JSON-LD values all live in `src/content/`. `pnpm build` fails if they do not.
 ## Where content lives
 
     src/content/en/
-      site.yaml                # identity, contact channels, schema.org Person values
+      site.yaml                # identity, contact channels, employer, schema.org Person values
       seo.yaml                 # site metadata, per-page title and description
       ui.yaml                  # label dictionary, keyed by component
       sections/
-        hero.yaml              # headline, lede, base line, jump label, portrait
+        hero.yaml              # hidden h1, headline, lede, base line, jump label, portrait
         services.yaml          # header + hint + the service items
         work.yaml              # work section header
         certifications.yaml    # label + credentials
@@ -35,6 +35,18 @@ JSON-LD values all live in `src/content/`. `pnpm build` fails if they do not.
 | Anything about one work chapter | `work/<slug>.md` frontmatter | `workChapters()` / `workChapter()` |
 | A long-form chapter write-up | the Markdown body of `work/<slug>.md` | `renderChapter(entry)` |
 | A design token (colour, size, easing) | `src/design.config.ts` | not content, leave it there |
+| A string that exists only for screen readers or search engines | the same file as its visible siblings, never a component | same accessor |
+
+Two fields exist purely for the accessibility tree and for search engines, and
+are worth knowing about because nothing on screen reveals them:
+
+- **`sections/hero.yaml` → `srHeadline`** is rendered as a visually hidden `<h1>`
+  in `Hero.astro`. It is the page's only `<h1>`; the visible display headline is
+  an `<h2>`. Keep it factually identical to `seo.pages.home.title` and to
+  `site.person` — a hidden heading that disagrees with the visible page is the
+  one version of this pattern that *is* search spam.
+- **`site.yaml` → `person.worksFor`** feeds `schema.org/Person.worksFor`. It is
+  never rendered. Verify the URL resolves before changing it.
 
 Two structural rules:
 

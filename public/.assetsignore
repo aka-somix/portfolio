@@ -1,2 +1,11 @@
 _worker.js
 _routes.json
+# Unreferenced 2.84 MB master for images/Hero.webp. DESIGN.md keeps the file on
+# disk deliberately; there is no reason to upload or serve it.
+images/Hero.png
+# Unused 4.8 MB stock photograph the work spec panel replaced. DESIGN.md records
+# it as unused; keep it on disk, stop uploading it.
+images/work/consultant.jpg
+# macOS directory metadata. Was being deployed and publicly fetchable.
+.DS_Store
+images/.DS_Store
