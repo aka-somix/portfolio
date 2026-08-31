@@ -43,7 +43,7 @@ src/
     work/[slug].astro  Dynamic project detail page (getStaticPaths)
   design.config.ts — All design tokens: palette, fonts, layout, animation
 public/
-  images/Hero.png  Hero background image
+  images/Hero.webp Hero portrait
   favicon.svg       Site favicon
   favicon.ico       Fallback favicon
 ```

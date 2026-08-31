@@ -157,7 +157,7 @@ The background is the **same low-poly material as the portrait**, lit by a sourc
 
 What the light still changes is where it lands:
 - A **gold rake** masked by the portrait's own alpha tracks the same light that shades the ground, `soft-light` at 0.34 opacity, so it catches the existing facets rather than repainting them. A directional rake, deliberately not a symmetric halo. This is now the whole of the portrait's response to the pointer, which is also the only response a fixed object should have.
-- Asset is `Hero.webp` — **76 KB, down from a 2.84 MB PNG** at 2048px. `Hero.png` remains in `public/` as the master and is no longer referenced.
+- Asset is `Hero.webp` — **76 KB, down from a 2.84 MB PNG** at 2048px. The PNG master no longer lives in the repo.
 
 #### Scrim
 A directional gradient between the canvas and the type keeps the type column on near-solid ground, so the field can never erode text contrast while staying fully visible to the right. Measured worst case, with the light parked inside the text column: **16.8:1** headline, **11.3:1** lede, **8.5:1** mono base line. The gradient turns vertical below 900px, where the layout stacks.
@@ -207,7 +207,7 @@ They would otherwise overwrite each other, since the deck writes transforms ever
   - **Left**: arena line, chapter title (Archivo), lede (the new 21px tier), "What I held" (responsibilities), "What it taught me" (the versatility payload), then role tags
   - **Right**: the **spec panel** — a `<dl>` of Client / Years / Domain / Cloud / Core stack / Scale, set in JetBrains Mono with `tabular-nums` and hairline rules. This is where mono finally does real work.
 
-The spec panel **replaced a stock photograph** of an anonymous person at a laptop. For a visitor evaluating architectural judgement, a stock photo is anti-evidence; a specification is the artifact an architect actually produces. `public/images/work/consultant.jpg` is now unused.
+The spec panel **replaced a stock photograph** of an anonymous person at a laptop. For a visitor evaluating architectural judgement, a stock photo is anti-evidence; a specification is the artifact an architect actually produces. The photograph has been removed from the repo.
 
 > ⚠️ Spec values are currently **placeholder** (`specPlaceholder: true` in the frontmatter of `src/content/en/work/consultant.md` and `src/content/en/work/startup.md`). `pnpm check:content` warns per chapter, and this check runs as part of `pnpm build`, and the markup carries `data-spec-placeholder`. They must be replaced with real figures before deploy.
 
@@ -386,7 +386,7 @@ one factor on mobile, so the dealt spread survives the breakpoint.
   - **Left**: arena line, chapter title (Archivo), lede (the new 21px tier), "What I held" (responsibilities), "What it taught me" (the versatility payload), then role tags
   - **Right**: the **spec panel** — a `<dl>` of Client / Years / Domain / Cloud / Core stack / Scale, set in JetBrains Mono with `tabular-nums` and hairline rules. This is where mono finally does real work.
 
-The spec panel **replaced a stock photograph** of an anonymous person at a laptop. For a visitor evaluating architectural judgement, a stock photo is anti-evidence; a specification is the artifact an architect actually produces. `public/images/work/consultant.jpg` is now unused.
+The spec panel **replaced a stock photograph** of an anonymous person at a laptop. For a visitor evaluating architectural judgement, a stock photo is anti-evidence; a specification is the artifact an architect actually produces. The photograph has been removed from the repo.
 
 > ⚠️ Spec values are currently **placeholder** (`specPlaceholder: true` in the frontmatter of `src/content/en/work/consultant.md` and `src/content/en/work/startup.md`). `pnpm check:content` warns per chapter, and this check runs as part of `pnpm build`, and the markup carries `data-spec-placeholder`. They must be replaced with real figures before deploy.
 
@@ -580,23 +580,23 @@ The section whose job is to close. Three real channels, ranked, and nothing else
 | File | Usage |
 |---|---|
 | `public/images/Hero.webp` | Hero portrait — 76 KB, 1440px, alpha preserved |
-| `public/images/Hero.png` | Master source of the above (2.84 MB, unreferenced) |
 | `public/images/services/backend.png` | Backend service card avatar |
 | `public/images/services/solution-architect.png` | Solution Architect avatar |
-| `public/images/services/ai-prompt-engineer.png` | AI Prompt Engineer avatar |
+| `public/images/services/ai-engineer.png` | AI Engineer avatar |
 | `public/images/services/digital-nomad.png` | Digital Nomad avatar |
 | `public/images/social/linkedin.svg` | LinkedIn nav icon |
 | `public/images/social/github.svg` | GitHub nav icon |
+| `public/images/social/medium.svg` | Medium nav icon |
 | `public/images/og/v1.png` | Open Graph share image |
 | `public/favicon.svg` | Favicon (SVG) |
 | `public/favicon.ico` | Favicon (fallback) |
 | `public/fonts/archivo-latin[-ext].woff2` | Archivo variable (display) — self-hosted |
 | `public/fonts/inter-latin[-ext].woff2` | Inter variable (body/UI) — self-hosted |
 | `public/fonts/jetbrainsmono-latin[-ext].woff2` | JetBrains Mono variable (data) — self-hosted |
-| `public/images/work/consultant.jpg` | **Unused** — the stock photo the spec panel replaced |
-| `public/images/certifications/aws-saa.png` | AWS Solutions Architect logo |
-| `public/images/certifications/gcp-pca.png` | Google Cloud Architect logo |
-| `public/images/certifications/cka.png` | CKA logo |
+| `public/images/certifications/aws-sap.png` | AWS Solutions Architect Professional logo |
+| `public/images/certifications/aws-dae.png` | AWS Data Engineer Associate logo |
+| `public/images/certifications/hackerrank.png` | HackerRank logo |
+| `public/images/certifications/ielts.png` | IELTS logo |
 
 No external icon libraries — all icons are inline SVGs or static image files matching the industrial-tech aesthetic.
 

@@ -67,7 +67,7 @@ A neighbouring portfolio could copy the palette and the motion. It could not tru
 - **Voice**: professional but warm and first-person. Italian-inflected personality is deliberate — the hero opens on "Ciao!". Self-description is "a digital nomad who turns complex cloud and AI challenges into elegant realities". Playful punctuation (emoji as accent, e.g. `🤜🤛`, `👀`) is in-voice, used sparingly as texture rather than decoration.
 - **Framing**: work is presented as "Chapters" — a career narrative, not a case-study catalogue.
 - **Logo**: inline SVG geometric rect composition, used in nav, footer, and loading screen.
-- **Assets on hand**: hero portrait (`public/images/Hero.webp`, with `Hero.png` kept on disk as the unreferenced master and excluded from deploys via `public/.assetsignore`), four service avatars, four certification logos, social icons, OG image, favicons.
+- **Assets on hand**: hero portrait (`public/images/Hero.webp`), four service avatars, four certification logos, social icons, OG image, favicons. `public/` holds no unreferenced assets.
 
 ## Evidence on Hand
 
