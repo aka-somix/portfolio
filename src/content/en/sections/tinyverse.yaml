@@ -32,3 +32,8 @@ items:
     summary: Create your medleys from chords progressions
     host: tinymedleys.salvatorecirone.dev
     url: https://tinymedleys.salvatorecirone.dev
+  - id: tiny-flatchecker
+    name: Tiny Flat Checker
+    summary: A Checklist for assesing your flat's condition before moving in
+    host: tiny-flatchecker.salvatorecirone.dev
+    url: https://tiny-flatchecker.salvatorecirone.dev
