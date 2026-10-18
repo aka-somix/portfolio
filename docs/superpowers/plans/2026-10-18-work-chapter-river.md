@@ -1466,7 +1466,7 @@ Replace the whole `animateCardText` function with:
       // The river draws itself once; the text staggers in every time.
       revealRiver(card.querySelector("[data-river]"))
       if (reduceMotion) return
-      const targets = [...card.querySelectorAll(".card-head, .card-beat, .card-cta")]
+      const targets = [...card.querySelectorAll(".card-head, .card-beat, .card-cta")] // content-ok: CSS selector list
       if (!targets.length) return
 
       gsap.fromTo(

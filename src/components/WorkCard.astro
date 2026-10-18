@@ -1,155 +1,83 @@
 ---
+import ChapterRiver from "./ChapterRiver.astro"
 import ChapterYears from "./ChapterYears.astro"
 import { ui } from "../lib/content"
+import type { RiverPhase } from "../lib/river"
 
 export interface Props {
   title: string
   arena: string
-  lede: string
-  responsibilities: string[]
-  learned: string
-  roles: string[]
-  client: string
   years: { from: number; to: number | "present" }
-  spec: { label: string; value: string }[]
-  specPlaceholder: boolean
+  whoIWas: string
+  challenges: string[]
+  lessons: string[]
+  phases: RiverPhase[]
   slug: string
-  index: number
-  total: number
 }
 
-const {
-  title,
-  arena,
-  lede,
-  responsibilities,
-  learned,
-  roles,
-  client,
-  years,
-  spec,
-  specPlaceholder,
-  slug,
-} = Astro.props
-
+const { title, arena, years, whoIWas, challenges, lessons, phases, slug } = Astro.props
 const labels = (await ui()).workCard
-const specLabels = (await ui()).workSpec
-
-// The small-screen disclosure drives two panels that live in different columns
-// on desktop, so the button references both by id.
-const foldId = `fold-${slug}`
-const specId = `spec-${slug}`
 ---
 
-<article class="work-card" data-fold="closed">
-  <div class="card-left">
-    <p class="card-arena">{arena}</p>
-    <h3 class="card-title">{title}</h3>
-    <p class="card-lede">{lede}</p>
-
-    <!-- Small screens only. The two values a reader scans for are real; the six
-         spec rows below them are still placeholders. Promoting these two out of
-         the collapsed panel keeps the credential on screen at a cost of one
-         line. -->
-    <p class="card-meta">
-      <span class="card-meta-client">{client}</span>
-      <span class="card-meta-years"><ChapterYears years={years} /></span>
-    </p>
-
-    <!-- `display: contents` above 900px, so the desktop card is byte-identical
-         in layout: the two blocks stay direct flex children of .card-left. -->
-    <div class="card-fold">
-      <button
-        type="button"
-        class="fold-toggle"
-        data-fold-toggle
-        aria-expanded="false"
-        aria-controls={`${foldId} ${specId}`}
-      >
-        <span class="fold-toggle-label">{labels.details}</span>
-        <svg class="fold-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M3.5 5.5L7 9l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </button>
-
-      <div class="fold-panel" id={foldId}>
-        <div class="fold-inner">
-          <div class="card-block">
-            <h4 class="card-block-title">{labels.held}</h4>
-            <ul class="card-list">
-              {responsibilities.map((item) => <li>{item}</li>)}
-            </ul>
-          </div>
-
-          <div class="card-block">
-            <h4 class="card-block-title">{labels.taught}</h4>
-            <p class="card-learned">{learned}</p>
-          </div>
-        </div>
-      </div>
+<!-- A chapter reads left to right like its river: who I was at the source,
+     what I went through mid-stream, what I carried out at the mouth. -->
+<article class="work-card">
+  <header class="card-head">
+    <div class="card-name">
+      <p class="card-arena">{arena}</p>
+      <h3 class="card-title">{title}</h3>
     </div>
+    <p class="card-years"><ChapterYears years={years} /></p>
+  </header>
 
-    <div class="card-roles">
-      {roles.map((role) => <span class="role-tag">{role}</span>)}
-    </div>
+  <ChapterRiver phases={phases} />
+
+  <div class="card-beats">
+    <section class="card-beat">
+      <h4 class="card-beat-title">{labels.whoIWas}</h4>
+      <p class="card-who">{whoIWas}</p>
+    </section>
+
+    <section class="card-beat">
+      <h4 class="card-beat-title">{labels.challenges}</h4>
+      <ul class="card-list">
+        {challenges.map((item) => <li>{item}</li>)}
+      </ul>
+    </section>
+
+    <section class="card-beat card-beat--lesson">
+      <h4 class="card-beat-title">{labels.lessons}</h4>
+      <ul class="card-list">
+        {lessons.map((item) => <li>{item}</li>)}
+      </ul>
+    </section>
   </div>
 
-  <div class="card-right">
-    <!-- The spec panel: an architect's own artifact, and the one place mono
-         does real work (aligned figures). Replaces the stock photograph. -->
-    <div class="fold-panel spec-fold" id={specId}>
-    <div class="fold-inner">
-    <dl
-      class="spec"
-      data-spec-placeholder={specPlaceholder ? "true" : undefined}
-    >
-      <div class="spec-row spec-row--head">
-        <dt>{specLabels.client}</dt>
-        <dd>{client}</dd>
-      </div>
-      <div class="spec-row spec-row--head">
-        <dt>{specLabels.years}</dt>
-        <dd><ChapterYears years={years} /></dd>
-      </div>
-      {
-        spec.map((row) => (
-          <div class="spec-row">
-            <dt>{row.label}</dt>
-            <dd class="tabular">{row.value}</dd>
-          </div>
-        ))
-      }
-    </dl>
-    </div>
-    </div>
-
-    <a href={`/work/${slug}`} class="card-cta">
-      <span data-cta-label>
-        {labels.cta}
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path
-            d="M3 8h10M9 4l4 4-4 4"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </span>
-      <span data-cta-alt aria-hidden="true">{labels.ctaAlt}</span>
-    </a>
-  </div>
+  <a href={`/work/${slug}`} class="card-cta">
+    <span data-cta-label>
+      {labels.cta}
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="M3 8h10M9 4l4 4-4 4"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </span>
+    <span data-cta-alt aria-hidden="true">{labels.ctaAlt}</span>
+  </a>
 </article>
-
 
 <style>
   .work-card {
     width: 75vw;
     max-width: var(--max-width);
     flex-shrink: 0;
-    display: grid;
-    grid-template-columns: 1.15fr 1fr;
-    gap: 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
     background: var(--bg-surface);
     border: 1px solid color-mix(in srgb, var(--border-color) 10%, transparent);
     border-radius: var(--radius);
@@ -157,15 +85,21 @@ const specId = `spec-${slug}`
     overflow: hidden;
   }
 
-  .card-left {
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 24px;
+  }
+
+  .card-name {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
+    gap: 10px;
     min-width: 0;
   }
 
-  /* The arena names the world. Not an eyebrow above the title — it is the
+  /* The arena names the world. Not an eyebrow above the title: it is the
      title's subject, set at reading size in its own right. */
   .card-arena {
     font-size: var(--size-sm);
@@ -184,33 +118,75 @@ const specId = `spec-${slug}`
     text-wrap: balance;
   }
 
-  /* The lede tier the old scale did not have. */
-  .card-lede {
-    font-size: var(--size-md);
-    line-height: var(--leading-snug);
-    color: var(--text-primary);
-    max-width: 34ch;
+  /* Measurement, so mono earns its place. */
+  .card-years {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: var(--size-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
-  .card-block {
+  .card-beats {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1.15fr;
+    gap: 32px;
+  }
+
+  /* Each beat hangs from a hairline with a node, like a stop on the river. */
+  .card-beat {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid color-mix(in srgb, var(--border-color) 14%, transparent);
   }
 
-  .card-block-title {
+  .card-beat::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: 0;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--text-secondary);
+  }
+
+  .card-beat--lesson::before {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .card-beat-title {
     font-size: var(--size-xs);
     font-weight: var(--weight-semibold);
     text-transform: uppercase;
     letter-spacing: var(--tracking-label);
-    color: var(--text-muted);
+    color: var(--text-secondary);
+  }
+
+  .card-beat--lesson .card-beat-title {
+    color: var(--accent);
+  }
+
+  .card-who {
+    font-size: var(--size-base);
+    line-height: var(--leading-snug);
+    color: var(--text-primary);
+    max-width: 34ch;
   }
 
   .card-list {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
   }
 
   .card-list li {
@@ -219,101 +195,29 @@ const specId = `spec-${slug}`
     font-size: var(--size-sm);
     line-height: var(--leading-snug);
     color: var(--text-secondary);
-    max-width: 46ch;
+    max-width: 40ch;
   }
 
   .card-list li::before {
     content: "";
     position: absolute;
     left: 0;
-    top: 0.55em;
-    width: 6px;
+    top: 0.62em;
+    width: 8px;
     height: 1px;
-    background: var(--accent);
+    background: color-mix(in srgb, var(--text-secondary) 60%, transparent);
   }
 
-  .card-learned {
-    font-size: var(--size-sm);
-    line-height: var(--leading-body);
-    color: var(--text-secondary);
-    max-width: 46ch;
-  }
-
-  .card-roles {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 4px;
-  }
-
-  .role-tag {
-    font-size: var(--size-xs);
-    font-family: var(--font-mono);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--text-muted);
-    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
-    padding: 5px 10px;
-    border-radius: var(--radius-sm);
-  }
-
-  .card-right {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    min-width: 0;
-  }
-
-  /* --- Small-screen disclosure ------------------------------------------- */
-
-  /* Above 900px there is no disclosure. The three wrappers dissolve, so the two
-     blocks stay direct flex children of .card-left and the spec stays a direct
-     child of .card-right: the desktop card lays out exactly as before. */
-  .card-fold,
-  .fold-panel,
-  .fold-inner {
-    display: contents;
-  }
-
-  .fold-toggle,
-  .card-meta {
-    display: none;
-  }
-
-  /* --- Spec panel --------------------------------------------------------- */
-
-  .spec {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid color-mix(in srgb, var(--border-color) 22%, transparent);
-  }
-
-  .spec-row {
-    display: grid;
-    grid-template-columns: minmax(88px, 0.7fr) 1.3fr;
-    gap: 16px;
-    align-items: baseline;
-    padding: 12px 0;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--border-color) 12%, transparent);
-  }
-
-  .spec-row dt {
-    font-size: var(--size-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-    color: color-mix(in srgb, var(--text-secondary) 78%, var(--bg-surface));
-  }
-
-  .spec-row dd {
-    font-size: var(--size-sm);
-    color: var(--text-primary);
-    text-align: right;
-  }
-
-  .spec-row--head dd {
-    color: var(--accent);
+  /* The lessons lead: display face, primary colour, gold markers. */
+  .card-beat--lesson .card-list li {
+    font-family: var(--font-display);
+    font-size: var(--size-base);
     font-weight: var(--weight-medium);
+    color: var(--text-primary);
+  }
+
+  .card-beat--lesson .card-list li::before {
+    background: var(--accent);
   }
 
   /* --- CTA (personality preserved) --------------------------------------- */
@@ -384,226 +288,46 @@ const specId = `spec-${slug}`
       transform: none;
     }
 
-    .card-cta:hover [data-cta-label] {
-      transform: none;
-    }
-
+    .card-cta:hover [data-cta-label],
     .card-cta:hover [data-cta-alt] {
       transform: none;
     }
   }
 
   /* --- Small screens ------------------------------------------------------
-     A stacked chapter card was nine information blocks in one column: roughly
-     1250px of rectangle with the only action at the bottom. Below 900px the
-     card becomes the chapter's *cover* — arena, title, lede, the two real
-     credential values, roles — and everything that authenticates it moves
-     behind one disclosure. Nothing is deleted and nothing is pushed onto the
-     /work/[slug] pages, which are still placeholders. */
+     No disclosure: with short bullets the whole chapter fits in roughly
+     750px, so nothing needs hiding. The beats stack in reading order. */
   @media (max-width: 900px) {
     .work-card {
-      /* Was 75vw, which never filled a phone. The carousel viewport is the
-         rail, so 100% is the full column. */
+      /* The carousel viewport is the rail, so 100% is the full column. */
       width: 100%;
-      grid-template-columns: 1fr;
-      gap: 20px;
+      gap: 24px;
       padding: 26px 22px 22px;
       /* The carousel viewport is a scroll-snap scroller at this width. */
       scroll-snap-align: center;
     }
 
-    .card-left {
-      gap: 14px;
+    .card-head {
+      flex-direction: column;
+      gap: 10px;
     }
 
-    .card-lede {
+    .card-beats {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .card-who,
+    .card-list li {
       max-width: none;
     }
-
-    /* Reading order on a phone: cover, then evidence on request, then action.
-       Flex order rather than a second DOM, so there is one source of truth. */
-    .card-arena {
-      order: 1;
-    }
-
-    .card-title {
-      order: 2;
-    }
-
-    .card-lede {
-      order: 3;
-    }
-
-    .card-meta {
-      order: 4;
-    }
-
-    .card-roles {
-      order: 5;
-    }
-
-    .card-fold {
-      order: 6;
-    }
-
-    /* Client and Years lifted out of the collapsed panel. Gold on this surface
-       measures 5.9:1, the same call the spec panel's head rows already make. */
-    .card-meta {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      font-family: var(--font-mono);
-      font-size: var(--size-xs);
-      text-transform: uppercase;
-      letter-spacing: var(--tracking-label);
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-
-    .card-meta-client {
-      color: var(--accent);
-    }
-
-    .card-meta-years {
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Separator travels with the value, so the pair wraps as a unit. */
-    .card-meta-years::before {
-      content: "\00B7";
-      padding: 0 0.6em;
-      color: color-mix(in srgb, var(--text-secondary) 45%, transparent);
-    }
-
-    .card-fold {
-      display: flex;
-      flex-direction: column;
-      align-self: stretch;
-      width: 100%;
-      margin-top: 2px;
-    }
-
-    .fold-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      width: 100%;
-      min-height: 44px;
-      padding: 12px 0;
-      background: none;
-      border: 0;
-      border-top: 1px solid
-        color-mix(in srgb, var(--border-color) 14%, transparent);
-      border-bottom: 1px solid
-        color-mix(in srgb, var(--border-color) 14%, transparent);
-      color: var(--text-secondary);
-      font-family: var(--font-mono);
-      font-size: var(--size-xs);
-      text-transform: uppercase;
-      letter-spacing: var(--tracking-label);
-      text-align: left;
-      cursor: pointer;
-      transition: color var(--duration-fast) var(--ease);
-    }
-
-    .fold-toggle:hover,
-    .fold-toggle:focus-visible {
-      color: var(--text-primary);
-    }
-
-    .fold-chevron {
-      flex-shrink: 0;
-      color: var(--accent);
-      transition: transform var(--duration-normal) var(--ease);
-    }
-
-    .work-card[data-fold="open"] .fold-chevron {
-      transform: rotate(180deg);
-    }
-
-    /* 0fr to 1fr animates a real auto height, so the panel opens to whatever
-       the copy needs without a measured pixel value. */
-    .fold-panel {
-      display: grid;
-      grid-template-rows: 0fr;
-      transition: grid-template-rows var(--duration-normal) var(--ease);
-    }
-
-    .work-card[data-fold="open"] .fold-panel {
-      grid-template-rows: 1fr;
-    }
-
-    .fold-inner {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      min-height: 0;
-      overflow: hidden;
-      /* A zero-height panel is still read aloud, which contradicts
-         aria-expanded="false". Visibility takes it out of the tree, delayed on
-         the way out so the content does not vanish mid-collapse. */
-      visibility: hidden;
-      transition: visibility 0s var(--duration-normal);
-    }
-
-    .work-card[data-fold="open"] .fold-inner {
-      visibility: visible;
-      transition: visibility 0s;
-    }
-
-    /* The panel's own padding would survive a zero-height grid row, because
-       overflow: hidden clips children and not the padding box. Margins on the
-       clipped children are clipped with them, so a closed panel is exactly 0. */
-    .fold-inner > :first-child {
-      margin-top: 16px;
-    }
-
-    /* The spec panel is the second half of the same disclosure, one column
-       over. It carries its own trailing space so a closed panel contributes
-       nothing at all. */
-    .card-right {
-      gap: 0;
-    }
-
-    .spec-fold .fold-inner > :first-child {
-      margin-top: 0;
-      margin-bottom: 20px;
-    }
-
-    /* Promoted to .card-meta, so showing them again here would be a duplicate. */
-    .spec-row--head {
-      display: none;
-    }
-
   }
 
-  /* A thumb-width action. Only where the column is actually thumb-width: at
-     820px a stretched button is a 734px bar. */
+  /* A thumb-width action, only where the column is actually thumb-width. */
   @media (max-width: 560px) {
     .card-cta {
       align-self: stretch;
       justify-content: center;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .fold-panel,
-    .fold-chevron {
-      transition: none;
-    }
-  }
-
-  /* Right-aligned values in a narrow column wrapped badly ("Node.js · Python ·
-     PostgreSQL" over three ragged lines). Stack the pair instead. */
-  @media (max-width: 560px) {
-    .spec-row {
-      grid-template-columns: 1fr;
-      gap: 2px;
-    }
-
-    .spec-row dd {
-      text-align: left;
     }
   }
 </style>

@@ -73,7 +73,6 @@ const uiSchema = z.object({
     taught: z.string(),
     cta: z.string(),
     ctaAlt: z.string(),
-    details: z.string(),
     riverLabel: z.string(),
     whoIWas: z.string(),
     challenges: z.string(),
