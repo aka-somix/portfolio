@@ -41,6 +41,8 @@ workCard:
   taught: What it taught me
   cta: Look inside
   ctaAlt: 👀👀👀👀👀👀
+  # Visually hidden. Introduces the text version of the river for screen readers.
+  riverLabel: How my roles shifted through this chapter
   # Small-screen only. Labels the disclosure that holds the two blocks above
   # plus the spec panel, which are collapsed by default on a phone.
   details: The details

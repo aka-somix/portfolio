@@ -74,6 +74,7 @@ const uiSchema = z.object({
     cta: z.string(),
     ctaAlt: z.string(),
     details: z.string(),
+    riverLabel: z.string(),
   }),
   workSpec: z.object({ client: z.string(), years: z.string() }),
   tinyverse: z.object({
@@ -173,6 +174,13 @@ const certificationsSchema = z.object({
     .min(1),
 })
 
+/** Lowercase slug: role ids and phase ids. */
+const slug = z.string().regex(/^[a-z0-9-]+$/, 'use lowercase letters, digits and dashes')
+
+const rolesSchema = z.object({
+  items: z.array(z.object({ id: slug, name: z.string() })).min(1),
+})
+
 const workSchema = z.object({
   order: z.number().int(),
   title: z.string(),
@@ -217,6 +225,7 @@ export const collections = {
   site: defineCollection({ loader: glob({ base: ROOT, pattern: 'site.yaml' }), schema: siteSchema }),
   seo:  defineCollection({ loader: glob({ base: ROOT, pattern: 'seo.yaml'  }), schema: seoSchema  }),
   ui: defineCollection({ loader: glob({ base: ROOT, pattern: 'ui.yaml' }), schema: uiSchema }),
+  roles: defineCollection({ loader: glob({ base: ROOT, pattern: 'roles.yaml' }), schema: rolesSchema }),
   services: defineCollection({ loader: section('services'), schema: servicesSchema }),
   workSection:    defineCollection({ loader: section('work'), schema: workSectionSchema }),
   tinyverse:      defineCollection({ loader: section('tinyverse'), schema: tinyverseSchema }),

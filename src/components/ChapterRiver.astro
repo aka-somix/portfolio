@@ -1,0 +1,280 @@
+---
+import { design } from "../design.config"
+import { roles, ui } from "../lib/content"
+import { riverGeometry, rolesUsed, VIEW_H, VIEW_W } from "../lib/river"
+import type { RiverPhase } from "../lib/river"
+
+export interface Props {
+  phases: RiverPhase[]
+  variant?: "card" | "page"
+  /** When given, position titles become links (future `#position-<id>` sections). */
+  phaseHref?: (phase: RiverPhase) => string
+}
+
+const { phases, variant = "card", phaseHref } = Astro.props
+
+const roleList = (await roles()).items
+const order = roleList.map((r) => r.id)
+const names = new Map(roleList.map((r) => [r.id, r.name]))
+const label = (await ui()).workCard.riverLabel
+const geo = riverGeometry(phases, order)
+const colour = (i: number) => design.river[i]
+---
+
+<!-- The SVG only draws shapes and stretches to any width. Every word is HTML
+     positioned from the geometry's percentages, so text never distorts and
+     always comes from content. -->
+<figure class="river" data-river data-variant={variant} data-ended={geo.hasEnded ? "" : undefined}>
+  <p class="sr-only">{label}</p>
+  <ol class="sr-only">
+    {
+      phases.map((p) => (
+        <li>
+          {p.title}: {rolesUsed([p], order).map((id) => names.get(id)).join(", ")}
+        </li>
+      ))
+    }
+  </ol>
+
+  <div class="river-titles" aria-hidden={phaseHref ? undefined : "true"}>
+    {
+      geo.titles.map((t) => {
+        const href = phaseHref?.(phases[t.phaseIndex])
+        const style = `--x: ${t.x}%`
+        return href ? (
+          <a class="river-title" href={href} data-river-title data-edge={t.edge} data-x={t.x} style={style}>
+            {t.title}
+          </a>
+        ) : (
+          <span class="river-title" data-river-title data-edge={t.edge} data-x={t.x} style={style}>
+            {t.title}
+          </span>
+        )
+      })
+    }
+  </div>
+
+  <div class="river-body" data-river-body>
+    <svg
+      class="river-svg"
+      viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {
+        geo.phaseX.map((x) => (
+          <line
+            class="river-phase"
+            x1={(x * VIEW_W) / 100}
+            x2={(x * VIEW_W) / 100}
+            y1="0"
+            y2={VIEW_H}
+            vector-effect="non-scaling-stroke"
+          />
+        ))
+      }
+      {
+        geo.streams.map((s) => (
+          <path class="river-stream" d={s.d} fill={colour(s.order)} vector-effect="non-scaling-stroke" />
+        ))
+      }
+    </svg>
+
+    <ul class="river-mouth" aria-hidden="true">
+      {
+        geo.streams
+          .filter((s) => s.mouthY !== null)
+          .map((s) => <li style={`--y: ${s.mouthY}%`}>{names.get(s.roleId)}</li>)
+      }
+    </ul>
+  </div>
+
+  <ul class="river-legend" aria-hidden="true">
+    {geo.streams.map((s) => <li style={`--c: ${colour(s.order)}`}>{names.get(s.roleId)}</li>)}
+  </ul>
+</figure>
+
+<style>
+  .river {
+    --river-h: 150px;
+    --title-h: 40px;
+    --mouth-w: 150px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .river[data-variant="page"] {
+    --river-h: 200px;
+    --river-gap: var(--bg-primary);
+  }
+
+  /* Same width as the SVG, so x% here is x% of the river. */
+  .river-titles {
+    position: relative;
+    height: var(--title-h);
+    margin-right: var(--mouth-w);
+  }
+
+  .river-title {
+    position: absolute;
+    left: var(--x);
+    bottom: 14px;
+    font-family: var(--font-display);
+    font-size: var(--size-sm);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-snug);
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .river-title[data-edge="mid"] {
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .river-title[data-edge="end"] {
+    transform: translateX(-100%);
+    text-align: right;
+  }
+
+  /* The dot sits on the phase line, under the title's anchor point. */
+  .river-title::after {
+    content: "";
+    position: absolute;
+    bottom: -11px;
+    left: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+  }
+
+  .river-title[data-edge="mid"]::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .river-title[data-edge="end"]::after {
+    left: auto;
+    right: 0;
+  }
+
+  /* Where the chapter ended up. */
+  .river-title:last-child {
+    color: var(--accent);
+  }
+
+  .river-title:last-child::after {
+    background: var(--accent);
+  }
+
+  a.river-title:hover,
+  a.river-title:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .river-body {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--mouth-w);
+  }
+
+  .river-svg {
+    display: block;
+    width: 100%;
+    height: var(--river-h);
+    overflow: visible;
+  }
+
+  .river-phase {
+    stroke: color-mix(in srgb, var(--border-color) 12%, transparent);
+    stroke-width: 1;
+  }
+
+  /* A hairline of the ground colour between streams keeps them distinct. */
+  .river-stream {
+    stroke: var(--river-gap, var(--bg-surface));
+    stroke-width: 1.5;
+  }
+
+  .river-mouth {
+    list-style: none;
+    position: relative;
+    height: var(--river-h);
+  }
+
+  .river-mouth li {
+    position: absolute;
+    top: var(--y);
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: var(--size-sm);
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  /* Shown on desktop only when a role ends before the mouth and so has no
+     mouth label; always shown on small screens. */
+  .river-legend {
+    display: none;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    list-style: none;
+    margin-top: 14px;
+  }
+
+  .river[data-ended] .river-legend {
+    display: flex;
+  }
+
+  .river-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--size-xs);
+    color: var(--text-secondary);
+  }
+
+  .river-legend li::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--c);
+  }
+
+  @media (max-width: 900px) {
+    .river {
+      --river-h: 110px;
+      --title-h: 58px;
+      --mouth-w: 0px;
+    }
+
+    .river[data-variant="page"] {
+      --river-h: 140px;
+    }
+
+    .river-mouth {
+      display: none;
+    }
+
+    .river-legend {
+      display: flex;
+    }
+
+    /* Three titles collide at phone width: keep where you started and where
+       you ended up. The middle ones stay in the screen-reader list. */
+    .river-title:not(:first-child):not(:last-child) {
+      display: none;
+    }
+
+    .river-title {
+      white-space: normal;
+      max-width: 48%;
+    }
+  }
+</style>

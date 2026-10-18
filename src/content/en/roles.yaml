@@ -1,0 +1,8 @@
+# The roles a chapter's river can show. Order is the stacking order of the
+# streams (top to bottom) and the colour order (design.config.ts `river`).
+# Chapters reference roles by `id` in `phases[].roles`.
+items:
+  - { id: backend, name: Backend }
+  - { id: architecture, name: Architecture }
+  - { id: ai-engineering, name: AI Engineering }
+  - { id: client-liaison, name: Client liaison }

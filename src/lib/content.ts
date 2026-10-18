@@ -88,7 +88,7 @@ export const ui = () => data('ui', 'ui') as Promise<{
   services: { deckAriaLabel: string; prevAriaLabel: string; nextAriaLabel: string }
   serviceCard: { helpLabel: string; flipAriaSuffix: string }
   work: { prevAriaLabel: string; nextAriaLabel: string }
-  workCard: { held: string; taught: string; cta: string; ctaAlt: string }
+  workCard: { held: string; taught: string; cta: string; ctaAlt: string; riverLabel: string }
   workSpec: { client: string; years: string }
   tinyverse: { stageAriaLabel: string; sunAriaLabel: string; open: string }
   workPage: {
@@ -97,6 +97,11 @@ export const ui = () => data('ui', 'ui') as Promise<{
     writeUpTitle: string
     holding: { title: string; body1: string; body2: string; cta: string }
   }
+}>
+
+/** The shared role list. Order is the river's stacking and colour order. */
+export const roles = () => data('roles', 'roles') as Promise<{
+  items: { id: string; name: string }[]
 }>
 
 export const tinyverse = () => data('tinyverse', 'tinyverse') as Promise<{
