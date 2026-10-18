@@ -70,12 +70,15 @@ const uiSchema = z.object({
   work: z.object({ prevAriaLabel: z.string(), nextAriaLabel: z.string() }),
   workCard: z.object({
     held: z.string(),
-    taught: z.string(),
     cta: z.string(),
     ctaAlt: z.string(),
-    details: z.string(),
+    riverLabel: z.string(),
+    whoIWas: z.string(),
+    challenges: z.string(),
+    lessons: z.string(),
+    yearsTo: z.string(),
+    present: z.string(),
   }),
-  workSpec: z.object({ client: z.string(), years: z.string() }),
   tinyverse: z.object({
     stageAriaLabel: z.string(),
     sunAriaLabel: z.string(),
@@ -173,6 +176,21 @@ const certificationsSchema = z.object({
     .min(1),
 })
 
+/** Lowercase slug: role ids and phase ids. */
+const slug = z.string().regex(/^[a-z0-9-]+$/, 'use lowercase letters, digits and dashes')
+
+const rolesSchema = z.object({
+  items: z.array(z.object({ id: slug, name: z.string() })).min(1),
+})
+
+const phaseSchema = z.object({
+  id: slug,
+  title: z.string(),
+  roles: z
+    .record(slug, z.number().int().min(1).max(3))
+    .refine((r) => Object.keys(r).length > 0, 'a phase needs at least one role'),
+})
+
 const workSchema = z.object({
   order: z.number().int(),
   title: z.string(),
@@ -180,12 +198,22 @@ const workSchema = z.object({
   description: z.string(),
   lede: z.string(),
   responsibilities: z.array(z.string()).min(1),
-  learned: z.string(),
-  roles: z.array(z.string()).min(1),
-  client: z.string(),
-  years: z.string(),
-  specPlaceholder: z.boolean(),
-  spec: z.array(z.object({ label: z.string(), value: z.string() })).min(1),
+  years: z
+    .object({
+      from: z.number().int(),
+      to: z.union([z.number().int(), z.literal('present')]),
+    })
+    .refine((y) => y.to === 'present' || y.to >= y.from, 'years.to is before years.from'),
+  /** Drafted copy and placeholder phases. Warns on build, blocks deploy. */
+  draft: z.boolean().default(false),
+  whoIWas: z.string(),
+  challenges: z.array(z.string()).min(1).max(4),
+  lessons: z.array(z.string()).min(1).max(3),
+  phases: z
+    .array(phaseSchema)
+    .min(2)
+    .max(4)
+    .refine((ps) => new Set(ps.map((p) => p.id)).size === ps.length, 'phase ids must be unique'),
   projects: z
     .array(z.object({ name: z.string(), summary: z.string(), outcome: z.string() }))
     .default([]),
@@ -217,6 +245,7 @@ export const collections = {
   site: defineCollection({ loader: glob({ base: ROOT, pattern: 'site.yaml' }), schema: siteSchema }),
   seo:  defineCollection({ loader: glob({ base: ROOT, pattern: 'seo.yaml'  }), schema: seoSchema  }),
   ui: defineCollection({ loader: glob({ base: ROOT, pattern: 'ui.yaml' }), schema: uiSchema }),
+  roles: defineCollection({ loader: glob({ base: ROOT, pattern: 'roles.yaml' }), schema: rolesSchema }),
   services: defineCollection({ loader: section('services'), schema: servicesSchema }),
   workSection:    defineCollection({ loader: section('work'), schema: workSectionSchema }),
   tinyverse:      defineCollection({ loader: section('tinyverse'), schema: tinyverseSchema }),

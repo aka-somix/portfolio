@@ -199,60 +199,41 @@ They would otherwise overwrite each other, since the deck writes transforms ever
 - Logic lives in `Services.astro`, not `BaseLayout.astro` — 114 lines moved to the component whose geometry it depends on.
 
 ### Work Section (`#work`)
-- Header: "Work Chapters" section label (the decorative `02` counter is gone — the carousel indicator already carries position)
-- Description text below header (driven from `sections.ts`)
-- **Horizontal carousel** with arrow navigation and a `01/02` tabular indicator. Viewport carries an edge mask so the neighbouring card fades rather than showing a strip of clipped sentences. Arrows are 44×44 (tap-target floor). Step distance is read from live layout (`offsetWidth` + computed `columnGap`), not a hardcoded multiplier.
+- Header: "Work Chapters" section label (the carousel indicator carries position)
+- Description text below header (from `sections/work.yaml`)
+- **Horizontal carousel** with arrow navigation and a `01/02` tabular indicator. Viewport carries an edge mask so the neighbouring card fades. Arrows are 44×44. Step distance is read from live layout (`offsetWidth` + computed `columnGap`).
 
-**A chapter is an arena, not a job.** Each card is a two-column split:
-  - **Left**: arena line, chapter title (Archivo), lede (the new 21px tier), "What I held" (responsibilities), "What it taught me" (the versatility payload), then role tags
-  - **Right**: the **spec panel** — a `<dl>` of Client / Years / Domain / Cloud / Core stack / Scale, set in JetBrains Mono with `tabular-nums` and hairline rules. This is where mono finally does real work.
+**A chapter is a stretch of the journey, not a job.** The card reads left to right like its river:
 
-The spec panel **replaced a stock photograph** of an anonymous person at a laptop. For a visitor evaluating architectural judgement, a stock photo is anti-evidence; a specification is the artifact an architect actually produces. The photograph has been removed from the repo.
+- **Head**: arena line and chapter title (Archivo) on the left, the year range in mono on the right (`2021 · 2023`, `Present` for an ongoing chapter; `ChapterYears.astro`).
+- **The river of roles** (`ChapterRiver.astro`, geometry in `src/lib/river.ts`): a horizontal streamgraph. Each chapter has 2 to 4 `phases`; each phase lists roles with a weight of 1 to 3. A role is a stream whose thickness is its weight, stacked around a centre line and joined with smooth curves, so roles swell, thin, appear and end. Growth reads as widening, never climbing.
+  - Above each phase: the **position title** held then, on a dot at the phase line. A title repeated by the next phase is drawn once. The last title is gold.
+  - Role names label the streams at the river's mouth. When a role ends before the mouth, a colour-swatch legend row is shown under the river instead of leaving it unnamed.
+  - Role colours come from `design.river`, by the role's index in `src/content/en/roles.yaml`, so a role is the same colour in every chapter.
+  - The SVG only draws shapes (`preserveAspectRatio="none"`, non-scaling strokes). Every word is HTML positioned from the geometry's percentages, so text never distorts. The SVG is `aria-hidden`; a visually hidden ordered list states each phase's title and roles.
+- **Three beats** under the river, each hanging from a hairline with a node: *Who I was* (one sentence), *The challenges* (bullets), *What it taught me* (bullets in Archivo, gold node and markers). Column order mirrors the river: source, mid-stream, mouth.
+- **CTA** to `/work/[slug]` with the dual-label flip.
 
-> ⚠️ Spec values are currently **placeholder** (`specPlaceholder: true` in the frontmatter of `src/content/en/work/consultant.md` and `src/content/en/work/startup.md`). `pnpm check:content` warns per chapter, and this check runs as part of `pnpm build`, and the markup carries `data-spec-placeholder`. They must be replaced with real figures before deploy.
+The spec panel (Client / Years / Domain / Cloud / Stack) is gone: "Client" named employers, and the values were placeholders.
 
-#### Below 900px the card is the chapter's *cover*
+> ⚠️ Both chapters ship with `draft: true`: drafted beats and placeholder phase titles and role weights. `pnpm check:content` warns per chapter, and `pnpm deploy` refuses to ship until the author supplies the facts and removes the flag.
 
-Stacked, a chapter card was nine information blocks in one column: roughly
-1250px of rectangle whose only action sat at the bottom. Four things were wrong
-at once, and one of them was a plain bug: the 90px edge mask fades 46% of a
-390px viewport, taking the card's own first and last words with it.
+#### Below 900px
 
-| Wide | Narrow (≤900px) |
-|---|---|
-| Card `75vw`, edge mask on the viewport | Card **100%**, **mask removed**: no neighbour is in view to soften |
-| Arrows and `01/02` below the carousel | Controls **above** the card (`order: -1`), so paging is visible before the scroll |
-| Track paged by `translateX` | Viewport is a real **`scroll-snap`** scroller: a full-width card that only answers to a 44px arrow reads as broken on touch |
-| Cards stretched to equal height | `align-items: flex-start`: equalising heights only injects dead air above the shorter chapter's CTA |
-| Spec `<dl>` of eight rows | Six placeholder rows collapsed; **Client and Years promoted** to one mono line, gold at 5.9:1 on the surface |
-| Blocks always open | "What I held", "What it taught me" and the spec behind **one disclosure** |
+- Card is 100% wide, the viewport becomes a `scroll-snap` scroller, controls move above the card.
+- River height drops from 150px to 110px; mouth labels give way to the legend row.
+- Only the first and last position titles are drawn; middle titles stay in the screen-reader list. Each may wrap and is capped at the room up to the other (`--room-sm`), so they never overlap even when the last drawn title belongs to a middle phase.
+- Beats stack. There is no disclosure: with short bullets the card is about 750px tall, down from about 1250px.
 
-The card that remains is arena, title, lede, credential line, roles, one
-disclosure and the CTA: ~500px, with both actions inside the first screenful.
-Nothing is deleted and nothing is deferred to `/work/[slug]`, which is still a
-placeholder.
+#### Motion
 
-Mechanics worth keeping straight:
+One authored moment: when a river first comes into view (or the carousel pages to its card) its body wipes in left to right with a `clip-path` reveal, 1.2s `expo.out`, and each position title fades in as the wipe reaches it (the delay is the inverse of the ease curve). Once per river (`src/lib/river-motion.ts`). The text beats keep the existing entrance stagger. Skipped entirely under `prefers-reduced-motion`; the static markup is the finished river.
 
-- **One button, two panels.** The copy blocks and the spec sit in different
-  columns on desktop and cannot be wrapped in a shared element, so the state
-  lives on the article (`data-fold`) and CSS opens both. `aria-controls` names
-  both ids.
-- **The wrappers dissolve above 900px.** `.card-fold`, `.fold-panel` and
-  `.fold-inner` are `display: contents`, so the wide card lays out exactly as it
-  did before the disclosure existed.
-- **`grid-template-rows: 0fr → 1fr`** animates a real auto height, so the panel
-  opens to whatever the copy needs. The panel's own `padding` would survive a
-  zero-height row (`overflow: hidden` clips children, not the padding box), so
-  the spacing is margins on the clipped children instead.
-- **`visibility: hidden` when closed**, delayed on the way out. A zero-height
-  panel is still read aloud, which would contradict `aria-expanded="false"`.
-- The mobile entrance stagger targets the visible elements only; animating
-  blocks inside a collapsed panel spends the stagger on nothing.
-- `cards` is read as `.work-card`, not `track.children`: Astro injects a
-  component's hoisted script at the component's own position, which for
-  WorkCard is inside the track, and that stray element was being counted as a
-  chapter (`01/03` for two chapters).
+- `cards` is read as `.work-card`, not `track.children`: Astro injects a component's hoisted script at the component's own position, which for WorkCard is inside the track, and that stray element was being counted as a chapter (`01/03` for two chapters).
+
+#### Chapter page (`/work/[slug]`)
+
+The river runs full width between the header and the body (`variant="page"`, 200px tall). The side panel holds the year range and role tags derived from the phases. Each phase has an `id`; position titles will link to `#position-<id>` sections when the page grows them (`phaseHref` prop).
 
 - **Certifications sub-section** below carousel:
   - Subdued header: "Certifications" in mono uppercase (count removed)
@@ -378,60 +359,41 @@ one factor on mobile, so the dealt spread survives the breakpoint.
 - Logic lives in `Services.astro`, not `BaseLayout.astro` — 114 lines moved to the component whose geometry it depends on.
 
 ### Work Section (`#work`)
-- Header: "Work Chapters" section label (the decorative `02` counter is gone — the carousel indicator already carries position)
-- Description text below header (driven from `sections.ts`)
-- **Horizontal carousel** with arrow navigation and a `01/02` tabular indicator. Viewport carries an edge mask so the neighbouring card fades rather than showing a strip of clipped sentences. Arrows are 44×44 (tap-target floor). Step distance is read from live layout (`offsetWidth` + computed `columnGap`), not a hardcoded multiplier.
+- Header: "Work Chapters" section label (the carousel indicator carries position)
+- Description text below header (from `sections/work.yaml`)
+- **Horizontal carousel** with arrow navigation and a `01/02` tabular indicator. Viewport carries an edge mask so the neighbouring card fades. Arrows are 44×44. Step distance is read from live layout (`offsetWidth` + computed `columnGap`).
 
-**A chapter is an arena, not a job.** Each card is a two-column split:
-  - **Left**: arena line, chapter title (Archivo), lede (the new 21px tier), "What I held" (responsibilities), "What it taught me" (the versatility payload), then role tags
-  - **Right**: the **spec panel** — a `<dl>` of Client / Years / Domain / Cloud / Core stack / Scale, set in JetBrains Mono with `tabular-nums` and hairline rules. This is where mono finally does real work.
+**A chapter is a stretch of the journey, not a job.** The card reads left to right like its river:
 
-The spec panel **replaced a stock photograph** of an anonymous person at a laptop. For a visitor evaluating architectural judgement, a stock photo is anti-evidence; a specification is the artifact an architect actually produces. The photograph has been removed from the repo.
+- **Head**: arena line and chapter title (Archivo) on the left, the year range in mono on the right (`2021 · 2023`, `Present` for an ongoing chapter; `ChapterYears.astro`).
+- **The river of roles** (`ChapterRiver.astro`, geometry in `src/lib/river.ts`): a horizontal streamgraph. Each chapter has 2 to 4 `phases`; each phase lists roles with a weight of 1 to 3. A role is a stream whose thickness is its weight, stacked around a centre line and joined with smooth curves, so roles swell, thin, appear and end. Growth reads as widening, never climbing.
+  - Above each phase: the **position title** held then, on a dot at the phase line. A title repeated by the next phase is drawn once. The last title is gold.
+  - Role names label the streams at the river's mouth. When a role ends before the mouth, a colour-swatch legend row is shown under the river instead of leaving it unnamed.
+  - Role colours come from `design.river`, by the role's index in `src/content/en/roles.yaml`, so a role is the same colour in every chapter.
+  - The SVG only draws shapes (`preserveAspectRatio="none"`, non-scaling strokes). Every word is HTML positioned from the geometry's percentages, so text never distorts. The SVG is `aria-hidden`; a visually hidden ordered list states each phase's title and roles.
+- **Three beats** under the river, each hanging from a hairline with a node: *Who I was* (one sentence), *The challenges* (bullets), *What it taught me* (bullets in Archivo, gold node and markers). Column order mirrors the river: source, mid-stream, mouth.
+- **CTA** to `/work/[slug]` with the dual-label flip.
 
-> ⚠️ Spec values are currently **placeholder** (`specPlaceholder: true` in the frontmatter of `src/content/en/work/consultant.md` and `src/content/en/work/startup.md`). `pnpm check:content` warns per chapter, and this check runs as part of `pnpm build`, and the markup carries `data-spec-placeholder`. They must be replaced with real figures before deploy.
+The spec panel (Client / Years / Domain / Cloud / Stack) is gone: "Client" named employers, and the values were placeholders.
 
-#### Below 900px the card is the chapter's *cover*
+> ⚠️ Both chapters ship with `draft: true`: drafted beats and placeholder phase titles and role weights. `pnpm check:content` warns per chapter, and `pnpm deploy` refuses to ship until the author supplies the facts and removes the flag.
 
-Stacked, a chapter card was nine information blocks in one column: roughly
-1250px of rectangle whose only action sat at the bottom. Four things were wrong
-at once, and one of them was a plain bug: the 90px edge mask fades 46% of a
-390px viewport, taking the card's own first and last words with it.
+#### Below 900px
 
-| Wide | Narrow (≤900px) |
-|---|---|
-| Card `75vw`, edge mask on the viewport | Card **100%**, **mask removed**: no neighbour is in view to soften |
-| Arrows and `01/02` below the carousel | Controls **above** the card (`order: -1`), so paging is visible before the scroll |
-| Track paged by `translateX` | Viewport is a real **`scroll-snap`** scroller: a full-width card that only answers to a 44px arrow reads as broken on touch |
-| Cards stretched to equal height | `align-items: flex-start`: equalising heights only injects dead air above the shorter chapter's CTA |
-| Spec `<dl>` of eight rows | Six placeholder rows collapsed; **Client and Years promoted** to one mono line, gold at 5.9:1 on the surface |
-| Blocks always open | "What I held", "What it taught me" and the spec behind **one disclosure** |
+- Card is 100% wide, the viewport becomes a `scroll-snap` scroller, controls move above the card.
+- River height drops from 150px to 110px; mouth labels give way to the legend row.
+- Only the first and last position titles are drawn; middle titles stay in the screen-reader list. Each may wrap and is capped at the room up to the other (`--room-sm`), so they never overlap even when the last drawn title belongs to a middle phase.
+- Beats stack. There is no disclosure: with short bullets the card is about 750px tall, down from about 1250px.
 
-The card that remains is arena, title, lede, credential line, roles, one
-disclosure and the CTA: ~500px, with both actions inside the first screenful.
-Nothing is deleted and nothing is deferred to `/work/[slug]`, which is still a
-placeholder.
+#### Motion
 
-Mechanics worth keeping straight:
+One authored moment: when a river first comes into view (or the carousel pages to its card) its body wipes in left to right with a `clip-path` reveal, 1.2s `expo.out`, and each position title fades in as the wipe reaches it (the delay is the inverse of the ease curve). Once per river (`src/lib/river-motion.ts`). The text beats keep the existing entrance stagger. Skipped entirely under `prefers-reduced-motion`; the static markup is the finished river.
 
-- **One button, two panels.** The copy blocks and the spec sit in different
-  columns on desktop and cannot be wrapped in a shared element, so the state
-  lives on the article (`data-fold`) and CSS opens both. `aria-controls` names
-  both ids.
-- **The wrappers dissolve above 900px.** `.card-fold`, `.fold-panel` and
-  `.fold-inner` are `display: contents`, so the wide card lays out exactly as it
-  did before the disclosure existed.
-- **`grid-template-rows: 0fr → 1fr`** animates a real auto height, so the panel
-  opens to whatever the copy needs. The panel's own `padding` would survive a
-  zero-height row (`overflow: hidden` clips children, not the padding box), so
-  the spacing is margins on the clipped children instead.
-- **`visibility: hidden` when closed**, delayed on the way out. A zero-height
-  panel is still read aloud, which would contradict `aria-expanded="false"`.
-- The mobile entrance stagger targets the visible elements only; animating
-  blocks inside a collapsed panel spends the stagger on nothing.
-- `cards` is read as `.work-card`, not `track.children`: Astro injects a
-  component's hoisted script at the component's own position, which for
-  WorkCard is inside the track, and that stray element was being counted as a
-  chapter (`01/03` for two chapters).
+- `cards` is read as `.work-card`, not `track.children`: Astro injects a component's hoisted script at the component's own position, which for WorkCard is inside the track, and that stray element was being counted as a chapter (`01/03` for two chapters).
+
+#### Chapter page (`/work/[slug]`)
+
+The river runs full width between the header and the body (`variant="page"`, 200px tall). The side panel holds the year range and role tags derived from the phases. Each phase has an `id`; position titles will link to `#position-<id>` sections when the page grows them (`phaseHref` prop).
 
 - **Certifications sub-section** below carousel:
   - Subdued header: "Certifications" in mono uppercase (count removed)
@@ -550,7 +512,8 @@ Previously a dead end: no nav, no footer, and a dashed "PROJECT DETAIL COMING SO
 
 - Now renders `<Nav />` and `<Footer />` — the page is never a trap
 - Display-tier title (Archivo, up to 96px), arena line, 28px lede
-- Two-column body: main content plus a **sticky spec panel** rail with role tags
+- The chapter's **river of roles** full width under the lede (`ChapterRiver variant="page"`)
+- Two-column body: main content (responsibilities, lessons as a list) plus a **sticky side panel** with the year range and role tags derived from the phases
 - When `detail.projects` exists it renders projects with name / summary / outcome
 - When it does not, an **honest holding state**: says the write-up is still being written, and offers a booking link ("Ask me about it on a call") instead of a dashed rectangle
 
@@ -767,7 +730,7 @@ Powered by **GSAP** (plugins: ScrollTrigger, Draggable).
 1. **Depth through colour** — a purple/night palette creates a moody, premium feel; gold accents provide focal anchors
 2. **Motion as interaction** — the headline's width axis responds to the reader's own scrolling; the draggable deck and carousel invite tactile exploration. Motion responds to input rather than looping at the visitor.
 3. **Typography as hierarchy** — a single tokenised scale, with the display tier reserved for what actually differentiates. Three faces with three non-overlapping jobs; mono earns its place on figures, never as costume.
-4. **Real data over decorative data** — chapter spec panels carry actual figures in tabular mono; the service badges carry a real domain tag. Nothing on the page pretends to encode information it does not have.
+4. **Real data over decorative data** — a chapter's river is drawn from the roles actually held, and stays marked draft until the author supplies them; the service badges carry a real domain tag. Nothing on the page pretends to encode information it does not have.
 5. **Restrained palette, expressive motion** — only 2 accent colours (gold, purple) but rich animation vocabulary
 6. **Human details** — "Ciao!" greeting, playful emoji, "digital nomad" framing — personality within a professional container
 7. **Single-page rhythm** — sections flow hero → services → work → tinyverse → contact → footer, each with distinct layout but unified visual language

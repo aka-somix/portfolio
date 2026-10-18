@@ -16,6 +16,12 @@ export const design = {
     },
     accent: "#EEA727",
   },
+  /**
+   * River of roles. One colour per entry in src/content/en/roles.yaml, by
+   * index, so a role is the same colour in every chapter. Add a colour when
+   * you add a role: the build fails if roles outnumber colours.
+   */
+  river: ["#a463c4", "#EEA727", "#e9dcf7", "#e0806a"],
   font: {
     /**
      * Three roles, three faces. Each has one job and does not do the others'.

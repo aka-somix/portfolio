@@ -11,6 +11,7 @@ JSON-LD values all live in `src/content/`. `pnpm build` fails if they do not.
       seo.yaml                 # site metadata, per-page title and description
                                #   pages.home / pages.work / pages.notFound
       ui.yaml                  # label dictionary, keyed by component
+      roles.yaml               # the roles a chapter's river can show (order = stacking + colour)
       sections/
         hero.yaml              # hidden h1, headline, lede, base line, jump label, portrait
         services.yaml          # header + hint + the service items
@@ -35,6 +36,7 @@ JSON-LD values all live in `src/content/`. `pnpm build` fails if they do not.
 | A contact channel, URL, or identity fact | `site.yaml` | `site()` |
 | A page `<title>`, meta description, or OG value | `seo.yaml` | `seo()` |
 | Anything about one work chapter | `work/<slug>.md` frontmatter | `workChapters()` / `workChapter()` |
+| A role name shown in a chapter's river | `roles.yaml` | `roles()` |
 | A long-form chapter write-up | the Markdown body of `work/<slug>.md` | `renderChapter(entry)` |
 | A design token (colour, size, easing) | `src/design.config.ts` | not content, leave it there |
 | A string that exists only for screen readers or search engines | the same file as its visible siblings, never a component | same accessor |
@@ -73,8 +75,16 @@ frontmatter fields from an existing chapter, all are required except `projects`.
 Set `order` to control carousel position. Leave the body empty to render the
 holding state; write Markdown to render the full write-up.
 
-`specPlaceholder: true` means the chapter's `spec` values are invented.
-`pnpm build` warns while it is true and `pnpm deploy` refuses to ship.
+A chapter's card is `whoIWas` (one sentence), `challenges` (1 to 4 bullets),
+`lessons` (1 to 3 bullets), `years` (`{ from: 2021, to: 2023 }` or
+`to: present`) and `phases` (2 to 4). Each phase is
+`{ id, title, roles: { <role id>: 1-3 } }`: `title` is the position held,
+`roles` the mix of roles and how much of each. Role ids must exist in
+`roles.yaml`, or the build fails. Adding a role also needs a colour in
+`design.config.ts` → `river`.
+
+`draft: true` means the chapter still carries drafted copy or placeholder
+phases. `pnpm build` warns while it is set and `pnpm deploy` refuses to ship.
 
 ## The rules the check enforces
 
@@ -87,7 +97,7 @@ holding state; write Markdown to render the full write-up.
 | R3 | A string or template literal with two adjacent words, in frontmatter, `.ts`, or a client `<script>` | error |
 | R4 | `astro:content` imported outside `content.config.ts` and `lib/content.ts` (type-only imports are fine) | error |
 | R5 | The `—` character in a content file (AGENTS.md forbids it in copy) | warning |
-| SPEC | A chapter still carrying `specPlaceholder: true` | warning |
+| DRAFT | A chapter still carrying `draft: true` | warning |
 
 Exempt files: `design.config.ts`, `content.config.ts`, `lib/content.ts`, `env.d.ts`.
 

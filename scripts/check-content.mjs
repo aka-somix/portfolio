@@ -2,11 +2,11 @@
 /**
  * Fails the build when human-readable copy lives in code.
  * Usage: node scripts/check-content.mjs [--strict]
- *   --strict also fails on warnings, including unresolved specPlaceholder.
+ *   --strict also fails on warnings, including chapters still marked draft.
  */
 import { readFile, readdir } from 'node:fs/promises'
 import { join, relative } from 'node:path'
-import { scanSource } from './lib/content-rules.mjs'
+import { draftFlag, scanSource } from './lib/content-rules.mjs'
 
 const strict = process.argv.includes('--strict')
 const root = process.cwd()
@@ -37,20 +37,9 @@ for (const f of [...files, ...contentFiles]) {
   violations.push(...scanSource({ path, text: await readFile(f, 'utf8'), allow }))
 }
 
-// specPlaceholder gate: warns on build, fails under --strict.
+// Draft gate: warns on build, fails under --strict.
 for (const f of contentFiles.filter((f) => f.endsWith('.md'))) {
-  const text = await readFile(f, 'utf8')
-  if (/^specPlaceholder:\s*true\s*$/m.test(text)) {
-    violations.push({
-      path: relative(root, f),
-      line: text.split('\n').findIndex((l) => /^specPlaceholder:\s*true/.test(l)) + 1,
-      rule: 'SPEC',
-      text: 'specPlaceholder: true',
-      remedy:
-        'the spec values in this chapter are INVENTED. Replace them with real values and set specPlaceholder: false before deploying',
-      severity: 'warn',
-    })
-  }
+  violations.push(...draftFlag({ path: relative(root, f), text: await readFile(f, 'utf8') }))
 }
 
 const errors = violations.filter((v) => v.severity !== 'warn')

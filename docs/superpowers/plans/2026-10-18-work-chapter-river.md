@@ -29,6 +29,7 @@
 - On the chapter page the river sits **full width between the header and the body** instead of inside the 320px aside, which is too narrow for a river plus mouth labels. The aside keeps the year range and the role tags.
 - `PRODUCT.md` does not mention the spec panel or the Client row, so it needs no edit. `AGENTS.md` gets its test count corrected instead.
 - When a role ends before the last phase it has no mouth label, so the legend row (otherwise mobile only) is also shown on desktop for that chapter.
+- *Found during execution:* on small screens the last drawn title can be a middle phase (when the final title repeats), which collided with the first title. Each visible title now gets `--room-sm` (the space up to the other visible title) as its max width, and a middle title anchors left at its phase line. Implemented in `ChapterRiver.astro`.
 
 ## File map
 
@@ -196,7 +197,7 @@ Create `src/lib/river.ts`:
 /**
  * Geometry for the river of roles: a streamgraph of how a chapter's role mix
  * shifted across its phases. Pure and DOM-free, so it is unit-tested with
- * `node --test` (scripts/lib/river.test.mjs) and drawn by ChapterRiver.astro.
+ * scripts/lib/river.test.mjs and drawn by ChapterRiver.astro.
  *
  * Coordinates live in a fixed VIEW_W × VIEW_H box. The SVG is stretched with
  * preserveAspectRatio="none", so every position the HTML overlay needs is also
@@ -1466,7 +1467,7 @@ Replace the whole `animateCardText` function with:
       // The river draws itself once; the text staggers in every time.
       revealRiver(card.querySelector("[data-river]"))
       if (reduceMotion) return
-      const targets = [...card.querySelectorAll(".card-head, .card-beat, .card-cta")]
+      const targets = [...card.querySelectorAll(".card-head, .card-beat, .card-cta")] // content-ok: CSS selector list
       if (!targets.length) return
 
       gsap.fromTo(

@@ -9,21 +9,26 @@ responsibilities:
   - Backend delivery in Node.js and Python
   - Migration planning against live production constraints
   - Technical liaison between client stakeholders and delivery teams
-learned: Consulting teaches you that the best architecture is the one a client's team can actually operate after you leave. Constraints are the brief, not an obstacle to it.
-roles: [Architecture, Backend, AWS]
-client: Reply
-years: 2021 — 2023
-# ⚠️ PLACEHOLDER VALUES. PRODUCT.md forbids fabricated metrics on this site.
-# Every `spec` value below is INVENTED. Replace each one with a real value, then
-# set specPlaceholder to false. `pnpm check:content` warns while this is true and
-# `pnpm deploy` refuses to ship it.
-specPlaceholder: true
-spec:
-  - { label: Domain, value: Enterprise / consulting }
-  - { label: Engagements, value: "6" }
-  - { label: Cloud, value: AWS }
-  - { label: Core stack, value: Node.js · Python · Terraform }
-  - { label: Largest system, value: 40 services }
-  - { label: Team span, value: 4 — 12 engineers }
+years: { from: 2021, to: 2023 }
+# ⚠️ DRAFT. `whoIWas`, `challenges` and `lessons` are drafted from the previous
+# copy, and every phase title and role weight below is a PLACEHOLDER. PRODUCT.md
+# forbids fabricated facts on this site. Replace them, then delete `draft: true`.
+# `pnpm check:content` warns while it is set and `pnpm deploy` refuses to ship.
+draft: true
+whoIWas: A backend engineer learning to design for systems that were already in production.
+challenges:
+  - Planning migrations against live production constraints
+  - Designing target-state architecture on AWS for systems nobody could switch off
+  - Being the technical link between client stakeholders and delivery teams
+lessons:
+  - The best architecture is the one a client's team can actually operate after you leave.
+  - Constraints are the brief, not an obstacle to it.
+phases:
+  - id: engineer
+    title: Backend Engineer
+    roles: { backend: 3, architecture: 1 }
+  - id: architect
+    title: Cloud Architect
+    roles: { backend: 1, architecture: 3, client-liaison: 2 }
 projects: []
 ---

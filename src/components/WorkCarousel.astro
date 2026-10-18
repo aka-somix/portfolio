@@ -23,17 +23,12 @@ const labels = (await ui()).work
           <WorkCard
             title={work.data.title}
             arena={work.data.arena}
-            lede={work.data.lede}
-            responsibilities={work.data.responsibilities}
-            learned={work.data.learned}
-            roles={work.data.roles}
-            client={work.data.client}
             years={work.data.years}
-            spec={work.data.spec}
-            specPlaceholder={work.data.specPlaceholder}
+            whoIWas={work.data.whoIWas}
+            challenges={work.data.challenges}
+            lessons={work.data.lessons}
+            phases={work.data.phases}
             slug={work.id}
-            index={i}
-            total={works.length}
           />
         ))}
       </div>
@@ -84,6 +79,7 @@ const labels = (await ui()).work
 <script>
   import { gsap } from "gsap"
   import { ScrollTrigger } from "gsap/ScrollTrigger"
+  import { revealRiver } from "../lib/river-motion"
   gsap.registerPlugin(ScrollTrigger)
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -109,13 +105,10 @@ const labels = (await ui()).work
     const swipeMode = window.matchMedia("(max-width: 900px)") // content-ok: media query
 
     function animateCardText(card: Element) {
+      // The river draws itself once; the text staggers in every time.
+      revealRiver(card.querySelector("[data-river]"))
       if (reduceMotion) return
-      // Below 900px the blocks and the spec sit inside a collapsed disclosure,
-      // so animating them would spend the stagger on nothing.
-      const sel = swipeMode.matches
-        ? [".card-arena", ".card-title", ".card-lede", ".card-meta", ".card-roles", ".card-fold"]
-        : [".card-arena", ".card-title", ".card-lede", ".card-block", ".card-roles", ".spec"]
-      const targets = sel.flatMap((q) => [...card.querySelectorAll(q)])
+      const targets = [...card.querySelectorAll(".card-head, .card-beat, .card-cta")] // content-ok: CSS selector list
       if (!targets.length) return
 
       gsap.fromTo(
@@ -206,22 +199,6 @@ const labels = (await ui()).work
       onEnter: () => animateCardText(cards[0]),
     })
   }
-
-  // === Chapter disclosure (small screens) ===
-  // One button drives two panels, because on a wide screen the copy blocks and
-  // the spec live in different columns and must not be wrapped together. State
-  // lives on the card, so CSS opens both at once. Owned here rather than in
-  // WorkCard so the injected script lands outside the carousel track.
-  document.querySelectorAll<HTMLButtonElement>("[data-fold-toggle]").forEach((btn) => {
-    const card = btn.closest<HTMLElement>(".work-card")
-    if (!card) return
-
-    btn.addEventListener("click", () => {
-      const open = card.dataset.fold !== "open"
-      card.dataset.fold = open ? "open" : "closed"
-      btn.setAttribute("aria-expanded", String(open))
-    })
-  })
 
   // === Certifications auto-scroll ===
   const certTrack = document.getElementById("cert-track")

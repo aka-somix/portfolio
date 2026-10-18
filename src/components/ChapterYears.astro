@@ -1,0 +1,21 @@
+---
+import { ui } from "../lib/content"
+
+export interface Props {
+  years: { from: number; to: number | "present" }
+}
+
+const { years } = Astro.props
+const labels = (await ui()).workCard
+---
+
+<!-- One line on purpose: whitespace between the spans would render. The
+     non-breaking spaces make a screen reader say "2021 to 2023". -->
+<span class="years tabular"><span>{years.from}</span><span class="years-sep" aria-hidden="true">·</span><span class="sr-only">&nbsp;{labels.yearsTo}&nbsp;</span><span>{years.to === "present" ? labels.present : years.to}</span></span>
+
+<style>
+  .years-sep {
+    padding: 0 0.5em;
+    opacity: 0.6;
+  }
+</style>

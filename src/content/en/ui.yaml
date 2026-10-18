@@ -38,17 +38,17 @@ work:
 
 workCard:
   held: What I held
-  taught: What it taught me
   cta: Look inside
   ctaAlt: 👀👀👀👀👀👀
-  # Small-screen only. Labels the disclosure that holds the two blocks above
-  # plus the spec panel, which are collapsed by default on a phone.
-  details: The details
-
-# Shared by the carousel card and the chapter page.
-workSpec:
-  client: Client
-  years: Years
+  # Visually hidden. Introduces the text version of the river for screen readers.
+  riverLabel: How my roles shifted through this chapter
+  whoIWas: Who I was
+  challenges: The challenges
+  lessons: What it taught me
+  # Year ranges render as "2021 · 2023". `yearsTo` is read aloud in place of
+  # the dot; `present` replaces the end year of an ongoing chapter.
+  yearsTo: to
+  present: Present
 
 workPage:
   back: All chapters
