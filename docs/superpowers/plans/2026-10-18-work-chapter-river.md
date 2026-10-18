@@ -29,6 +29,7 @@
 - On the chapter page the river sits **full width between the header and the body** instead of inside the 320px aside, which is too narrow for a river plus mouth labels. The aside keeps the year range and the role tags.
 - `PRODUCT.md` does not mention the spec panel or the Client row, so it needs no edit. `AGENTS.md` gets its test count corrected instead.
 - When a role ends before the last phase it has no mouth label, so the legend row (otherwise mobile only) is also shown on desktop for that chapter.
+- *Found during execution:* on small screens the last drawn title can be a middle phase (when the final title repeats), which collided with the first title. Each visible title now gets `--room-sm` (the space up to the other visible title) as its max width, and a middle title anchors left at its phase line. Implemented in `ChapterRiver.astro`.
 
 ## File map
 

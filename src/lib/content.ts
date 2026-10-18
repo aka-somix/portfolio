@@ -92,7 +92,6 @@ export const ui = () => data('ui', 'ui') as Promise<{
   work: { prevAriaLabel: string; nextAriaLabel: string }
   workCard: {
     held: string
-    taught: string
     cta: string
     ctaAlt: string
     riverLabel: string
@@ -102,7 +101,6 @@ export const ui = () => data('ui', 'ui') as Promise<{
     yearsTo: string
     present: string
   }
-  workSpec: { client: string; years: string }
   tinyverse: { stageAriaLabel: string; sunAriaLabel: string; open: string }
   workPage: {
     back: string

@@ -4,7 +4,9 @@ import BaseLayout from "../../layouts/BaseLayout.astro"
 import Nav from "../../components/Nav.astro"
 import Footer from "../../components/Footer.astro"
 import ChapterYears from "../../components/ChapterYears.astro"
-import { renderChapter, seo, site, ui, workChapters } from "../../lib/content"
+import ChapterRiver from "../../components/ChapterRiver.astro"
+import { rolesUsed } from "../../lib/river"
+import { renderChapter, roles, seo, site, ui, workChapters } from "../../lib/content"
 
 export async function getStaticPaths() {
   const chapters = await workChapters()
@@ -25,7 +27,10 @@ const { Content } = await renderChapter(chapter)
 const channels = await site()
 const labels = (await ui()).workPage
 const cardLabels = (await ui()).workCard
-const specLabels = (await ui()).workSpec
+// Tags are the roles the river shows, in role-list order: one source of truth.
+const roleList = (await roles()).items
+const roleNames = new Map(roleList.map((r) => [r.id, r.name]))
+const tags = rolesUsed(work.phases, roleList.map((r) => r.id)).map((id) => roleNames.get(id))
 const meta = await seo()
 
 /**
@@ -82,6 +87,12 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
         <p class="page-lede">{work.lede}</p>
       </header>
 
+      <!-- Position titles will link to #position-<id> sections once they exist
+           (pass phaseHref). Until then they are plain text. -->
+      <div class="page-river">
+        <ChapterRiver phases={work.phases} variant="page" />
+      </div>
+
       <div class="page-body">
         <div class="page-main">
           <section class="block">
@@ -92,8 +103,10 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
           </section>
 
           <section class="block">
-            <h2 class="block-title">{cardLabels.taught}</h2>
-            <p class="block-text">{work.learned}</p>
+            <h2 class="block-title">{cardLabels.lessons}</h2>
+            <ul class="block-list">
+              {work.lessons.map((item) => <li>{item}</li>)}
+            </ul>
           </section>
 
           {
@@ -151,30 +164,9 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
         </div>
 
         <aside class="page-side">
-          <dl
-            class="spec"
-            data-spec-placeholder={work.specPlaceholder ? "true" : undefined}
-          >
-            <div class="spec-row spec-row--head">
-              <dt>{specLabels.client}</dt>
-              <dd>{work.client}</dd>
-            </div>
-            <div class="spec-row spec-row--head">
-              <dt>{specLabels.years}</dt>
-              <dd><ChapterYears years={work.years} /></dd>
-            </div>
-            {
-              work.spec.map((row) => (
-                <div class="spec-row">
-                  <dt>{row.label}</dt>
-                  <dd class="tabular">{row.value}</dd>
-                </div>
-              ))
-            }
-          </dl>
-
+          <p class="side-years"><ChapterYears years={work.years} /></p>
           <div class="side-roles">
-            {work.roles.map((role) => <span class="role-tag">{role}</span>)}
+            {tags.map((name) => <span class="role-tag">{name}</span>)}
           </div>
         </aside>
       </div>
@@ -182,6 +174,17 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
   </div>
 
   <Footer />
+
+  <script>
+    import { gsap } from "gsap"
+    import { ScrollTrigger } from "gsap/ScrollTrigger"
+    import { revealRiver } from "../../lib/river-motion"
+
+    gsap.registerPlugin(ScrollTrigger)
+    document.querySelectorAll("[data-river]").forEach((river) => {
+      ScrollTrigger.create({ trigger: river, start: "top 85%", once: true, onEnter: () => revealRiver(river) })
+    })
+  </script>
 
   <script
     type="application/ld+json"
@@ -215,7 +218,7 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin: 24px 0 64px;
+    margin: 24px 0 48px;
   }
 
   .page-arena {
@@ -355,7 +358,7 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
     box-shadow: 0 14px 34px -14px color-mix(in srgb, var(--accent) 65%, transparent);
   }
 
-  /* --- Side spec panel ---------------------------------------------------- */
+  /* --- Side panel ---------------------------------------------------- */
 
   .page-side {
     position: sticky;
@@ -365,38 +368,19 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
     gap: 20px;
   }
 
-  .spec {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid color-mix(in srgb, var(--border-color) 22%, transparent);
+  .page-river {
+    margin: 0 0 64px;
   }
 
-  .spec-row {
-    display: grid;
-    grid-template-columns: minmax(80px, 0.8fr) 1.2fr;
-    gap: 12px;
-    align-items: baseline;
-    padding: 12px 0;
-    border-bottom: 1px solid
-      color-mix(in srgb, var(--border-color) 12%, transparent);
-  }
-
-  .spec-row dt {
+  .side-years {
+    font-family: var(--font-mono);
     font-size: var(--size-xs);
-    text-transform: uppercase;
     letter-spacing: var(--tracking-label);
-    color: color-mix(in srgb, var(--text-secondary) 72%, var(--bg-primary));
-  }
-
-  .spec-row dd {
-    font-size: var(--size-sm);
-    color: var(--text-primary);
-    text-align: right;
-  }
-
-  .spec-row--head dd {
+    text-transform: uppercase;
     color: var(--accent);
-    font-weight: var(--weight-medium);
+    font-variant-numeric: tabular-nums;
+    padding-bottom: 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 12%, transparent);
   }
 
   .side-roles {
@@ -433,14 +417,4 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
     }
   }
 
-  @media (max-width: 560px) {
-    .spec-row {
-      grid-template-columns: 1fr;
-      gap: 2px;
-    }
-
-    .spec-row dd {
-      text-align: left;
-    }
-  }
 </style>

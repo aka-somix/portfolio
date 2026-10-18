@@ -9,9 +9,6 @@ responsibilities:
   - Backend services for a production agritech platform
   - AI feature design, evaluation and deployment
   - Technical decisions under genuine time and headcount limits
-learned: A scale-up rewards architecture that can be wrong cheaply. You learn to pick the decisions worth defending and to leave the rest reversible.
-roles: [Architecture, Backend, AI Engineering]
-client: xFarm Technologies
 years: { from: 2023, to: present }
 # ⚠️ DRAFT. See the note in consultant.md.
 draft: true
@@ -33,13 +30,4 @@ phases:
   - id: ai
     title: Software Architect
     roles: { architecture: 3, backend: 1, ai-engineering: 3 }
-# ⚠️ PLACEHOLDER VALUES. See the note in consultant.md.
-specPlaceholder: true
-spec:
-  - { label: Domain, value: Agritech SaaS }
-  - { label: Cloud, value: AWS }
-  - { label: Core stack, value: Node.js · Python · PostgreSQL }
-  - { label: AI surface, value: LLM features in production }
-  - { label: Platform, value: Multi-tenant }
-  - { label: Team span, value: 8 — 20 engineers }
 ---

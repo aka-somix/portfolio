@@ -19,6 +19,16 @@ const names = new Map(roleList.map((r) => [r.id, r.name]))
 const label = (await ui()).workCard.riverLabel
 const geo = riverGeometry(phases, order)
 const colour = (i: number) => design.river[i]
+
+// Small screens draw only the first and last title, so each one may use the
+// room up to the other: wrapped, never overlapping.
+const first = geo.titles[0]
+const last = geo.titles.at(-1)!
+const roomSm = (t: (typeof geo.titles)[number]) => {
+  if (geo.titles.length === 1) return 100
+  if (t === first) return last.x - first.x
+  return t.edge === "end" ? t.x - first.x : 100 - t.x
+}
 ---
 
 <!-- The SVG only draws shapes and stretches to any width. Every word is HTML
@@ -40,7 +50,7 @@ const colour = (i: number) => design.river[i]
     {
       geo.titles.map((t) => {
         const href = phaseHref?.(phases[t.phaseIndex])
-        const style = `--x: ${t.x}%`
+        const style = `--x: ${t.x}%; --room-sm: ${roomSm(t)}%`
         return href ? (
           <a class="river-title" href={href} data-river-title data-edge={t.edge} data-x={t.x} style={style}>
             {t.title}
@@ -274,7 +284,19 @@ const colour = (i: number) => design.river[i]
 
     .river-title {
       white-space: normal;
-      max-width: 48%;
+      max-width: calc(var(--room-sm) - 12px);
+    }
+
+    /* A middle title shown here is the last one drawn: anchor it at its
+       phase line and let it run right, into its own room. */
+    .river-title[data-edge="mid"] {
+      transform: none;
+      text-align: left;
+    }
+
+    .river-title[data-edge="mid"]::after {
+      left: 0;
+      transform: none;
     }
   }
 </style>

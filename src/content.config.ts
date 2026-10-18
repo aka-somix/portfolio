@@ -70,7 +70,6 @@ const uiSchema = z.object({
   work: z.object({ prevAriaLabel: z.string(), nextAriaLabel: z.string() }),
   workCard: z.object({
     held: z.string(),
-    taught: z.string(),
     cta: z.string(),
     ctaAlt: z.string(),
     riverLabel: z.string(),
@@ -80,7 +79,6 @@ const uiSchema = z.object({
     yearsTo: z.string(),
     present: z.string(),
   }),
-  workSpec: z.object({ client: z.string(), years: z.string() }),
   tinyverse: z.object({
     stageAriaLabel: z.string(),
     sunAriaLabel: z.string(),
@@ -200,9 +198,6 @@ const workSchema = z.object({
   description: z.string(),
   lede: z.string(),
   responsibilities: z.array(z.string()).min(1),
-  learned: z.string(),
-  roles: z.array(z.string()).min(1),
-  client: z.string(),
   years: z
     .object({
       from: z.number().int(),
@@ -219,8 +214,6 @@ const workSchema = z.object({
     .min(2)
     .max(4)
     .refine((ps) => new Set(ps.map((p) => p.id)).size === ps.length, 'phase ids must be unique'),
-  specPlaceholder: z.boolean(),
-  spec: z.array(z.object({ label: z.string(), value: z.string() })).min(1),
   projects: z
     .array(z.object({ name: z.string(), summary: z.string(), outcome: z.string() }))
     .default([]),
