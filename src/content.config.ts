@@ -75,6 +75,11 @@ const uiSchema = z.object({
     ctaAlt: z.string(),
     details: z.string(),
     riverLabel: z.string(),
+    whoIWas: z.string(),
+    challenges: z.string(),
+    lessons: z.string(),
+    yearsTo: z.string(),
+    present: z.string(),
   }),
   workSpec: z.object({ client: z.string(), years: z.string() }),
   tinyverse: z.object({
@@ -181,6 +186,14 @@ const rolesSchema = z.object({
   items: z.array(z.object({ id: slug, name: z.string() })).min(1),
 })
 
+const phaseSchema = z.object({
+  id: slug,
+  title: z.string(),
+  roles: z
+    .record(slug, z.number().int().min(1).max(3))
+    .refine((r) => Object.keys(r).length > 0, 'a phase needs at least one role'),
+})
+
 const workSchema = z.object({
   order: z.number().int(),
   title: z.string(),
@@ -191,7 +204,22 @@ const workSchema = z.object({
   learned: z.string(),
   roles: z.array(z.string()).min(1),
   client: z.string(),
-  years: z.string(),
+  years: z
+    .object({
+      from: z.number().int(),
+      to: z.union([z.number().int(), z.literal('present')]),
+    })
+    .refine((y) => y.to === 'present' || y.to >= y.from, 'years.to is before years.from'),
+  /** Drafted copy and placeholder phases. Warns on build, blocks deploy. */
+  draft: z.boolean().default(false),
+  whoIWas: z.string(),
+  challenges: z.array(z.string()).min(1).max(4),
+  lessons: z.array(z.string()).min(1).max(3),
+  phases: z
+    .array(phaseSchema)
+    .min(2)
+    .max(4)
+    .refine((ps) => new Set(ps.map((p) => p.id)).size === ps.length, 'phase ids must be unique'),
   specPlaceholder: z.boolean(),
   spec: z.array(z.object({ label: z.string(), value: z.string() })).min(1),
   projects: z

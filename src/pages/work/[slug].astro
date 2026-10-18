@@ -3,6 +3,7 @@ import type { CollectionEntry } from "astro:content"
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import Nav from "../../components/Nav.astro"
 import Footer from "../../components/Footer.astro"
+import ChapterYears from "../../components/ChapterYears.astro"
 import { renderChapter, seo, site, ui, workChapters } from "../../lib/content"
 
 export async function getStaticPaths() {
@@ -160,7 +161,7 @@ const pageTitle = meta.pages.work.titleTemplate.replace("{title}", work.title)
             </div>
             <div class="spec-row spec-row--head">
               <dt>{specLabels.years}</dt>
-              <dd class="tabular">{work.years}</dd>
+              <dd><ChapterYears years={work.years} /></dd>
             </div>
             {
               work.spec.map((row) => (

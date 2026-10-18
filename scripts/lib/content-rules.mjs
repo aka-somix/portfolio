@@ -164,4 +164,24 @@ export function scanSource({ path, text, allow = [] }) {
   return violations
 }
 
+/**
+ * DRAFT: a work chapter still marked `draft: true` carries drafted copy and
+ * placeholder river data. Warns on build; `--strict` (deploy) fails on it.
+ */
+export function draftFlag({ path, text }) {
+  const index = text.split('\n').findIndex((l) => /^draft:\s*true\s*$/.test(l))
+  if (index === -1) return []
+  return [
+    {
+      path,
+      line: index + 1,
+      rule: 'DRAFT',
+      text: 'draft: true',
+      remedy:
+        'this chapter has drafted copy and placeholder phases (titles and role weights). Replace them with real facts and remove draft: true before deploying',
+      severity: 'warn',
+    },
+  ]
+}
+
 export const EXEMPT_FILES = EXEMPT

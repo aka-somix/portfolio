@@ -1,5 +1,7 @@
 import { getCollection, getEntry, render } from 'astro:content'
 import type { CollectionEntry, CollectionKey } from 'astro:content'
+import { design } from '../design.config'
+import { unknownRoles } from './river'
 
 /**
  * The ONLY module allowed to import `astro:content`. Components call the named
@@ -88,7 +90,18 @@ export const ui = () => data('ui', 'ui') as Promise<{
   services: { deckAriaLabel: string; prevAriaLabel: string; nextAriaLabel: string }
   serviceCard: { helpLabel: string; flipAriaSuffix: string }
   work: { prevAriaLabel: string; nextAriaLabel: string }
-  workCard: { held: string; taught: string; cta: string; ctaAlt: string; riverLabel: string }
+  workCard: {
+    held: string
+    taught: string
+    cta: string
+    ctaAlt: string
+    riverLabel: string
+    whoIWas: string
+    challenges: string
+    lessons: string
+    yearsTo: string
+    present: string
+  }
   workSpec: { client: string; years: string }
   tinyverse: { stageAriaLabel: string; sunAriaLabel: string; open: string }
   workPage: {
@@ -155,9 +168,30 @@ export const notFound = () => data('notFound', 'not-found') as Promise<{
   }
 }>
 
-/** Chapters in author-declared order. `entry.id` is the slug. */
+/**
+ * Chapters in author-declared order. `entry.id` is the slug. Throws when a
+ * chapter's river uses a role roles.yaml does not declare, or when roles
+ * outnumber the river palette: both would otherwise render a silent gap.
+ */
 export async function workChapters(): Promise<CollectionEntry<'work'>[]> {
   const all = await getCollection('work')
+  const { items } = await roles()
+  if (items.length > design.river.length) {
+    throw new Error(
+      `roles.yaml declares ${items.length} roles but the river palette in ` +
+        `src/design.config.ts has ${design.river.length} colours. Add a colour.`
+    )
+  }
+  const ids = items.map((r) => r.id)
+  for (const entry of all) {
+    const missing = unknownRoles(entry.data.phases, ids)
+    if (missing.length) {
+      throw new Error(
+        `Work chapter "${entry.id}" uses undeclared role(s): ${missing.join(', ')}. ` +
+          `Add them to src/content/${LOCALE}/roles.yaml.`
+      )
+    }
+  }
   return all.sort((a, b) => a.data.order - b.data.order)
 }
 

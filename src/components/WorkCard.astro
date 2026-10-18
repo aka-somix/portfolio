@@ -1,4 +1,5 @@
 ---
+import ChapterYears from "./ChapterYears.astro"
 import { ui } from "../lib/content"
 
 export interface Props {
@@ -9,7 +10,7 @@ export interface Props {
   learned: string
   roles: string[]
   client: string
-  years: string
+  years: { from: number; to: number | "present" }
   spec: { label: string; value: string }[]
   specPlaceholder: boolean
   slug: string
@@ -52,7 +53,7 @@ const specId = `spec-${slug}`
          line. -->
     <p class="card-meta">
       <span class="card-meta-client">{client}</span>
-      <span class="card-meta-years tabular">{years}</span>
+      <span class="card-meta-years"><ChapterYears years={years} /></span>
     </p>
 
     <!-- `display: contents` above 900px, so the desktop card is byte-identical
@@ -108,7 +109,7 @@ const specId = `spec-${slug}`
       </div>
       <div class="spec-row spec-row--head">
         <dt>{specLabels.years}</dt>
-        <dd class="tabular">{years}</dd>
+        <dd><ChapterYears years={years} /></dd>
       </div>
       {
         spec.map((row) => (

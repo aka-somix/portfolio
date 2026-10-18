@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { scanSource } from './content-rules.mjs'
+import { draftFlag, scanSource } from './content-rules.mjs'
 
 const scan = (text, path = 'src/components/X.astro') =>
   scanSource({ path, text, allow: [] })
@@ -135,4 +135,21 @@ test('exempt files are skipped entirely', () => {
     rules('export const design = { font: "Archivo Variable" }', 'src/design.config.ts'),
     []
   )
+})
+
+test('DRAFT warns on a chapter carrying draft: true, with its line', () => {
+  const v = draftFlag({
+    path: 'src/content/en/work/x.md',
+    text: '---\norder: 1\ndraft: true\n---\n',
+  })
+  assert.equal(v.length, 1)
+  assert.equal(v[0].rule, 'DRAFT')
+  assert.equal(v[0].severity, 'warn')
+  assert.equal(v[0].line, 3)
+})
+
+test('DRAFT is silent when draft is false or absent', () => {
+  const path = 'src/content/en/work/x.md'
+  assert.deepEqual(draftFlag({ path, text: '---\ndraft: false\n---\n' }), [])
+  assert.deepEqual(draftFlag({ path, text: '---\norder: 1\n---\n' }), [])
 })
