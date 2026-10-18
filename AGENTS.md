@@ -43,7 +43,7 @@ values live in `src/content/en/`, are validated by Zod schemas in
 - **Content** — all copy and data live in `src/content/en/**` (YAML + Markdown),
   schema-validated in `src/content.config.ts`, accessed via `src/lib/content.ts`.
   See `CONTENT.md`. There is no `src/data/` directory.
-- **No linter or typecheck script** is configured. The only tests are `pnpm test:content`, 16 unit tests covering the content-rules module only.
+- **No linter or typecheck script** is configured. The only tests are `pnpm test:content`: unit tests for the content-rules module and the river geometry (`src/lib/river.ts`).
 
 ## Project structure
 
