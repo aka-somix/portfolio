@@ -32,3 +32,4 @@ dist-baseline/
 
 # impeccable review captures (regenerated per run)
 .impeccable/review/
+.superpowers
