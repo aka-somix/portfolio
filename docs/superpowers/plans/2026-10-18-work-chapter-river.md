@@ -196,7 +196,7 @@ Create `src/lib/river.ts`:
 /**
  * Geometry for the river of roles: a streamgraph of how a chapter's role mix
  * shifted across its phases. Pure and DOM-free, so it is unit-tested with
- * `node --test` (scripts/lib/river.test.mjs) and drawn by ChapterRiver.astro.
+ * scripts/lib/river.test.mjs and drawn by ChapterRiver.astro.
  *
  * Coordinates live in a fixed VIEW_W × VIEW_H box. The SVG is stretched with
  * preserveAspectRatio="none", so every position the HTML overlay needs is also
