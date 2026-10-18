@@ -21,7 +21,7 @@ export const design = {
    * index, so a role is the same colour in every chapter. Add a colour when
    * you add a role: the build fails if roles outnumber colours.
    */
-  river: ["#a463c4", "#EEA727", "#e9dcf7", "#e0806a"],
+  river: ["#a463c4", "#EEA727", "#e9dcf7", "#e0806a", "#6fc3b2", "#8fb4f0", "#f2a7c3", "#c9d86b"],
   font: {
     /**
      * Three roles, three faces. Each has one job and does not do the others'.

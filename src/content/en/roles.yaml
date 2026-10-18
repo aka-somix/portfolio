@@ -4,5 +4,10 @@
 items:
   - { id: backend, name: Backend }
   - { id: architecture, name: Architecture }
-  - { id: ai-engineering, name: AI Engineering }
-  - { id: client-liaison, name: Client liaison }
+  - { id: ai, name: AI }
+  - { id: frontend, name: Frontend }
+  - { id: data, name: Data}
+  - { id: consultant, name: Consulting }
+  - { id: infrastructure, name: Infrastructure }
+  - { id: product, name: Product Management }
+
